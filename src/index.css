@@ -15,12 +15,13 @@
     &--ordered {
         list-style: decimal;
     }
+}
 
-    &-settings {
-        display: flex;
-
-        .cdx-settings-button {
-            width: 50%;
-        }
-    }
+.cdx-custom-settings {
+  display: flex;
+  border-bottom: 1px solid;
+  border-bottom-color: lightgrey;
+  padding-bottom: 3px;
+  max-width: 120px;
+  flex-wrap: wrap;
 }

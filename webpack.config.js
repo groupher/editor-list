@@ -9,7 +9,7 @@ module.exports = {
           {
             loader: 'babel-loader',
             query: {
-              presets: [ '@babel/preset-env' ],
+              presets: ['@babel/preset-env'],
             },
           },
         ]
@@ -37,6 +37,7 @@ module.exports = {
     publicPath: '/',
     filename: 'bundle.js',
     library: 'List',
-    libraryTarget: 'umd'
+    libraryTarget: 'umd',
+    libraryExport: 'default'
   }
 };

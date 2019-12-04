@@ -1,7 +1,8 @@
 /**
  * Build styles
  */
-require('./index.css').toString()
+import './index.css'
+import Ui from './ui'
 
 /**
  * @typedef {object} ListData
@@ -12,7 +13,7 @@ require('./index.css').toString()
 /**
  * List Tool for the Editor.js 2.0
  */
-class List {
+export default class List {
   /**
    * Allow to use native Enter behaviour
    * @returns {boolean}
@@ -31,9 +32,8 @@ class List {
    */
   static get toolbox() {
     return {
-      icon:
-        '<svg width="17" height="13" viewBox="0 0 17 13" xmlns="http://www.w3.org/2000/svg"> <path d="M5.625 4.85h9.25a1.125 1.125 0 0 1 0 2.25h-9.25a1.125 1.125 0 0 1 0-2.25zm0-4.85h9.25a1.125 1.125 0 0 1 0 2.25h-9.25a1.125 1.125 0 0 1 0-2.25zm0 9.85h9.25a1.125 1.125 0 0 1 0 2.25h-9.25a1.125 1.125 0 0 1 0-2.25zm-4.5-5a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25zm0-4.85a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25zm0 9.85a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25z"/></svg>',
-      title: this.i18n === 'en' ? 'List' : '列表',
+      icon: '<svg width="17" height="13" viewBox="0 0 17 13" xmlns="http://www.w3.org/2000/svg"> <path d="M5.625 4.85h9.25a1.125 1.125 0 0 1 0 2.25h-9.25a1.125 1.125 0 0 1 0-2.25zm0-4.85h9.25a1.125 1.125 0 0 1 0 2.25h-9.25a1.125 1.125 0 0 1 0-2.25zm0 9.85h9.25a1.125 1.125 0 0 1 0 2.25h-9.25a1.125 1.125 0 0 1 0-2.25zm-4.5-5a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25zm0-4.85a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25zm0 9.85a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25z"/></svg>',
+      title: this.i18n === 'en' ? 'List' : '列表类',
     }
   }
 
@@ -54,36 +54,20 @@ class List {
       wrapper: null,
     }
 
-    this.settings = [
-      {
-        name: 'unordered',
-        title: 'Unordered',
-        icon:
-          '<svg width="17" height="13" viewBox="0 0 17 13" xmlns="http://www.w3.org/2000/svg"> <path d="M5.625 4.85h9.25a1.125 1.125 0 0 1 0 2.25h-9.25a1.125 1.125 0 0 1 0-2.25zm0-4.85h9.25a1.125 1.125 0 0 1 0 2.25h-9.25a1.125 1.125 0 0 1 0-2.25zm0 9.85h9.25a1.125 1.125 0 0 1 0 2.25h-9.25a1.125 1.125 0 0 1 0-2.25zm-4.5-5a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25zm0-4.85a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25zm0 9.85a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25z"/></svg>',
-        default: true,
-      },
-      {
-        name: 'ordered',
-        title: 'Ordered',
-        icon:
-          '<svg width="17" height="13" viewBox="0 0 17 13" xmlns="http://www.w3.org/2000/svg"><path d="M5.819 4.607h9.362a1.069 1.069 0 0 1 0 2.138H5.82a1.069 1.069 0 1 1 0-2.138zm0-4.607h9.362a1.069 1.069 0 0 1 0 2.138H5.82a1.069 1.069 0 1 1 0-2.138zm0 9.357h9.362a1.069 1.069 0 0 1 0 2.138H5.82a1.069 1.069 0 0 1 0-2.137zM1.468 4.155V1.33c-.554.404-.926.606-1.118.606a.338.338 0 0 1-.244-.104A.327.327 0 0 1 0 1.59c0-.107.035-.184.105-.234.07-.05.192-.114.369-.192.264-.118.475-.243.633-.373.158-.13.298-.276.42-.438a3.94 3.94 0 0 1 .238-.298C1.802.019 1.872 0 1.975 0c.115 0 .208.042.277.127.07.085.105.202.105.351v3.556c0 .416-.15.624-.448.624a.421.421 0 0 1-.32-.127c-.08-.085-.121-.21-.121-.376zm-.283 6.664h1.572c.156 0 .275.03.358.091a.294.294 0 0 1 .123.25.323.323 0 0 1-.098.238c-.065.065-.164.097-.296.097H.629a.494.494 0 0 1-.353-.119.372.372 0 0 1-.126-.28c0-.068.027-.16.081-.273a.977.977 0 0 1 .178-.268c.267-.264.507-.49.722-.678.215-.188.368-.312.46-.371.165-.11.302-.222.412-.334.109-.112.192-.226.25-.344a.786.786 0 0 0 .085-.345.6.6 0 0 0-.341-.553.75.75 0 0 0-.345-.08c-.263 0-.47.11-.62.329-.02.029-.054.107-.101.235a.966.966 0 0 1-.16.295c-.059.069-.145.103-.26.103a.348.348 0 0 1-.25-.094.34.34 0 0 1-.099-.258c0-.132.031-.27.093-.413.063-.143.155-.273.279-.39.123-.116.28-.21.47-.282.189-.072.411-.107.666-.107.307 0 .569.045.786.137a1.182 1.182 0 0 1 .618.623 1.18 1.18 0 0 1-.096 1.083 2.03 2.03 0 0 1-.378.457c-.128.11-.344.282-.646.517-.302.235-.509.417-.621.547a1.637 1.637 0 0 0-.148.187z"/></svg>',
-        default: false,
-      },
-      {
-        name: 'todo',
-        title: '待办项',
-        icon:
-          '<svg width="15" t="1575378523431" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="17057" width="200" height="200"><path d="M950.629283 239.252336c0-15.950156-6.380062-31.900312-19.140186-44.660436-12.760125-9.570093-25.520249-15.950156-41.470405-15.950155s-31.900312 6.380062-44.660437 19.140186L513.595016 590.155763l-197.781932-220.112149c-12.760125-12.760125-28.71028-15.950156-41.470405-15.950156-15.950156 0-31.900312 6.380062-44.660436 19.140187-12.760125 12.760125-15.950156 28.71028-15.950156 41.470405 0 15.950156 6.380062 31.900312 19.140187 44.660436l245.632399 267.962617c12.760125 9.570093 25.520249 15.950156 41.470405 15.950156h3.190031c15.950156 0 31.900312-6.380062 44.660436-19.140187L934.679128 280.722741c12.760125-9.570093 15.950156-25.520249 15.950155-41.470405" p-id="17058"></path><path d="M1020.809969 488.074766s0-3.190031 0 0v-3.190031-3.190031c-3.190031-31.900312-28.71028-54.23053-57.420561-54.23053-31.900312 0-57.420561 25.520249-57.420561 57.420561v28.710281c0 108.461059-44.660436 207.352025-114.841121 277.53271-70.180685 70.180685-169.071651 114.841121-277.53271 114.841121s-207.352025-44.660436-277.532711-114.841121-118.031153-169.071651-118.031152-277.53271c0-108.461059 44.660436-207.352025 114.841121-277.532711 70.180685-70.180685 169.071651-114.841121 277.53271-114.841121 63.800623 0 124.411215 15.950156 175.451714 41.470405h6.380062c3.190031 0 9.570093 3.190031 15.950156 3.190031 31.900312 0 60.610592-25.520249 60.610592-60.610592 0-25.520249-15.950156-47.850467-38.280374-54.23053-66.990654-31.900312-143.551402-51.040498-223.302181-51.040498C229.682243 3.190031 0 232.872274 0 513.595016s229.682243 510.404984 510.404984 510.404984 510.404984-229.682243 510.404985-510.404984v-25.52025z" p-id="17059"></path></svg>',
-        default: false,
-      },
-    ]
+    /**
+     * Module for working with UI
+     */
+    this.ui = new Ui({
+      api,
+      config: this.config,
+    })
 
     /**
      * Tool's data
      * @type {ListData}
      * */
     this._data = {
-      style: this.settings.find(tune => tune.default === true).name,
+      style: this.ui.settings.find(tune => tune.default === true).name,
       items: [],
     }
 
@@ -197,37 +181,7 @@ class List {
    * @public
    */
   renderSettings() {
-    const wrapper = this._make('div', [this.CSS.settingsWrapper], {})
-
-    this.settings.forEach(item => {
-      const itemEl = this._make('div', this.CSS.settingsButton, {
-        innerHTML: item.icon,
-      })
-
-      itemEl.addEventListener('click', () => {
-        this.toggleTune(item.name)
-
-        // clear other buttons
-        const buttons = itemEl.parentNode.querySelectorAll(
-          '.' + this.CSS.settingsButton
-        )
-
-        Array.from(buttons).forEach(button =>
-          button.classList.remove(this.CSS.settingsButtonActive)
-        )
-
-        // mark active
-        itemEl.classList.toggle(this.CSS.settingsButtonActive)
-      })
-
-      if (this._data.style === item.name) {
-        itemEl.classList.add(this.CSS.settingsButtonActive)
-      }
-
-      wrapper.appendChild(itemEl)
-    })
-
-    return wrapper
+    return this.ui.renderSettings()
   }
 
   /**
@@ -279,9 +233,6 @@ class List {
       wrapperOrdered: 'cdx-list--ordered',
       wrapperUnordered: 'cdx-list--unordered',
       item: 'cdx-list__item',
-      settingsWrapper: 'cdx-list-settings',
-      settingsButton: this.api.styles.settingsButton,
-      settingsButtonActive: this.api.styles.settingsButtonActive,
     }
   }
 
@@ -295,7 +246,7 @@ class List {
     }
 
     this._data.style =
-      listData.style || this.settings.find(tune => tune.default === true).name
+      listData.style || this.ui.settings.find(tune => tune.default === true).name
     this._data.items = listData.items || []
 
     const oldView = this._elements.wrapper
@@ -463,5 +414,3 @@ class List {
     return data
   }
 }
-
-module.exports = List
