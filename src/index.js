@@ -1,8 +1,7 @@
-/**
- * Build styles
- */
-import './index.css'
-import Ui from './ui'
+import { make } from "@groupher/editor-utils";
+
+import "./index.css";
+import Ui from "./ui";
 
 /**
  * @typedef {object} ListData
@@ -20,7 +19,7 @@ export default class List {
    * @public
    */
   static get enableLineBreaks() {
-    return true
+    return true;
   }
 
   /**
@@ -32,9 +31,10 @@ export default class List {
    */
   static get toolbox() {
     return {
-      icon: '<svg width="17" height="13" viewBox="0 0 17 13" xmlns="http://www.w3.org/2000/svg"> <path d="M5.625 4.85h9.25a1.125 1.125 0 0 1 0 2.25h-9.25a1.125 1.125 0 0 1 0-2.25zm0-4.85h9.25a1.125 1.125 0 0 1 0 2.25h-9.25a1.125 1.125 0 0 1 0-2.25zm0 9.85h9.25a1.125 1.125 0 0 1 0 2.25h-9.25a1.125 1.125 0 0 1 0-2.25zm-4.5-5a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25zm0-4.85a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25zm0 9.85a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25z"/></svg>',
-      title: this.i18n === 'en' ? 'List' : '列表类',
-    }
+      icon:
+        '<svg width="17" height="13" viewBox="0 0 17 13" xmlns="http://www.w3.org/2000/svg"> <path d="M5.625 4.85h9.25a1.125 1.125 0 0 1 0 2.25h-9.25a1.125 1.125 0 0 1 0-2.25zm0-4.85h9.25a1.125 1.125 0 0 1 0 2.25h-9.25a1.125 1.125 0 0 1 0-2.25zm0 9.85h9.25a1.125 1.125 0 0 1 0 2.25h-9.25a1.125 1.125 0 0 1 0-2.25zm-4.5-5a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25zm0-4.85a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25zm0 9.85a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25z"/></svg>',
+      title: this.i18n === "en" ? "List" : "列表类"
+    };
   }
 
   /**
@@ -51,16 +51,16 @@ export default class List {
      * @private
      */
     this._elements = {
-      wrapper: null,
-    }
+      wrapper: null
+    };
 
     /**
      * Module for working with UI
      */
     this.ui = new Ui({
       api,
-      config: this.config,
-    })
+      config: this.config
+    });
 
     /**
      * Tool's data
@@ -68,12 +68,12 @@ export default class List {
      * */
     this._data = {
       style: this.ui.settings.find(tune => tune.default === true).name,
-      items: [],
-    }
+      items: []
+    };
 
-    this.api = api
-    this.i18n = config.i18n || 'en'
-    this.data = data
+    this.api = api;
+    this.i18n = config.i18n || "en";
+    this.data = data;
   }
 
   /**
@@ -83,50 +83,50 @@ export default class List {
    */
   render() {
     const style =
-      this._data.style === 'ordered'
+      this._data.style === "ordered"
         ? this.CSS.wrapperOrdered
-        : this.CSS.wrapperUnordered
+        : this.CSS.wrapperUnordered;
 
-    this._elements.wrapper = this._make(
-      'ul',
+    this._elements.wrapper = make(
+      "ul",
       [this.CSS.baseBlock, this.CSS.wrapper, style],
       {
-        contentEditable: true,
+        contentEditable: true
       }
-    )
+    );
 
     // fill with data
     if (this._data.items.length) {
       this._data.items.forEach(item => {
         this._elements.wrapper.appendChild(
-          this._make('li', this.CSS.item, {
-            innerHTML: item,
+          make("li", this.CSS.item, {
+            innerHTML: item
           })
-        )
-      })
+        );
+      });
     } else {
-      this._elements.wrapper.appendChild(this._make('li', this.CSS.item))
+      this._elements.wrapper.appendChild(make("li", this.CSS.item));
     }
 
     // detect keydown on the last item to escape List
     this._elements.wrapper.addEventListener(
-      'keydown',
+      "keydown",
       event => {
-        const [ENTER, BACKSPACE] = [13, 8] // key codes
+        const [ENTER, BACKSPACE] = [13, 8]; // key codes
 
         switch (event.keyCode) {
           case ENTER:
-            this.getOutofList(event)
-            break
+            this.getOutofList(event);
+            break;
           case BACKSPACE:
-            this.backspace(event)
-            break
+            this.backspace(event);
+            break;
         }
       },
       false
-    )
+    );
 
-    return this._elements.wrapper
+    return this._elements.wrapper;
   }
 
   /**
@@ -134,7 +134,7 @@ export default class List {
    * @public
    */
   save() {
-    return this.data
+    return this.data;
   }
 
   /**
@@ -148,7 +148,7 @@ export default class List {
        * @return {string}
        */
       export: data => {
-        return data.items.join('. ')
+        return data.items.join(". ");
       },
       /**
        * To create a list from other block's string, just put it at the first item
@@ -158,10 +158,10 @@ export default class List {
       import: string => {
         return {
           items: [string],
-          style: 'unordered',
-        }
-      },
-    }
+          style: "unordered"
+        };
+      }
+    };
   }
 
   /**
@@ -171,9 +171,9 @@ export default class List {
     return {
       style: {},
       items: {
-        br: true,
-      },
-    }
+        br: true
+      }
+    };
   }
 
   /**
@@ -181,7 +181,7 @@ export default class List {
    * @public
    */
   renderSettings() {
-    return this.ui.renderSettings()
+    return this.ui.renderSettings();
   }
 
   /**
@@ -190,9 +190,9 @@ export default class List {
    * @param {PasteEvent} event - event with pasted data
    */
   onPaste(event) {
-    const list = event.detail.data
+    const list = event.detail.data;
 
-    this.data = this.pasteHandler(list)
+    this.data = this.pasteHandler(list);
   }
 
   /**
@@ -201,8 +201,8 @@ export default class List {
    */
   static get pasteConfig() {
     return {
-      tags: ['OL', 'UL', 'LI'],
-    }
+      tags: ["OL", "UL", "LI"]
+    };
   }
 
   /**
@@ -212,14 +212,14 @@ export default class List {
   toggleTune(style) {
     this._elements.wrapper.classList.toggle(
       this.CSS.wrapperOrdered,
-      style === 'ordered'
-    )
+      style === "ordered"
+    );
     this._elements.wrapper.classList.toggle(
       this.CSS.wrapperUnordered,
-      style === 'unordered'
-    )
+      style === "unordered"
+    );
 
-    this._data.style = style
+    this._data.style = style;
   }
 
   /**
@@ -229,11 +229,11 @@ export default class List {
   get CSS() {
     return {
       baseBlock: this.api.styles.block,
-      wrapper: 'cdx-list',
-      wrapperOrdered: 'cdx-list--ordered',
-      wrapperUnordered: 'cdx-list--unordered',
-      item: 'cdx-list__item',
-    }
+      wrapper: "cdx-list",
+      wrapperOrdered: "cdx-list--ordered",
+      wrapperUnordered: "cdx-list--unordered",
+      item: "cdx-list__item"
+    };
   }
 
   /**
@@ -242,17 +242,18 @@ export default class List {
    */
   set data(listData) {
     if (!listData) {
-      listData = {}
+      listData = {};
     }
 
     this._data.style =
-      listData.style || this.ui.settings.find(tune => tune.default === true).name
-    this._data.items = listData.items || []
+      listData.style ||
+      this.ui.settings.find(tune => tune.default === true).name;
+    this._data.items = listData.items || [];
 
-    const oldView = this._elements.wrapper
+    const oldView = this._elements.wrapper;
 
     if (oldView) {
-      oldView.parentNode.replaceChild(this.render(), oldView)
+      oldView.parentNode.replaceChild(this.render(), oldView);
     }
   }
 
@@ -261,43 +262,19 @@ export default class List {
    * @return {ListData}
    */
   get data() {
-    this._data.items = []
+    this._data.items = [];
 
-    const items = this._elements.wrapper.querySelectorAll(`.${this.CSS.item}`)
+    const items = this._elements.wrapper.querySelectorAll(`.${this.CSS.item}`);
 
     for (let i = 0; i < items.length; i++) {
-      const value = items[i].innerHTML.replace('<br>', ' ').trim()
+      const value = items[i].innerHTML.replace("<br>", " ").trim();
 
       if (value) {
-        this._data.items.push(items[i].innerHTML)
+        this._data.items.push(items[i].innerHTML);
       }
     }
 
-    return this._data
-  }
-
-  /**
-   * Helper for making Elements with attributes
-   *
-   * @param  {string} tagName           - new Element tag name
-   * @param  {array|string} classNames  - list or name of CSS classname(s)
-   * @param  {Object} attributes        - any attributes
-   * @return {Element}
-   */
-  _make(tagName, classNames = null, attributes = {}) {
-    let el = document.createElement(tagName)
-
-    if (Array.isArray(classNames)) {
-      el.classList.add(...classNames)
-    } else if (classNames) {
-      el.classList.add(classNames)
-    }
-
-    for (let attrName in attributes) {
-      el[attrName] = attributes[attrName]
-    }
-
-    return el
+    return this._data;
   }
 
   /**
@@ -305,13 +282,13 @@ export default class List {
    * @return {Element}
    */
   get currentItem() {
-    let currentNode = window.getSelection().anchorNode
+    let currentNode = window.getSelection().anchorNode;
 
     if (currentNode.nodeType !== Node.ELEMENT_NODE) {
-      currentNode = currentNode.parentNode
+      currentNode = currentNode.parentNode;
     }
 
-    return currentNode.closest(`.${this.CSS.item}`)
+    return currentNode.closest(`.${this.CSS.item}`);
   }
 
   /**
@@ -320,24 +297,24 @@ export default class List {
    * @param {KeyboardEvent} event
    */
   getOutofList(event) {
-    const items = this._elements.wrapper.querySelectorAll('.' + this.CSS.item)
+    const items = this._elements.wrapper.querySelectorAll("." + this.CSS.item);
     /**
      * Save the last one.
      */
     if (items.length < 2) {
-      return
+      return;
     }
 
-    const lastItem = items[items.length - 1]
-    const currentItem = this.currentItem
+    const lastItem = items[items.length - 1];
+    const currentItem = this.currentItem;
 
     /** Prevent Default li generation if item is empty */
     if (currentItem === lastItem && !lastItem.textContent.trim().length) {
       /** Insert New Block and set caret */
-      currentItem.parentElement.removeChild(currentItem)
-      this.api.blocks.insertNewBlock()
-      event.preventDefault()
-      event.stopPropagation()
+      currentItem.parentElement.removeChild(currentItem);
+      this.api.blocks.insertNewBlock();
+      event.preventDefault();
+      event.stopPropagation();
     }
   }
 
@@ -346,18 +323,18 @@ export default class List {
    * @param {KeyboardEvent} event
    */
   backspace(event) {
-    const items = this._elements.wrapper.querySelectorAll('.' + this.CSS.item),
-      firstItem = items[0]
+    const items = this._elements.wrapper.querySelectorAll("." + this.CSS.item),
+      firstItem = items[0];
 
     if (!firstItem) {
-      return
+      return;
     }
 
     /**
      * Save the last one.
      */
-    if (items.length < 2 && !firstItem.innerHTML.replace('<br>', ' ').trim()) {
-      event.preventDefault()
+    if (items.length < 2 && !firstItem.innerHTML.replace("<br>", " ").trim()) {
+      event.preventDefault();
     }
   }
 
@@ -366,17 +343,17 @@ export default class List {
    * @param {KeyboardEvent} event
    */
   selectItem(event) {
-    event.preventDefault()
+    event.preventDefault();
 
     const selection = window.getSelection(),
       currentNode = selection.anchorNode.parentNode,
-      currentItem = currentNode.closest('.' + this.CSS.item),
-      range = new Range()
+      currentItem = currentNode.closest("." + this.CSS.item),
+      range = new Range();
 
-    range.selectNodeContents(currentItem)
+    range.selectNodeContents(currentItem);
 
-    selection.removeAllRanges()
-    selection.addRange(range)
+    selection.removeAllRanges();
+    selection.addRange(range);
   }
 
   /**
@@ -386,31 +363,31 @@ export default class List {
    * @returns {ListData}
    */
   pasteHandler(element) {
-    const { tagName: tag } = element
-    let type
+    const { tagName: tag } = element;
+    let type;
 
     switch (tag) {
-      case 'OL':
-        type = 'ordered'
-        break
-      case 'UL':
-      case 'LI':
-        type = 'unordered'
+      case "OL":
+        type = "ordered";
+        break;
+      case "UL":
+      case "LI":
+        type = "unordered";
     }
 
     const data = {
       type,
-      items: [],
-    }
+      items: []
+    };
 
-    if (tag === 'LI') {
-      data.items = [element.innerHTML]
+    if (tag === "LI") {
+      data.items = [element.innerHTML];
     } else {
-      const items = Array.from(element.querySelectorAll('LI'))
+      const items = Array.from(element.querySelectorAll("LI"));
 
-      data.items = items.map(li => li.innerHTML).filter(item => !!item.trim())
+      data.items = items.map(li => li.innerHTML).filter(item => !!item.trim());
     }
 
-    return data
+    return data;
   }
 }
