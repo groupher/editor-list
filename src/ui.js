@@ -1,48 +1,16 @@
+import { make } from "@groupher/editor-utils";
+
+import iconList from "./icons";
+
 export default class Ui {
   constructor({ api, config }) {
-    this.api = api
-    this.config = config
+    this.api = api;
+    this.config = config;
 
-    this._data = {}
-    this.element = null
+    this._data = {};
+    this.element = null;
 
-    this.settings = [
-      {
-        name: 'unordered',
-        title: '无序列表',
-        icon:
-          '<svg width="17" height="13" viewBox="0 0 17 13" xmlns="http://www.w3.org/2000/svg"> <path d="M5.625 4.85h9.25a1.125 1.125 0 0 1 0 2.25h-9.25a1.125 1.125 0 0 1 0-2.25zm0-4.85h9.25a1.125 1.125 0 0 1 0 2.25h-9.25a1.125 1.125 0 0 1 0-2.25zm0 9.85h9.25a1.125 1.125 0 0 1 0 2.25h-9.25a1.125 1.125 0 0 1 0-2.25zm-4.5-5a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25zm0-4.85a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25zm0 9.85a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25z"/></svg>',
-        default: true,
-      },
-      {
-        name: 'ordered',
-        title: '有序列表',
-        icon:
-          '<svg width="17" height="13" viewBox="0 0 17 13" xmlns="http://www.w3.org/2000/svg"><path d="M5.819 4.607h9.362a1.069 1.069 0 0 1 0 2.138H5.82a1.069 1.069 0 1 1 0-2.138zm0-4.607h9.362a1.069 1.069 0 0 1 0 2.138H5.82a1.069 1.069 0 1 1 0-2.138zm0 9.357h9.362a1.069 1.069 0 0 1 0 2.138H5.82a1.069 1.069 0 0 1 0-2.137zM1.468 4.155V1.33c-.554.404-.926.606-1.118.606a.338.338 0 0 1-.244-.104A.327.327 0 0 1 0 1.59c0-.107.035-.184.105-.234.07-.05.192-.114.369-.192.264-.118.475-.243.633-.373.158-.13.298-.276.42-.438a3.94 3.94 0 0 1 .238-.298C1.802.019 1.872 0 1.975 0c.115 0 .208.042.277.127.07.085.105.202.105.351v3.556c0 .416-.15.624-.448.624a.421.421 0 0 1-.32-.127c-.08-.085-.121-.21-.121-.376zm-.283 6.664h1.572c.156 0 .275.03.358.091a.294.294 0 0 1 .123.25.323.323 0 0 1-.098.238c-.065.065-.164.097-.296.097H.629a.494.494 0 0 1-.353-.119.372.372 0 0 1-.126-.28c0-.068.027-.16.081-.273a.977.977 0 0 1 .178-.268c.267-.264.507-.49.722-.678.215-.188.368-.312.46-.371.165-.11.302-.222.412-.334.109-.112.192-.226.25-.344a.786.786 0 0 0 .085-.345.6.6 0 0 0-.341-.553.75.75 0 0 0-.345-.08c-.263 0-.47.11-.62.329-.02.029-.054.107-.101.235a.966.966 0 0 1-.16.295c-.059.069-.145.103-.26.103a.348.348 0 0 1-.25-.094.34.34 0 0 1-.099-.258c0-.132.031-.27.093-.413.063-.143.155-.273.279-.39.123-.116.28-.21.47-.282.189-.072.411-.107.666-.107.307 0 .569.045.786.137a1.182 1.182 0 0 1 .618.623 1.18 1.18 0 0 1-.096 1.083 2.03 2.03 0 0 1-.378.457c-.128.11-.344.282-.646.517-.302.235-.509.417-.621.547a1.637 1.637 0 0 0-.148.187z"/></svg>',
-        default: false,
-      },
-      {
-        name: 'todo',
-        title: '待办项',
-        icon:
-          '<svg width="15" t="1575424104866" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="17990" width="200" height="200"><path d="M204.748 958.97C91.852 958.97 0 867.12 0 754.22c0-112.896 91.852-204.748 204.748-204.748 72.25 0 139.916 38.724 176.586 101.064 8.15 13.858 3.524 31.698-10.33 39.846-13.858 8.154-31.696 3.524-39.846-10.33-26.258-44.636-74.696-72.364-126.412-72.364-80.8 0-146.534 65.734-146.534 146.534s65.734 146.536 146.534 146.536c50.808 0 97.268-25.746 124.284-68.862 8.538-13.626 26.5-17.746 40.118-9.216 13.622 8.538 17.746 26.5 9.212 40.118-37.724 60.22-102.628 96.172-173.612 96.172zM994.892 719.512H508.648c-16.076 0-29.108-13.034-29.108-29.108s13.032-29.108 29.108-29.108h486.244c16.074 0 29.108 13.034 29.108 29.108s-13.034 29.108-29.108 29.108zM812.552 847.146H508.648c-16.076 0-29.108-13.034-29.108-29.108s13.032-29.108 29.108-29.108h303.902c16.074 0 29.108 13.034 29.108 29.108s-13.03 29.108-29.106 29.108z" p-id="17991"></path><path d="M204.742 269.768m-175.634 0a175.634 175.634 0 1 0 351.268 0 175.634 175.634 0 1 0-351.268 0Z"  p-id="17992"></path><path d="M204.748 474.526C91.848 474.526 0 382.676 0 269.78 0 156.88 91.848 65.03 204.748 65.03S409.496 156.88 409.496 269.78c0.004 112.896-91.848 204.746-204.748 204.746z m0-351.282c-80.8 0-146.534 65.736-146.534 146.536s65.734 146.534 146.534 146.534 146.534-65.734 146.534-146.534-65.734-146.536-146.534-146.536zM994.892 235.07H508.648c-16.076 0-29.108-13.034-29.108-29.108s13.032-29.108 29.108-29.108h486.244c16.074 0 29.108 13.034 29.108 29.108s-13.034 29.108-29.108 29.108zM812.552 362.7H508.648c-16.076 0-29.108-13.034-29.108-29.108s13.032-29.108 29.108-29.108h303.902c16.074 0 29.108 13.034 29.108 29.108s-13.03 29.108-29.106 29.108z"  p-id="17993"></path></svg>',
-        default: false,
-      },
-      {
-        name: 'org-list',
-        title: '颜色标签',
-        icon:
-          '<svg width="18" t="1576900368370" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1117" width="200" height="200"><path d="M675.399487 297.001321 348.600513 297.001321c-16.406668 0-29.708626 13.301957-29.708626 29.708626s13.301957 29.708626 29.708626 29.708626l326.798974 0c16.406668 0 29.709649-13.301957 29.709649-29.708626S691.806155 297.001321 675.399487 297.001321z" p-id="1118"></path><path d="M675.399487 445.561845 348.600513 445.561845c-16.406668 0-29.708626 13.301957-29.708626 29.708626s13.301957 29.708626 29.708626 29.708626l326.798974 0c16.406668 0 29.709649-13.301957 29.709649-29.708626S691.806155 445.561845 675.399487 445.561845z" p-id="1119"></path><path d="M779.381723 66.36243 244.618277 66.36243c-49.149397 0-89.1269 40.110533-89.1269 89.418542l0 712.423729c0 49.310056 39.978527 89.432869 89.1269 89.432869 6.578836 0 12.974499-2.190899 18.183128-6.209422 71.116711-55.037501 202.079438-142.351102 250.827699-142.351102 47.959292 0.128937 177.225377 87.313601 247.445672 142.248771 5.219885 4.091178 11.668761 6.311753 18.304901 6.311753 49.14735 0 89.1269-40.123836 89.1269-89.432869L868.506577 155.780973C868.508623 106.472963 828.529073 66.36243 779.381723 66.36243zM809.090349 868.203678c0 13.548574-8.943696 25.040303-21.179368 28.752858-48.370661-37.092803-198.24511-147.096173-274.365788-147.297764-76.689636 0-228.601488 110.321618-277.377378 147.32744-12.280698-3.683902-21.258163-15.20326-21.258163-28.782533L214.909651 155.780973c0-16.535605 13.32447-30.000268 29.708626-30.000268l534.763446 0c16.384156 0 29.708626 13.464663 29.708626 30.000268L809.090349 868.203678z" p-id="1120"></path></svg>',
-        default: false,
-      },
-      {
-        name: 'org-list-solid',
-        title: '背景色标签',
-        icon:
-          '<svg width="18" t="1576900580584" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2434" width="200" height="200"><path d="M653.960192 341.332992H369.516544c-15.702016 0-28.444672-12.742656-28.444672-28.443648 0-15.702016 12.742656-28.444672 28.444672-28.444672h284.443648c15.702016 0 28.444672 12.742656 28.444672 28.444672 0 15.700992-12.742656 28.443648-28.444672 28.443648m0 170.667008H369.516544c-15.702016 0-28.444672-12.742656-28.444672-28.444672 0-15.700992 12.742656-28.444672 28.444672-28.444672h284.443648c15.702016 0 28.444672 12.74368 28.444672 28.444672 0 15.702016-12.742656 28.444672-28.444672 28.444672m142.22336-455.110656H227.293184c-31.460352 0-56.889344 25.428992-56.889344 56.88832v824.832c0 21.163008 22.300672 34.929664 41.187328 25.428992l274.716672-137.32864c15.985664-7.964672 34.873344-7.964672 50.859008 0l274.716672 137.32864c18.886656 9.500672 41.187328-4.265984 41.187328-25.428992v-824.832c0-31.459328-25.430016-56.88832-56.889344-56.88832" p-id="2435"></path></svg>',
-        default: false,
-      },
-    ]
+    this.settings = iconList;
   }
 
   /**
@@ -51,11 +19,49 @@ export default class Ui {
    */
   get CSS() {
     return {
-      baseClass: this.api.styles.block,
-      settingsWrapper: 'cdx-custom-settings',
+      baseBlock: this.api.styles.block,
+      // settings
+      settingsWrapper: "cdx-custom-settings",
       settingsButton: this.api.styles.settingsButton,
       settingsButtonActive: this.api.styles.settingsButtonActive,
+
+      // list
+      listWrapper: "cdx-list",
+      wrapperOrdered: "cdx-list--ordered",
+      wrapperUnordered: "cdx-list--unordered",
+      listItem: "cdx-list__item"
+    };
+  }
+
+  // 标准 ul/list 类条目
+  buildNormalList(items, type = "unordered") {
+    const WRAPPER_TAG = "ul";
+
+    const listClass =
+      type === "ordered" ? this.CSS.wrapperOrdered : this.CSS.wrapperUnordered;
+
+    const wrapper = make(
+      WRAPPER_TAG,
+      [this.CSS.baseBlock, this.CSS.listWrapper, listClass],
+      {
+        contentEditable: true
+      }
+    );
+
+    // fill with data
+    if (items.length) {
+      items.forEach(item => {
+        wrapper.appendChild(
+          make("li", this.CSS.listItem, {
+            innerHTML: item
+          })
+        );
+      });
+    } else {
+      wrapper.appendChild(make("li", this.CSS.listItem));
     }
+
+    return wrapper;
   }
 
   /**
@@ -63,61 +69,38 @@ export default class Ui {
    * @public
    */
   renderSettings() {
-    const wrapper = this._make('div', [this.CSS.settingsWrapper], {})
+    const wrapper = make("div", [this.CSS.settingsWrapper], {});
 
     this.settings.forEach(item => {
-      const itemEl = this._make('div', this.CSS.settingsButton, {
-        innerHTML: item.icon,
-      })
+      const itemEl = make("div", this.CSS.settingsButton, {
+        innerHTML: item.icon
+      });
 
-      this.api.tooltip.onHover(itemEl, item.title, { placement: 'top' })
+      this.api.tooltip.onHover(itemEl, item.title, { placement: "top" });
 
-      itemEl.addEventListener('click', () => {
-        this.toggleTune(item.name)
+      itemEl.addEventListener("click", () => {
+        this.toggleTune(item.name);
 
         // clear other buttons
         const buttons = itemEl.parentNode.querySelectorAll(
-          '.' + this.CSS.settingsButton
-        )
+          "." + this.CSS.settingsButton
+        );
 
         Array.from(buttons).forEach(button =>
           button.classList.remove(this.CSS.settingsButtonActive)
-        )
+        );
 
         // mark active
-        itemEl.classList.toggle(this.CSS.settingsButtonActive)
-      })
+        itemEl.classList.toggle(this.CSS.settingsButtonActive);
+      });
 
       if (this._data.style === item.name) {
-        itemEl.classList.add(this.CSS.settingsButtonActive)
+        itemEl.classList.add(this.CSS.settingsButtonActive);
       }
 
-      wrapper.appendChild(itemEl)
-    })
+      wrapper.appendChild(itemEl);
+    });
 
-    return wrapper
-  }
-
-  /**
-   * Helper method for elements creation
-   * @param tagName
-   * @param classNames
-   * @param attributes
-   * @return {HTMLElement}
-   */
-  _make(tagName, classNames = null, attributes = {}) {
-    const el = document.createElement(tagName)
-
-    if (Array.isArray(classNames)) {
-      el.classList.add(...classNames)
-    } else if (classNames) {
-      el.classList.add(classNames)
-    }
-
-    for (const attrName in attributes) {
-      el[attrName] = attributes[attrName]
-    }
-
-    return el
+    return wrapper;
   }
 }
