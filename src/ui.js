@@ -3,14 +3,19 @@ import { make } from "@groupher/editor-utils";
 import iconList from "./icons";
 
 export default class Ui {
-  constructor({ api, config }) {
+  constructor({ api, data, config, setTune }) {
     this.api = api;
     this.config = config;
 
-    this._data = {};
+    this._data = data;
     this.element = null;
 
     this.settings = iconList;
+    this.setTune = setTune;
+  }
+
+  setType(type) {
+    this._data.type = type;
   }
 
   /**
@@ -71,6 +76,7 @@ export default class Ui {
   renderSettings() {
     const wrapper = make("div", [this.CSS.settingsWrapper], {});
 
+    // this.clearSettingHighlight();
     this.settings.forEach(item => {
       const itemEl = make("div", this.CSS.settingsButton, {
         innerHTML: item.icon
@@ -78,23 +84,19 @@ export default class Ui {
 
       this.api.tooltip.onHover(itemEl, item.title, { placement: "top" });
 
+      if (this._data.type === item.style) {
+        itemEl.classList.add(this.CSS.settingsButtonActive);
+      }
+
       itemEl.addEventListener("click", () => {
-        this.toggleTune(item.name);
+        this.setTune(item.name);
 
-        // clear other buttons
-        const buttons = itemEl.parentNode.querySelectorAll(
-          "." + this.CSS.settingsButton
-        );
-
-        Array.from(buttons).forEach(button =>
-          button.classList.remove(this.CSS.settingsButtonActive)
-        );
-
+        this.clearSettingHighlight();
         // mark active
         itemEl.classList.toggle(this.CSS.settingsButtonActive);
       });
 
-      if (this._data.style === item.name) {
+      if (this._data.type === item.name) {
         itemEl.classList.add(this.CSS.settingsButtonActive);
       }
 
@@ -102,5 +104,20 @@ export default class Ui {
     });
 
     return wrapper;
+  }
+
+  /**
+   * clear highlight for all settings
+   * @private
+   */
+  clearSettingHighlight() {
+    // clear other buttons
+    const buttons = itemEl.parentNode.querySelectorAll(
+      "." + this.CSS.settingsButton
+    );
+
+    Array.from(buttons).forEach(button =>
+      button.classList.remove(this.CSS.settingsButtonActive)
+    );
   }
 }

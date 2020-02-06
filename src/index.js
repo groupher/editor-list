@@ -5,7 +5,7 @@ import Ui from "./ui";
 
 /**
  * @typedef {object} ListData
- * @property {string} style - can be ordered or unordered
+ * @property {string} type - can be ordered or unordered
  * @property {array} items - li elements
  */
 
@@ -55,25 +55,65 @@ export default class List {
     };
 
     /**
-     * Module for working with UI
-     */
-    this.ui = new Ui({
-      api,
-      config: this.config
-    });
-
-    /**
      * Tool's data
      * @type {ListData}
      * */
     this._data = {
-      style: this.ui.settings.find(tune => tune.default === true).name,
+      type: "unordered",
       items: []
     };
 
     this.api = api;
     this.i18n = config.i18n || "en";
-    this.data = data;
+    // this.data = data;
+
+    /**
+     * Module for working with UI
+     */
+    this.ui = new Ui({
+      api,
+      config: this.config,
+      data: this._data,
+      setTune: this.setTune.bind(this)
+    });
+  }
+
+  setTune(type) {
+    console.log("setTune type: ", type);
+    // console.log("setTune this.elements: ", this.elements.wrapper);
+
+    // this._data.type = type;
+    this.ui.setType(type);
+    switch (type) {
+      case "unordered": {
+        const unorderedList = this.ui.buildNormalList(
+          this._data.items,
+          "unordered"
+        );
+
+        this.replaceElement(unorderedList);
+        return false;
+      }
+      case "ordered": {
+        const orderedList = this.ui.buildNormalList(
+          this._data.items,
+          "ordered"
+        );
+
+        this.replaceElement(orderedList);
+        return false;
+      }
+      default:
+        return;
+    }
+  }
+
+  replaceElement(node) {
+    this.elements.wrapper.replaceWith(node);
+    this.elements.wrapper = node;
+
+    this.api.tooltip.hide();
+    this.api.toolbar.close();
   }
 
   /**
@@ -137,7 +177,7 @@ export default class List {
       import: string => {
         return {
           items: [string],
-          style: "unordered"
+          type: "unordered"
         };
       }
     };
@@ -148,7 +188,7 @@ export default class List {
    */
   static get sanitize() {
     return {
-      style: {},
+      type: {},
       items: {
         br: true
       }
@@ -161,44 +201,6 @@ export default class List {
    */
   renderSettings() {
     return this.ui.renderSettings();
-  }
-
-  /**
-   * On paste callback that is fired from Editor
-   *
-   * @param {PasteEvent} event - event with pasted data
-   */
-  onPaste(event) {
-    const list = event.detail.data;
-
-    this.data = this.pasteHandler(list);
-  }
-
-  /**
-   * List Tool on paste configuration
-   * @public
-   */
-  static get pasteConfig() {
-    return {
-      tags: ["OL", "UL", "LI"]
-    };
-  }
-
-  /**
-   * Toggles List style
-   * @param {string} style - 'ordered'|'unordered'
-   */
-  toggleTune(style) {
-    this.elements.wrapper.classList.toggle(
-      this.CSS.wrapperOrdered,
-      style === "ordered"
-    );
-    this.elements.wrapper.classList.toggle(
-      this.CSS.wrapperUnordered,
-      style === "unordered"
-    );
-
-    this._data.style = style;
   }
 
   /**
@@ -224,8 +226,8 @@ export default class List {
       listData = {};
     }
 
-    this._data.style =
-      listData.style ||
+    this._data.type =
+      listData.type ||
       this.ui.settings.find(tune => tune.default === true).name;
     this._data.items = listData.items || [];
 
@@ -333,40 +335,5 @@ export default class List {
 
     selection.removeAllRanges();
     selection.addRange(range);
-  }
-
-  /**
-   * Handle UL, OL and LI tags paste and returns List data
-   *
-   * @param {HTMLUListElement|HTMLOListElement|HTMLLIElement} element
-   * @returns {ListData}
-   */
-  pasteHandler(element) {
-    const { tagName: tag } = element;
-    let type;
-
-    switch (tag) {
-      case "OL":
-        type = "ordered";
-        break;
-      case "UL":
-      case "LI":
-        type = "unordered";
-    }
-
-    const data = {
-      type,
-      items: []
-    };
-
-    if (tag === "LI") {
-      data.items = [element.innerHTML];
-    } else {
-      const items = Array.from(element.querySelectorAll("LI"));
-
-      data.items = items.map(li => li.innerHTML).filter(item => !!item.trim());
-    }
-
-    return data;
   }
 }
