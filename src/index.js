@@ -59,7 +59,7 @@ export default class List {
      * @type {ListData}
      * */
     this._data = {
-      type: "unordered",
+      type: "checklist",
       items: []
     };
 
@@ -146,14 +146,21 @@ export default class List {
    * @public
    */
   render() {
-    this.elements.wrapper = this.ui.buildNormalList(
-      this._data.items,
-      "unordered"
-    );
+    // return this.ui.buildCheckList(this._data.items);
+    // return this.ui.buildUnOrderList(this._data.items);
+    // return this.ui.buildOrderList(this._data.items);
 
-    this.bindKeyDown(this.elements.wrapper);
+    return this.ui.buildList(this._data.items);
+    // return this.ui.buildList(this._data.items, "orderList");
 
-    return this.elements.wrapper;
+    // this.elements.wrapper = this.ui.buildNormalList(
+    //   this._data.items,
+    //   "unordered"
+    // );
+
+    // this.bindKeyDown(this.elements.wrapper);
+
+    // return this.elements.wrapper;
   }
 
   /**
@@ -161,7 +168,7 @@ export default class List {
    * @public
    */
   save() {
-    return this.data;
+    return {}; // this.data;
   }
 
   /**
