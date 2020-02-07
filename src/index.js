@@ -78,6 +78,7 @@ export default class List {
     });
   }
 
+  // handle setting option change
   setTune(type) {
     console.log("setTune type: ", type);
     // console.log("setTune this.elements: ", this.elements.wrapper);
@@ -108,12 +109,35 @@ export default class List {
     }
   }
 
+  /**
+   * replace element wrapper with new html element
+   * @param {HTMLElement} node
+   */
   replaceElement(node) {
     this.elements.wrapper.replaceWith(node);
     this.elements.wrapper = node;
 
+    this.bindKeyDown(this.elements.wrapper);
+
     this.api.tooltip.hide();
     this.api.toolbar.close();
+  }
+
+  bindKeyDown(node) {
+    // detect keydown on the last item to escape List
+    node.addEventListener(
+      "keydown",
+      event => {
+        const [ENTER] = [13]; // key codes
+
+        switch (event.keyCode) {
+          case ENTER:
+            this.getOutOfList(event);
+            break;
+        }
+      },
+      false
+    );
   }
 
   /**
@@ -127,23 +151,7 @@ export default class List {
       "unordered"
     );
 
-    // detect keydown on the last item to escape List
-    this.elements.wrapper.addEventListener(
-      "keydown",
-      event => {
-        const [ENTER, BACKSPACE] = [13, 8]; // key codes
-
-        switch (event.keyCode) {
-          case ENTER:
-            this.getOutofList(event);
-            break;
-          case BACKSPACE:
-            this.backspace(event);
-            break;
-        }
-      },
-      false
-    );
+    this.bindKeyDown(this.elements.wrapper);
 
     return this.elements.wrapper;
   }
@@ -213,7 +221,7 @@ export default class List {
       wrapper: "cdx-list",
       wrapperOrdered: "cdx-list--ordered",
       wrapperUnordered: "cdx-list--unordered",
-      item: "cdx-list__item"
+      listItem: "cdx-list__item"
     };
   }
 
@@ -245,7 +253,9 @@ export default class List {
   get data() {
     this._data.items = [];
 
-    const items = this.elements.wrapper.querySelectorAll(`.${this.CSS.item}`);
+    const items = this.elements.wrapper.querySelectorAll(
+      `.${this.CSS.listItem}`
+    );
 
     for (let i = 0; i < items.length; i++) {
       const value = items[i].innerHTML.replace("<br>", " ").trim();
@@ -262,14 +272,14 @@ export default class List {
    * Returns current List item by the caret position
    * @return {Element}
    */
-  get currentItem() {
+  get currentLi() {
     let currentNode = window.getSelection().anchorNode;
 
     if (currentNode.nodeType !== Node.ELEMENT_NODE) {
       currentNode = currentNode.parentNode;
     }
 
-    return currentNode.closest(`.${this.CSS.item}`);
+    return currentNode.closest(`.${this.CSS.listItem}`);
   }
 
   /**
@@ -277,45 +287,25 @@ export default class List {
    * by Enter on the empty last item
    * @param {KeyboardEvent} event
    */
-  getOutofList(event) {
-    const items = this.elements.wrapper.querySelectorAll("." + this.CSS.item);
+  getOutOfList(event) {
+    const items = this.elements.wrapper.querySelectorAll(
+      "." + this.CSS.listItem
+    );
     /**
      * Save the last one.
      */
-    if (items.length < 2) {
-      return;
-    }
+    if (items.length < 2) return;
 
     const lastItem = items[items.length - 1];
-    const currentItem = this.currentItem;
+    const currentLi = this.currentLi;
 
     /** Prevent Default li generation if item is empty */
-    if (currentItem === lastItem && !lastItem.textContent.trim().length) {
+    if (currentLi === lastItem && !lastItem.textContent.trim().length) {
       /** Insert New Block and set caret */
-      currentItem.parentElement.removeChild(currentItem);
+      currentLi.parentElement.removeChild(currentLi);
       this.api.blocks.insertNewBlock();
       event.preventDefault();
       event.stopPropagation();
-    }
-  }
-
-  /**
-   * Handle backspace
-   * @param {KeyboardEvent} event
-   */
-  backspace(event) {
-    const items = this.elements.wrapper.querySelectorAll("." + this.CSS.item),
-      firstItem = items[0];
-
-    if (!firstItem) {
-      return;
-    }
-
-    /**
-     * Save the last one.
-     */
-    if (items.length < 2 && !firstItem.innerHTML.replace("<br>", " ").trim()) {
-      event.preventDefault();
     }
   }
 
@@ -328,10 +318,10 @@ export default class List {
 
     const selection = window.getSelection(),
       currentNode = selection.anchorNode.parentNode,
-      currentItem = currentNode.closest("." + this.CSS.item),
+      currentLi = currentNode.closest("." + this.CSS.listItem),
       range = new Range();
 
-    range.selectNodeContents(currentItem);
+    range.selectNodeContents(currentLi);
 
     selection.removeAllRanges();
     selection.addRange(range);
