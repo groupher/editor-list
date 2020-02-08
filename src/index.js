@@ -2,6 +2,7 @@ import { make } from "@groupher/editor-utils";
 
 import "./index.css";
 import Ui from "./ui";
+import LN from "./LN";
 
 /**
  * @typedef {object} ListData
@@ -50,22 +51,22 @@ export default class List {
      * HTML nodes
      * @private
      */
-    this.elements = {
-      wrapper: null
-    };
+    this.element = null;
 
     /**
      * Tool's data
      * @type {ListData}
      * */
-    this._data = {
-      type: "checklist",
+    // the default
+    const defaultData = {
+      type: LN.UNORDERED_LIST,
       items: []
     };
 
+    this._data = this.isValidListData(data) ? data : defaultData;
+
     this.api = api;
     this.i18n = config.i18n || "en";
-    // this.data = data;
 
     /**
      * Module for working with UI
@@ -78,35 +79,30 @@ export default class List {
     });
   }
 
+  isValidListData(data) {
+    if (!(data && data.type && data.items && Array.isArray(data.items))) {
+      return false;
+    }
+
+    for (let index = 0; index < data.items.length; index++) {
+      const item = data.items[index];
+      if (!item.text) return false;
+    }
+
+    return (
+      data.type === LN.UNORDERED_LIST ||
+      data.type === LN.ORDERED_LIST ||
+      data.type === LN.CHECKLIST
+    );
+  }
+
   // handle setting option change
   setTune(type) {
-    console.log("setTune type: ", type);
-    // console.log("setTune this.elements: ", this.elements.wrapper);
+    // console.log("setTune type: ", type);
 
-    // this._data.type = type;
     this.ui.setType(type);
-    switch (type) {
-      case "unordered": {
-        const unorderedList = this.ui.buildNormalList(
-          this._data.items,
-          "unordered"
-        );
-
-        this.replaceElement(unorderedList);
-        return false;
-      }
-      case "ordered": {
-        const orderedList = this.ui.buildNormalList(
-          this._data.items,
-          "ordered"
-        );
-
-        this.replaceElement(orderedList);
-        return false;
-      }
-      default:
-        return;
-    }
+    const listElement = this.buildList(type);
+    this.replaceElement(listElement);
   }
 
   /**
@@ -114,30 +110,32 @@ export default class List {
    * @param {HTMLElement} node
    */
   replaceElement(node) {
-    this.elements.wrapper.replaceWith(node);
-    this.elements.wrapper = node;
-
-    this.bindKeyDown(this.elements.wrapper);
+    this.element.replaceWith(node);
+    this.element = node;
 
     this.api.tooltip.hide();
     this.api.toolbar.close();
   }
 
-  bindKeyDown(node) {
-    // detect keydown on the last item to escape List
-    node.addEventListener(
-      "keydown",
-      event => {
-        const [ENTER] = [13]; // key codes
-
-        switch (event.keyCode) {
-          case ENTER:
-            this.getOutOfList(event);
-            break;
-        }
-      },
-      false
-    );
+  /**
+   * build list element for render
+   * @param {string} type list type
+   * @return {HTMLElement} listElement
+   */
+  buildList(type) {
+    switch (type) {
+      case LN.UNORDERED_LIST: {
+        return this.ui.buildList(this._data);
+      }
+      case LN.ORDERED_LIST: {
+        return this.ui.buildList(this._data, type);
+      }
+      case LN.CHECKLIST: {
+        return this.ui.buildCheckList(this._data, type);
+      }
+      default:
+        return make("div", null, { innerHTML: "wrong list type" });
+    }
   }
 
   /**
@@ -146,21 +144,10 @@ export default class List {
    * @public
    */
   render() {
-    // return this.ui.buildCheckList(this._data.items);
-    // return this.ui.buildUnOrderList(this._data.items);
-    // return this.ui.buildOrderList(this._data.items);
+    const { type } = this._data;
+    this.element = this.buildList(type);
 
-    return this.ui.buildList(this._data.items);
-    // return this.ui.buildList(this._data.items, "orderList");
-
-    // this.elements.wrapper = this.ui.buildNormalList(
-    //   this._data.items,
-    //   "unordered"
-    // );
-
-    // this.bindKeyDown(this.elements.wrapper);
-
-    // return this.elements.wrapper;
+    return this.element;
   }
 
   /**
@@ -168,7 +155,7 @@ export default class List {
    * @public
    */
   save() {
-    return {}; // this.data;
+    return this.ui.data; // this.data;
   }
 
   /**
@@ -182,7 +169,8 @@ export default class List {
        * @return {string}
        */
       export: data => {
-        return data.items.join(". ");
+        // return data.items.join(". ");
+        return data.items[0].text;
       },
       /**
        * To create a list from other block's string, just put it at the first item
@@ -224,10 +212,7 @@ export default class List {
    */
   get CSS() {
     return {
-      baseBlock: this.api.styles.block,
       wrapper: "cdx-list",
-      wrapperOrdered: "cdx-list--ordered",
-      wrapperUnordered: "cdx-list--unordered",
       listItem: "cdx-list__item"
     };
   }
@@ -237,43 +222,44 @@ export default class List {
    * @param {ListData} listData
    */
   set data(listData) {
-    if (!listData) {
-      listData = {};
-    }
+    console.log("set data: ", listData);
+    // if (!listData) {
+    //   listData = {};
+    // }
 
-    this._data.type =
-      listData.type ||
-      this.ui.settings.find(tune => tune.default === true).name;
-    this._data.items = listData.items || [];
+    // this._data.type =
+    //   listData.type ||
+    //   this.ui.settings.find(tune => tune.default === true).name;
+    // this._data.items = listData.items || [];
 
-    const oldView = this.elements.wrapper;
+    // const oldView = this.elements.wrapper;
 
-    if (oldView) {
-      oldView.parentNode.replaceChild(this.render(), oldView);
-    }
+    // if (oldView) {
+    //   oldView.parentNode.replaceChild(this.render(), oldView);
+    // }
   }
 
   /**
    * Return List data
    * @return {ListData}
    */
-  get data() {
-    this._data.items = [];
+  // get data2() {
+  //   this._data.items = [];
 
-    const items = this.elements.wrapper.querySelectorAll(
-      `.${this.CSS.listItem}`
-    );
+  //   const items = this.elements.wrapper.querySelectorAll(
+  //     `.${this.CSS.listItem}`
+  //   );
 
-    for (let i = 0; i < items.length; i++) {
-      const value = items[i].innerHTML.replace("<br>", " ").trim();
+  //   for (let i = 0; i < items.length; i++) {
+  //     const value = items[i].innerHTML.replace("<br>", " ").trim();
 
-      if (value) {
-        this._data.items.push(items[i].innerHTML);
-      }
-    }
+  //     if (value) {
+  //       this._data.items.push(items[i].innerHTML);
+  //     }
+  //   }
 
-    return this._data;
-  }
+  //   return this._data;
+  // }
 
   /**
    * Returns current List item by the caret position

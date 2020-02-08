@@ -1,5 +1,7 @@
 import { make, moveCaretToEnd } from "@groupher/editor-utils";
 
+import LN from "./LN";
+
 import iconList from "./icons";
 
 export default class Ui {
@@ -7,10 +9,8 @@ export default class Ui {
     this.api = api;
     this.config = config;
 
-    this._data = {};
+    this._data = null;
     this.element = null;
-
-    this.hello = "fuck";
 
     this.settings = iconList;
     this.setTune = setTune;
@@ -58,15 +58,15 @@ export default class Ui {
 
   getCSS(type, key) {
     const N = {
-      unOrderList: {
+      [LN.UNORDERED_LIST]: {
         textField: "listTextField",
         item: "listItem"
       },
-      orderList: {
+      [LN.ORDERED_LIST]: {
         textField: "listTextField",
         item: "listItem"
       },
-      checklist: {
+      [LN.CHECKLIST]: {
         textField: "checklistTextField",
         item: "checklistItem"
       }
@@ -75,15 +75,31 @@ export default class Ui {
     return this.CSS[N[type][key]];
   }
 
+  // drop empty item when convert to other type of list
+  // otherwise will cause strange beheave
+  dropEmptyItem(items) {
+    let rawItems = [];
+    for (let index = 0; index < items.length; index += 1) {
+      const element = items[index];
+
+      if (element.innerText !== "") {
+        rawItems.push(element);
+      }
+    }
+
+    return rawItems;
+  }
+
   // 构建列表
-  buildList(items, listType = "unOrderList") {
-    this._data.items = items;
+  buildList(data, listType = LN.UNORDERED_LIST) {
+    this._data = data;
+    this._data.items = this.dropEmptyItem(data.items);
 
     const wrapper = make("div", [this.CSS.baseBlock, this.CSS.listWrapper]);
 
     if (this._data.items.length) {
-      this._data.items.forEach(item => {
-        const newItem = this.createListItem(item, listType);
+      this._data.items.forEach((item, index) => {
+        const newItem = this.createListItem(item, listType, index);
 
         // this._elements.items.push(newItem);
         wrapper.appendChild(newItem);
@@ -95,7 +111,7 @@ export default class Ui {
       wrapper.appendChild(newItem);
     }
 
-    if (listType === "orderList") {
+    if (listType === LN.ORDERED_LIST) {
       setTimeout(() => this.rebuildListIndex(wrapper), 100);
     }
 
@@ -105,27 +121,27 @@ export default class Ui {
   }
 
   // 待办项
-  buildCheckList(items) {
-    console.log("init items: ", items);
-    this._data.items = items;
+  buildCheckList(data) {
+    this._data = data;
+    this._data.items = this.dropEmptyItem(data.items);
 
     const wrapper = make("div", [this.CSS.baseBlock, this.CSS.listWrapper]);
 
     if (this._data.items.length) {
-      this._data.items.forEach(item => {
-        const newItem = this.createChecklistItem(item);
+      this._data.items.forEach((item, index) => {
+        const newItem = this.createChecklistItem(item, index);
 
         // this._elements.items.push(newItem);
         wrapper.appendChild(newItem);
       });
     } else {
-      const newItem = this.createChecklistItem();
+      const newItem = this.createChecklistItem(null);
 
       this._data.items.push(newItem);
       wrapper.appendChild(newItem);
     }
 
-    this.bindKeyDownEvent(wrapper, "checklist");
+    this.bindKeyDownEvent(wrapper, LN.CHECKLIST);
 
     wrapper.addEventListener("click", event => {
       this.toggleCheckbox(event);
@@ -176,6 +192,7 @@ export default class Ui {
     const lastItem = items[lastItemIndex].querySelector(`.${textFieldClass}`);
     const lastItemText = lastItem.innerHTML.replace("<br>", " ").trim();
 
+    const newItemIndex = lastItemIndex + 1;
     /**
      * Prevent checklist item generation if last item is empty and get out of checklist
      */
@@ -200,20 +217,21 @@ export default class Ui {
      */
     let newItem;
     switch (type) {
-      case "checklist": {
-        newItem = this.createChecklistItem();
+      case LN.CHECKLIST: {
+        newItem = this.createChecklistItem(null, newItemIndex);
         break;
       }
-      case "orderList": {
-        newItem = this.createListItem(null, "orderList");
+      case LN.ORDERED_LIST: {
+        newItem = this.createListItem(null, type, newItemIndex);
         break;
       }
-      case "unOrderList": {
-        newItem = this.createListItem(null, "unOrderList");
+      case LN.UNORDERED_LIST: {
+        newItem = this.createListItem(null, type, newItemIndex);
         break;
       }
       default: {
-        newItem = this.createChecklistItem();
+        console.log("wrong error type: ", type);
+        return false;
       }
     }
 
@@ -242,7 +260,7 @@ export default class Ui {
      */
     moveCaretToEnd(newItem.querySelector(`.${textFieldClass}`));
 
-    if (type === "orderList") {
+    if (type === LN.ORDERED_LIST) {
       this.rebuildListIndex(node);
     }
   }
@@ -252,28 +270,27 @@ export default class Ui {
    * @param {ChecklistData} item - data.item
    * @return {HTMLElement} checkListItem - new element of checklist
    */
-  createListItem(item = null, listType = "orderList") {
+  createListItem(item = null, listType = LN.ORDERED_LIST, itemIndex = 0) {
     const prefixClass =
-      listType === "orderList"
+      listType === LN.ORDERED_LIST
         ? this.CSS.orderListPrefix
         : this.CSS.unorderListPrefix;
 
-    const checkListItem = make("div", this.CSS.listItem);
+    const listItem = make("div", this.CSS.listItem);
     const prefix = make("span", prefixClass);
     const textField = make("div", this.CSS.listTextField, {
       innerHTML: item ? item.text : "",
       contentEditable: true
     });
 
-    // TODO:  if ordered
-    // if (item.checked) {
-    //   checkListItem.classList.add(this.CSS.checklistItemChecked);
-    // }
+    textField.addEventListener("input", ev => {
+      this._data.items[itemIndex].text = ev.target.innerHTML;
+    });
 
-    checkListItem.appendChild(prefix);
-    checkListItem.appendChild(textField);
+    listItem.appendChild(prefix);
+    listItem.appendChild(textField);
 
-    return checkListItem;
+    return listItem;
   }
 
   /**
@@ -281,22 +298,29 @@ export default class Ui {
    * @param {ChecklistData} item - data.item
    * @return {HTMLElement} checkListItem - new element of checklist
    */
-  createChecklistItem(item = {}) {
-    const checkListItem = make("div", this.CSS.checklistItem);
+  createChecklistItem(item = null, itemIndex = 0) {
+    const listItem = make("div", this.CSS.checklistItem, {
+      "data-index": itemIndex
+    });
     const checkbox = make("span", this.CSS.checklistBox);
     const textField = make("div", this.CSS.checklistTextField, {
-      innerHTML: item.text ? item.text : "",
+      innerHTML: item ? item.text : "",
       contentEditable: true
     });
 
-    if (item.checked) {
-      checkListItem.classList.add(this.CSS.checklistItemChecked);
+    if (item && item.checked) {
+      listItem.classList.add(this.CSS.checklistItemChecked);
+      this._data.items[itemIndex].checked = true;
     }
 
-    checkListItem.appendChild(checkbox);
-    checkListItem.appendChild(textField);
+    textField.addEventListener("input", ev => {
+      this._data.items[itemIndex].text = ev.target.innerHTML;
+    });
 
-    return checkListItem;
+    listItem.appendChild(checkbox);
+    listItem.appendChild(textField);
+
+    return listItem;
   }
 
   /**
@@ -307,7 +331,10 @@ export default class Ui {
     const checkListItem = event.target.closest(`.${this.CSS.checklistItem}`);
     const checkbox = checkListItem.querySelector(`.${this.CSS.checklistBox}`);
 
+    const itemIndex = checkListItem.dataset.index;
     if (checkbox.contains(event.target)) {
+      const curCheckState = this._data.items[itemIndex].checked;
+      this._data.items[itemIndex].checked = !curCheckState;
       checkListItem.classList.toggle(this.CSS.checklistItemChecked);
     }
   }
@@ -326,7 +353,7 @@ export default class Ui {
    * Handle backspace
    * @param {KeyboardEvent} event
    */
-  backspace(event, type = "unOrderList") {
+  backspace(event, type = LN.UNORDERED_LIST) {
     const textFieldClass = this.getCSS(type, "textField");
     const itemClass = this.getCSS(type, "item");
 
@@ -386,7 +413,7 @@ export default class Ui {
 
       this.api.tooltip.onHover(itemEl, item.title, { placement: "top" });
 
-      if (this._data.type === item.style) {
+      if (this._data.type === item.name) {
         itemEl.classList.add(this.CSS.settingsButtonActive);
       }
 
@@ -397,10 +424,6 @@ export default class Ui {
         // mark active
         itemEl.classList.toggle(this.CSS.settingsButtonActive);
       });
-
-      if (this._data.type === item.name) {
-        itemEl.classList.add(this.CSS.settingsButtonActive);
-      }
 
       wrapper.appendChild(itemEl);
     });
@@ -419,5 +442,13 @@ export default class Ui {
     Array.from(buttons).forEach(button =>
       button.classList.remove(this.CSS.settingsButtonActive)
     );
+  }
+
+  get data() {
+    return this._data;
+    // return {
+    //   type: "fuck",
+    //   items: ["fuck"]
+    // };
   }
 }

@@ -526,9 +526,9 @@
     lodash "^4.17.11"
     to-fast-properties "^2.0.0"
 
-"@groupher/editor-utils@0.1.14":
-  version "0.1.14"
-  resolved "https://registry.npm.taobao.org/@groupher/editor-utils/download/@groupher/editor-utils-0.1.14.tgz?cache=0&sync_timestamp=1581078060296&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40groupher%2Feditor-utils%2Fdownload%2F%40groupher%2Feditor-utils-0.1.14.tgz#0f3be063af9cfad5e07999a9d0ec0c673391f84b"
+"@groupher/editor-utils@0.1.15":
+  version "0.1.15"
+  resolved "https://registry.npm.taobao.org/@groupher/editor-utils/download/@groupher/editor-utils-0.1.15.tgz#1e226f729726312b8387dafa4af8c52ff761b45d"
 
 "@webassemblyjs/ast@1.8.3":
   version "1.8.3"
