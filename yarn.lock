@@ -526,6 +526,10 @@
     lodash "^4.17.11"
     to-fast-properties "^2.0.0"
 
+"@groupher/editor-utils@0.1.15":
+  version "0.1.15"
+  resolved "https://registry.npm.taobao.org/@groupher/editor-utils/download/@groupher/editor-utils-0.1.15.tgz#1e226f729726312b8387dafa4af8c52ff761b45d"
+
 "@webassemblyjs/ast@1.8.3":
   version "1.8.3"
   resolved "https://registry.yarnpkg.com/@webassemblyjs/ast/-/ast-1.8.3.tgz#63a741bd715a6b6783f2ea5c6ab707516aa215eb"
