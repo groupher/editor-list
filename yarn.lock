@@ -526,9 +526,9 @@
     lodash "^4.17.11"
     to-fast-properties "^2.0.0"
 
-"@groupher/editor-utils@0.1.15":
-  version "0.1.15"
-  resolved "https://registry.npm.taobao.org/@groupher/editor-utils/download/@groupher/editor-utils-0.1.15.tgz#1e226f729726312b8387dafa4af8c52ff761b45d"
+"@groupher/editor-utils@0.1.17":
+  version "0.1.17"
+  resolved "https://registry.npm.taobao.org/@groupher/editor-utils/download/@groupher/editor-utils-0.1.17.tgz#4df7996f35ac037805638ca985b22a0d75e90f1e"
 
 "@webassemblyjs/ast@1.8.3":
   version "1.8.3"
@@ -2569,6 +2569,10 @@ pkg-dir@^3.0.0:
   dependencies:
     find-up "^3.0.0"
 
+popper.js@^1.16.0:
+  version "1.16.1"
+  resolved "https://registry.npm.taobao.org/popper.js/download/popper.js-1.16.1.tgz#2a223cb3dc7b6213d740e40372be40de43e65b1b"
+
 posix-character-classes@^0.1.0:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/posix-character-classes/-/posix-character-classes-0.1.1.tgz#01eac0fe3b5af71a2a6c02feabb8c1fef7e00eab"
@@ -3236,6 +3240,12 @@ timers-browserify@^2.0.4:
   resolved "https://registry.yarnpkg.com/timers-browserify/-/timers-browserify-2.0.10.tgz#1d28e3d2aadf1d5a5996c4e9f95601cd053480ae"
   dependencies:
     setimmediate "^1.0.4"
+
+tippy.js@^5.2.0:
+  version "5.2.0"
+  resolved "https://registry.npm.taobao.org/tippy.js/download/tippy.js-5.2.0.tgz#5e5a13a196ad2e39c7ee6cac5bfdb0513e797501"
+  dependencies:
+    popper.js "^1.16.0"
 
 to-arraybuffer@^1.0.0:
   version "1.0.1"

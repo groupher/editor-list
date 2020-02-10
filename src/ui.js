@@ -1,8 +1,18 @@
-import { make, moveCaretToEnd } from "@groupher/editor-utils";
+import tippy, { hideAll } from "tippy.js";
+import "tippy.js/dist/tippy.css";
+import "tippy.js/themes/light.css";
+
+import {
+  make,
+  moveCaretToEnd,
+  debounce,
+  findIndex
+} from "@groupher/editor-utils";
 
 import LN from "./LN";
-
 import iconList from "./icons";
+
+const isDOM = el => el instanceof Element;
 
 export default class Ui {
   constructor({ api, data, config, setTune }) {
@@ -14,6 +24,9 @@ export default class Ui {
 
     this.settings = iconList;
     this.setTune = setTune;
+
+    // all the textField's data-index array
+    this.textFieldsIndexes = [];
   }
 
   setType(type) {
@@ -44,6 +57,12 @@ export default class Ui {
       listItem: "cdx-list__item",
       listUnOrderPrefix: "cdx-list__item-order-prefix",
 
+      // label
+      listLabel: "cdx-list-label",
+      labelGreen: "cdx-list-label__green",
+      labelRed: "cdx-list-label__red",
+      labelWarn: "cdx-list-label__warn",
+      labelDefault: "cdx-list-label__default",
       // wrapperOrdered: "cdx-list--ordered",
       // wrapperUnordered: "cdx-list--unordered",
 
@@ -90,34 +109,53 @@ export default class Ui {
     return rawItems;
   }
 
+  // TODO:
+  dropRawItem(items) {
+    let rawItems = [];
+    for (let index = 0; index < items.length; index += 1) {
+      const element = items[index];
+
+      if (isDOM(element)) {
+        rawItems.push(element);
+      }
+    }
+
+    return rawItems;
+  }
+
   // 构建列表
   buildList(data, listType = LN.UNORDERED_LIST) {
     this._data = data;
-    this._data.items = this.dropEmptyItem(data.items);
 
-    const wrapper = make("div", [this.CSS.baseBlock, this.CSS.listWrapper]);
+    const Wrapper = make("div", [this.CSS.baseBlock, this.CSS.listWrapper]);
 
     if (this._data.items.length) {
+      this._data.items = this.dropEmptyItem(data.items);
+
       this._data.items.forEach((item, index) => {
-        const newItem = this.createListItem(item, listType, index);
+        const NewItem = this.createListItem(item, listType, index);
 
-        // this._elements.items.push(newItem);
-        wrapper.appendChild(newItem);
+        this._data.items.push(NewItem);
+        Wrapper.appendChild(NewItem);
       });
+      // console.log("this._data.items: ", this._data.items);
+      this._data.items = this.dropRawItem(data.items);
     } else {
-      const newItem = this.createListItem(null, listType);
+      this._data.items = this.dropEmptyItem(data.items);
+      const NewItem = this.createListItem(null, listType);
 
-      this._data.items.push(newItem);
-      wrapper.appendChild(newItem);
+      this._data.items.push(NewItem);
+      Wrapper.appendChild(NewItem);
     }
 
     if (listType === LN.ORDERED_LIST) {
-      setTimeout(() => this.rebuildListIndex(wrapper), 100);
+      setTimeout(() => this.rebuildListIndex(Wrapper), 100);
     }
 
-    this.bindKeyDownEvent(wrapper, listType);
+    this.bindKeyDownEvent(Wrapper, listType);
 
-    return wrapper;
+    this.element = Wrapper;
+    return Wrapper;
   }
 
   // 待办项
@@ -125,29 +163,30 @@ export default class Ui {
     this._data = data;
     this._data.items = this.dropEmptyItem(data.items);
 
-    const wrapper = make("div", [this.CSS.baseBlock, this.CSS.listWrapper]);
+    const Wrapper = make("div", [this.CSS.baseBlock, this.CSS.listWrapper]);
 
     if (this._data.items.length) {
       this._data.items.forEach((item, index) => {
-        const newItem = this.createChecklistItem(item, index);
+        const NewItem = this.createChecklistItem(item, index);
 
         // this._elements.items.push(newItem);
-        wrapper.appendChild(newItem);
+        Wrapper.appendChild(NewItem);
       });
     } else {
-      const newItem = this.createChecklistItem(null);
+      const NewItem = this.createChecklistItem(null);
 
-      this._data.items.push(newItem);
-      wrapper.appendChild(newItem);
+      this._data.items.push(NewItem);
+      Wrapper.appendChild(NewItem);
     }
 
-    this.bindKeyDownEvent(wrapper, LN.CHECKLIST);
+    this.bindKeyDownEvent(Wrapper, LN.CHECKLIST);
 
-    wrapper.addEventListener("click", event => {
+    Wrapper.addEventListener("click", event => {
       this.toggleCheckbox(event);
     });
 
-    return wrapper;
+    this.element = Wrapper;
+    return Wrapper;
   }
 
   /**
@@ -187,12 +226,17 @@ export default class Ui {
     const itemClass = this.getCSS(type, "item");
 
     const items = this._data.items;
+
     const currentNode = window.getSelection().anchorNode;
     const lastItemIndex = items.length === 0 ? 0 : items.length - 1;
-    const lastItem = items[lastItemIndex].querySelector(`.${textFieldClass}`);
-    const lastItemText = lastItem.innerHTML.replace("<br>", " ").trim();
 
+    const lastItem = items[lastItemIndex].querySelector
+      ? items[lastItemIndex].querySelector(`.${textFieldClass}`)
+      : make("div", textFieldClass, { innerHTML: items[lastItemIndex].text });
+
+    const lastItemText = lastItem.innerHTML.replace("<br>", " ").trim();
     const newItemIndex = lastItemIndex + 1;
+
     /**
      * Prevent checklist item generation if last item is empty and get out of checklist
      */
@@ -239,11 +283,14 @@ export default class Ui {
      * Find closest list item
      */
     let currentItem = currentNode.parentNode.closest(`.${itemClass}`);
+    // console.log("currentItem: ", currentItem);
 
     /**
      * Insert new list item as sibling to currently selected item
      */
     node.insertBefore(newItem, currentItem.nextSibling);
+    // console.log("items: ", items);
+    // console.log("this._data.items: ", this._data.items);
 
     /**
      * Index of newly inserted checklist item
@@ -253,7 +300,8 @@ export default class Ui {
     /**
      * Add new list item to tags array
      */
-    items.splice(currentIndex, 0, newItem);
+    this._data.items.splice(currentIndex, 0, newItem);
+    // return false;
 
     /**
      * Move caret to contentEditable textField of new checklist item
@@ -266,6 +314,41 @@ export default class Ui {
   }
 
   /**
+   * fetch all the textField's data-index
+   * @return void
+   */
+  refreshTextFieldsIndexes() {
+    if (!this.element) return;
+    const allTextFields = this.element.querySelectorAll(
+      `.${this.CSS.listTextField}`
+    );
+
+    const textFieldsIndexes = [];
+    for (let index = 0; index < allTextFields.length; index++) {
+      const field = allTextFields[index];
+
+      textFieldsIndexes.push(field.dataset.index);
+    }
+
+    this.textFieldsIndexes = textFieldsIndexes;
+  }
+
+  labelPopover() {
+    const Wrapper = make("div", null, {
+      innerHTML: "hello world"
+    });
+
+    return {
+      content: Wrapper,
+      theme: "light",
+      // delay: 200,
+      trigger: "click",
+      placement: "bottom",
+      // allowing you to hover over and click inside them.
+      interactive: true
+    };
+  }
+  /**
    * Create Checklist items
    * @param {ChecklistData} item - data.item
    * @return {HTMLElement} checkListItem - new element of checklist
@@ -276,21 +359,52 @@ export default class Ui {
         ? this.CSS.orderListPrefix
         : this.CSS.unorderListPrefix;
 
-    const listItem = make("div", this.CSS.listItem);
-    const prefix = make("span", prefixClass);
-    const textField = make("div", this.CSS.listTextField, {
+    const ListItem = make("div", this.CSS.listItem);
+    const Prefix = make("span", prefixClass);
+
+    const randomColor = {
+      0: [this.CSS.listLabel, this.CSS.labelGreen],
+      1: [this.CSS.listLabel, this.CSS.labelRed],
+      2: [this.CSS.listLabel, this.CSS.labelWarn],
+      3: [this.CSS.listLabel, this.CSS.labelDefault]
+    };
+
+    const Label = make("div", randomColor[itemIndex], {
+      innerHTML: "已完成"
+    });
+
+    tippy(Label, this.labelPopover());
+
+    const TextField = make("div", this.CSS.listTextField, {
       innerHTML: item ? item.text : "",
+      "data-index": itemIndex,
       contentEditable: true
     });
 
-    textField.addEventListener("input", ev => {
-      this._data.items[itemIndex].text = ev.target.innerHTML;
-    });
+    TextField.addEventListener(
+      "input",
+      debounce(({ target }) => {
+        const allTextFields = this.element.querySelectorAll(
+          `.${this.CSS.listTextField}`
+        );
 
-    listItem.appendChild(prefix);
-    listItem.appendChild(textField);
+        this.refreshTextFieldsIndexes();
 
-    return listItem;
+        const updateIndex = findIndex(
+          this.textFieldsIndexes,
+          i => i === target.dataset.index
+        );
+        console.log("updateIndex: ", updateIndex);
+
+        this._data.items[updateIndex].text = target.innerHTML;
+      }, 300)
+    );
+
+    ListItem.appendChild(Prefix);
+    ListItem.appendChild(Label);
+    ListItem.appendChild(TextField);
+
+    return ListItem;
   }
 
   /**
@@ -299,28 +413,28 @@ export default class Ui {
    * @return {HTMLElement} checkListItem - new element of checklist
    */
   createChecklistItem(item = null, itemIndex = 0) {
-    const listItem = make("div", this.CSS.checklistItem, {
+    const ListItem = make("div", this.CSS.checklistItem, {
       "data-index": itemIndex
     });
-    const checkbox = make("span", this.CSS.checklistBox);
-    const textField = make("div", this.CSS.checklistTextField, {
+    const Checkbox = make("span", this.CSS.checklistBox);
+    const TextField = make("div", this.CSS.checklistTextField, {
       innerHTML: item ? item.text : "",
       contentEditable: true
     });
 
     if (item && item.checked) {
-      listItem.classList.add(this.CSS.checklistItemChecked);
+      ListItem.classList.add(this.CSS.checklistItemChecked);
       this._data.items[itemIndex].checked = true;
     }
 
-    textField.addEventListener("input", ev => {
+    TextField.addEventListener("input", ev => {
       this._data.items[itemIndex].text = ev.target.innerHTML;
     });
 
-    listItem.appendChild(checkbox);
-    listItem.appendChild(textField);
+    ListItem.appendChild(Checkbox);
+    ListItem.appendChild(TextField);
 
-    return listItem;
+    return ListItem;
   }
 
   /**
@@ -403,7 +517,7 @@ export default class Ui {
    * @public
    */
   renderSettings() {
-    const wrapper = make("div", [this.CSS.settingsWrapper], {});
+    const Wrapper = make("div", [this.CSS.settingsWrapper], {});
 
     // this.clearSettingHighlight();
     this.settings.forEach(item => {
@@ -425,10 +539,10 @@ export default class Ui {
         itemEl.classList.toggle(this.CSS.settingsButtonActive);
       });
 
-      wrapper.appendChild(itemEl);
+      Wrapper.appendChild(itemEl);
     });
 
-    return wrapper;
+    return Wrapper;
   }
 
   // TODO:  use utils function
@@ -445,10 +559,21 @@ export default class Ui {
   }
 
   get data() {
-    return this._data;
-    // return {
-    //   type: "fuck",
-    //   items: ["fuck"]
-    // };
+    const data = {};
+    data.type = this._data.type;
+    const items = [];
+
+    for (let index = 0; index < this._data.items.length; index += 1) {
+      const item = this._data.items[index];
+
+      if (isDOM(item)) {
+        const text = item.querySelector(`.${this.CSS.listTextField}`).innerHTML;
+        items.push({ text });
+      }
+    }
+    data.items = items;
+    return data;
+
+    // return this._data;
   }
 }
