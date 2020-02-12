@@ -71,7 +71,21 @@ export default class Ui {
       checklistItem: "cdx-checklist__item",
       checklistItemChecked: "cdx-checklist__item--checked",
       checklistBox: "cdx-checklist__item-checkbox",
-      checklistTextField: "cdx-checklist__item-text"
+      checklistTextField: "cdx-checklist__item-text",
+
+      // label
+      labelPopover: "label-popover",
+      labelPopoverInput: "label-popover-input",
+      labelPopoverInputGreen: "label-popover-input__green",
+      labelPopoverInputRed: "label-popover-input__red",
+      labelPopoverInputWarn: "label-popover-input__warn",
+      labelPopoverRow: "label-popover-row",
+      labelPopoverSpotActive: "label-popover-row-spot--active",
+      labelPopoverRowSpot: "label-popover-row-spot",
+      labelPopoverRowSpotGreen: "label-popover-row-spot__green",
+      labelPopoverRowSpotRed: "label-popover-row-spot__red",
+      labelPopoverRowSpotWarn: "label-popover-row-spot__warn",
+      labelPopoverRowSpotDefault: "label-popover-row-spot__default"
     };
   }
 
@@ -333,10 +347,76 @@ export default class Ui {
     this.textFieldsIndexes = textFieldsIndexes;
   }
 
-  labelPopover() {
-    const Wrapper = make("div", null, {
-      innerHTML: "hello world"
-    });
+  findTargetLabel(index) {
+    let targetClass = this.CSS.listLabel;
+
+    const targetLabels = this.element.querySelectorAll(`.${targetClass}`);
+
+    for (let index = 0; index < targetLabels.length; index += 1) {
+      const label = targetLabels[index];
+
+      if (label.dataset.index === String(index)) {
+        return label;
+      }
+    }
+
+    return null;
+  }
+
+  getCurLabelClass(color) {
+    let targetClass;
+    switch (color) {
+      case "red": {
+        return this.CSS.labelRed;
+      }
+      case "warn": {
+        return this.CSS.labelWarn;
+      }
+      case "default": {
+        return this.CSS.labelDefault;
+      }
+      default:
+        return this.CSS.labelGreen;
+    }
+  }
+
+  setLabelColor(index, color = "green") {
+    const TargetLabel = this.findTargetLabel(index, color);
+
+    console.log("TargetLabel: ", TargetLabel);
+    TargetLabel.classList.remove(this.CSS.labelGreen);
+    TargetLabel.classList.remove(this.CSS.labelRed);
+    TargetLabel.classList.remove(this.CSS.labelWarn);
+    TargetLabel.classList.remove(this.CSS.labelDefault);
+    TargetLabel.classList.add(this.getCurLabelClass(color));
+
+    const Row = this.element.querySelector(`.label-popover-row`);
+    const LabelPopoverRowSpotGreen = this.element.querySelector(
+      `.${this.CSS.labelPopoverRowSpotGreen}`
+    );
+    Row.removeChild(LabelPopoverRowSpotGreen);
+
+    console.log("this.Row after: ", Row);
+
+    // hideAll();
+  }
+
+  // popover conten
+  labelPopover(index) {
+    const Wrapper = make("div", this.CSS.labelPopover);
+    const InputBox = make(
+      "input",
+      [this.CSS.labelPopoverInput, this.CSS.labelPopoverInputGreen],
+      {
+        value: "已完成"
+      }
+    );
+
+    console.log("---> Row before ");
+    const Row = this.buildLabelRows();
+    console.log("---> Row: ", Row);
+    Wrapper.appendChild(InputBox);
+    Wrapper.appendChild(Row);
 
     return {
       content: Wrapper,
@@ -347,6 +427,45 @@ export default class Ui {
       // allowing you to hover over and click inside them.
       interactive: true
     };
+  }
+
+  buildLabelRows() {
+    const Row = make("div", this.CSS.labelPopoverRow);
+    const ActiveDot = make("div", this.CSS.labelPopoverSpotActive);
+
+    const SpotGreen = make("div", [
+      this.CSS.labelPopoverRowSpot,
+      this.CSS.labelPopoverRowSpotGreen
+    ]);
+    const SpotRed = make("div", [
+      this.CSS.labelPopoverRowSpot,
+      this.CSS.labelPopoverRowSpotRed
+    ]);
+    const SpotWarn = make("div", [
+      this.CSS.labelPopoverRowSpot,
+      this.CSS.labelPopoverRowSpotWarn
+    ]);
+    const SpotDefault = make("div", [
+      this.CSS.labelPopoverRowSpot,
+      this.CSS.labelPopoverRowSpotDefault
+    ]);
+
+    SpotGreen.addEventListener("click", () =>
+      this.setLabelColor(index, "green")
+    );
+    SpotRed.addEventListener("click", () => this.setLabelColor(index, "red"));
+    SpotWarn.addEventListener("click", () => this.setLabelColor(index, "warn"));
+    SpotDefault.addEventListener("click", () =>
+      this.setLabelColor(index, "default")
+    );
+
+    Row.appendChild(SpotGreen);
+    SpotRed.appendChild(ActiveDot);
+    Row.appendChild(SpotRed);
+    Row.appendChild(SpotWarn);
+    Row.appendChild(SpotDefault);
+
+    return Row;
   }
   /**
    * Create Checklist items
@@ -370,10 +489,11 @@ export default class Ui {
     };
 
     const Label = make("div", randomColor[itemIndex], {
-      innerHTML: "已完成"
+      innerHTML: "已完成",
+      "data-index": itemIndex
     });
 
-    tippy(Label, this.labelPopover());
+    tippy(Label, this.labelPopover(itemIndex));
 
     const TextField = make("div", this.CSS.listTextField, {
       innerHTML: item ? item.text : "",
