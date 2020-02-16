@@ -9,6 +9,7 @@ import {
   findIndex
 } from "@groupher/editor-utils";
 
+import OrgLabel from "./orgLabel";
 import LN from "./LN";
 import iconList from "./icons";
 
@@ -27,6 +28,10 @@ export default class Ui {
 
     // all the textField's data-index array
     this.textFieldsIndexes = [];
+
+    this.orgLabel = new OrgLabel({
+      api: this.api
+    });
   }
 
   setType(type) {
@@ -74,19 +79,7 @@ export default class Ui {
       checklistTextField: "cdx-checklist__item-text",
 
       // label
-      labelPopover: "label-popover",
-      labelPopoverInput: "label-popover-input",
-      labelPopoverInputGreen: "label-popover-input__green",
-      labelPopoverInputRed: "label-popover-input__red",
-      labelPopoverInputWarn: "label-popover-input__warn",
-      labelPopoverInputDefault: "label-popover-input__default",
-      labelPopoverRow: "label-popover-row",
-      labelPopoverSpotActive: "label-popover-row-spot--active",
-      labelPopoverRowSpot: "label-popover-row-spot",
-      labelPopoverRowSpotGreen: "label-popover-row-spot__green",
-      labelPopoverRowSpotRed: "label-popover-row-spot__red",
-      labelPopoverRowSpotWarn: "label-popover-row-spot__warn",
-      labelPopoverRowSpotDefault: "label-popover-row-spot__default"
+      labelPopover: "label-popover"
     };
   }
 
@@ -170,6 +163,7 @@ export default class Ui {
     this.bindKeyDownEvent(Wrapper, listType);
 
     this.element = Wrapper;
+    this.orgLabel.setElement(this.element);
     return Wrapper;
   }
 
@@ -348,70 +342,12 @@ export default class Ui {
     this.textFieldsIndexes = textFieldsIndexes;
   }
 
-  findTargetLabel(index) {
-    let targetClass = this.CSS.listLabel;
-
-    const targetLabels = this.element.querySelectorAll(`.${targetClass}`);
-
-    for (let index = 0; index < targetLabels.length; index += 1) {
-      const label = targetLabels[index];
-
-      if (label.dataset.index === String(index)) {
-        return label;
-      }
-    }
-
-    return null;
-  }
-
-  getCurLabelClass(color) {
-    let targetClass;
-    switch (color) {
-      case "red": {
-        return this.CSS.labelRed;
-      }
-      case "warn": {
-        return this.CSS.labelWarn;
-      }
-      case "default": {
-        return this.CSS.labelDefault;
-      }
-      default:
-        return this.CSS.labelGreen;
-    }
-  }
-
-  // highlight label in texts and popover selector
-  highlightCurrentLabel(index, color = "green") {
-    const TargetLabel = this.findTargetLabel(index, color);
-
-    console.log("TargetLabel: ", TargetLabel);
-
-    // highlight in texts
-    TargetLabel.classList.remove(this.CSS.labelGreen);
-    TargetLabel.classList.remove(this.CSS.labelRed);
-    TargetLabel.classList.remove(this.CSS.labelWarn);
-    TargetLabel.classList.remove(this.CSS.labelDefault);
-    TargetLabel.classList.add(this.getCurLabelClass(color));
-
-    // highlight in popover
-    const LabelSelectors = this.element.querySelector(
-      `.${this.CSS.labelPopoverRow}`
-    );
-    const LabelInput = this.element.querySelector(
-      `.${this.CSS.labelPopoverInput}`
-    );
-
-    LabelSelectors.replaceWith(this.buildLabelSelectors(index, color));
-    LabelInput.replaceWith(this.buildLabelInput(index, color));
-  }
-
   // popover content
   labelPopover(index, active = "green") {
     const Wrapper = make("div", this.CSS.labelPopover);
 
-    const Selectors = this.buildLabelSelectors(index, active);
-    const Input = this.buildLabelInput(index, active);
+    const Selectors = this.orgLabel.buildLabelSelectors(index, active);
+    const Input = this.orgLabel.buildLabelInput(index, active);
 
     Wrapper.appendChild(Input);
     Wrapper.appendChild(Selectors);
@@ -427,95 +363,6 @@ export default class Ui {
     };
   }
 
-  buildLabelInput(index, active = "red") {
-    let inputClass;
-
-    switch (active) {
-      case "red": {
-        inputClass = this.CSS.labelPopoverInputRed;
-        break;
-      }
-      case "warn": {
-        inputClass = this.CSS.labelPopoverInputWarn;
-        break;
-      }
-      case "green": {
-        inputClass = this.CSS.labelPopoverInputGreen;
-        break;
-      }
-      default: {
-        inputClass = this.CSS.labelPopoverInputDefault;
-        break;
-      }
-    }
-
-    const InputBox = make("input", [this.CSS.labelPopoverInput, inputClass], {
-      value: "已完成"
-    });
-
-    return InputBox;
-  }
-
-  buildLabelSelectors(index, active = "green") {
-    const Wrapper = make("div", this.CSS.labelPopoverRow);
-
-    const SpotGreen = make("div", [
-      this.CSS.labelPopoverRowSpot,
-      this.CSS.labelPopoverRowSpotGreen
-    ]);
-    const SpotRed = make("div", [
-      this.CSS.labelPopoverRowSpot,
-      this.CSS.labelPopoverRowSpotRed
-    ]);
-    const SpotWarn = make("div", [
-      this.CSS.labelPopoverRowSpot,
-      this.CSS.labelPopoverRowSpotWarn
-    ]);
-    const SpotDefault = make("div", [
-      this.CSS.labelPopoverRowSpot,
-      this.CSS.labelPopoverRowSpotDefault
-    ]);
-
-    SpotGreen.addEventListener("click", () =>
-      this.highlightCurrentLabel(index, "green")
-    );
-    SpotRed.addEventListener("click", () =>
-      this.highlightCurrentLabel(index, "red")
-    );
-    SpotWarn.addEventListener("click", () =>
-      this.highlightCurrentLabel(index, "warn")
-    );
-    SpotDefault.addEventListener("click", () =>
-      this.highlightCurrentLabel(index, "default")
-    );
-
-    Wrapper.appendChild(SpotGreen);
-    Wrapper.appendChild(SpotRed);
-    Wrapper.appendChild(SpotWarn);
-    Wrapper.appendChild(SpotDefault);
-
-    const ActiveDot = make("div", this.CSS.labelPopoverSpotActive);
-    switch (active) {
-      case "red": {
-        SpotRed.appendChild(ActiveDot);
-        break;
-      }
-      case "warn": {
-        SpotWarn.appendChild(ActiveDot);
-        break;
-      }
-      case "green": {
-        SpotGreen.appendChild(ActiveDot);
-        break;
-      }
-      default: {
-        SpotDefault.appendChild(ActiveDot);
-        break;
-      }
-    }
-
-    return Wrapper;
-  }
   /**
    * Create Checklist items
    * @param {ChecklistData} item - data.item
