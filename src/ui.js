@@ -79,6 +79,7 @@ export default class Ui {
       labelPopoverInputGreen: "label-popover-input__green",
       labelPopoverInputRed: "label-popover-input__red",
       labelPopoverInputWarn: "label-popover-input__warn",
+      labelPopoverInputDefault: "label-popover-input__default",
       labelPopoverRow: "label-popover-row",
       labelPopoverSpotActive: "label-popover-row-spot--active",
       labelPopoverRowSpot: "label-popover-row-spot",
@@ -380,43 +381,40 @@ export default class Ui {
     }
   }
 
-  setLabelColor(index, color = "green") {
+  // highlight label in texts and popover selector
+  highlightCurrentLabel(index, color = "green") {
     const TargetLabel = this.findTargetLabel(index, color);
 
     console.log("TargetLabel: ", TargetLabel);
+
+    // highlight in texts
     TargetLabel.classList.remove(this.CSS.labelGreen);
     TargetLabel.classList.remove(this.CSS.labelRed);
     TargetLabel.classList.remove(this.CSS.labelWarn);
     TargetLabel.classList.remove(this.CSS.labelDefault);
     TargetLabel.classList.add(this.getCurLabelClass(color));
 
-    const Row = this.element.querySelector(`.label-popover-row`);
-    const LabelPopoverRowSpotGreen = this.element.querySelector(
-      `.${this.CSS.labelPopoverRowSpotGreen}`
+    // highlight in popover
+    const LabelSelectors = this.element.querySelector(
+      `.${this.CSS.labelPopoverRow}`
     );
-    Row.removeChild(LabelPopoverRowSpotGreen);
+    const LabelInput = this.element.querySelector(
+      `.${this.CSS.labelPopoverInput}`
+    );
 
-    console.log("this.Row after: ", Row);
-
-    // hideAll();
+    LabelSelectors.replaceWith(this.buildLabelSelectors(index, color));
+    LabelInput.replaceWith(this.buildLabelInput(index, color));
   }
 
-  // popover conten
-  labelPopover(index) {
+  // popover content
+  labelPopover(index, active = "green") {
     const Wrapper = make("div", this.CSS.labelPopover);
-    const InputBox = make(
-      "input",
-      [this.CSS.labelPopoverInput, this.CSS.labelPopoverInputGreen],
-      {
-        value: "已完成"
-      }
-    );
 
-    console.log("---> Row before ");
-    const Row = this.buildLabelRows();
-    console.log("---> Row: ", Row);
-    Wrapper.appendChild(InputBox);
-    Wrapper.appendChild(Row);
+    const Selectors = this.buildLabelSelectors(index, active);
+    const Input = this.buildLabelInput(index, active);
+
+    Wrapper.appendChild(Input);
+    Wrapper.appendChild(Selectors);
 
     return {
       content: Wrapper,
@@ -429,9 +427,37 @@ export default class Ui {
     };
   }
 
-  buildLabelRows() {
-    const Row = make("div", this.CSS.labelPopoverRow);
-    const ActiveDot = make("div", this.CSS.labelPopoverSpotActive);
+  buildLabelInput(index, active = "red") {
+    let inputClass;
+
+    switch (active) {
+      case "red": {
+        inputClass = this.CSS.labelPopoverInputRed;
+        break;
+      }
+      case "warn": {
+        inputClass = this.CSS.labelPopoverInputWarn;
+        break;
+      }
+      case "green": {
+        inputClass = this.CSS.labelPopoverInputGreen;
+        break;
+      }
+      default: {
+        inputClass = this.CSS.labelPopoverInputDefault;
+        break;
+      }
+    }
+
+    const InputBox = make("input", [this.CSS.labelPopoverInput, inputClass], {
+      value: "已完成"
+    });
+
+    return InputBox;
+  }
+
+  buildLabelSelectors(index, active = "green") {
+    const Wrapper = make("div", this.CSS.labelPopoverRow);
 
     const SpotGreen = make("div", [
       this.CSS.labelPopoverRowSpot,
@@ -451,21 +477,44 @@ export default class Ui {
     ]);
 
     SpotGreen.addEventListener("click", () =>
-      this.setLabelColor(index, "green")
+      this.highlightCurrentLabel(index, "green")
     );
-    SpotRed.addEventListener("click", () => this.setLabelColor(index, "red"));
-    SpotWarn.addEventListener("click", () => this.setLabelColor(index, "warn"));
+    SpotRed.addEventListener("click", () =>
+      this.highlightCurrentLabel(index, "red")
+    );
+    SpotWarn.addEventListener("click", () =>
+      this.highlightCurrentLabel(index, "warn")
+    );
     SpotDefault.addEventListener("click", () =>
-      this.setLabelColor(index, "default")
+      this.highlightCurrentLabel(index, "default")
     );
 
-    Row.appendChild(SpotGreen);
-    SpotRed.appendChild(ActiveDot);
-    Row.appendChild(SpotRed);
-    Row.appendChild(SpotWarn);
-    Row.appendChild(SpotDefault);
+    Wrapper.appendChild(SpotGreen);
+    Wrapper.appendChild(SpotRed);
+    Wrapper.appendChild(SpotWarn);
+    Wrapper.appendChild(SpotDefault);
 
-    return Row;
+    const ActiveDot = make("div", this.CSS.labelPopoverSpotActive);
+    switch (active) {
+      case "red": {
+        SpotRed.appendChild(ActiveDot);
+        break;
+      }
+      case "warn": {
+        SpotWarn.appendChild(ActiveDot);
+        break;
+      }
+      case "green": {
+        SpotGreen.appendChild(ActiveDot);
+        break;
+      }
+      default: {
+        SpotDefault.appendChild(ActiveDot);
+        break;
+      }
+    }
+
+    return Wrapper;
   }
   /**
    * Create Checklist items
