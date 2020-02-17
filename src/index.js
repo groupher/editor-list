@@ -75,8 +75,22 @@ export default class List {
       api,
       config: this.config,
       data: this._data,
-      setTune: this.setTune.bind(this)
+      setTune: this.setTune.bind(this),
+      setData: this.setData.bind(this)
     });
+  }
+
+  // handle setting option change
+  setTune(type) {
+    console.log("-> setTune type: ", type);
+
+    this.ui.setType(type);
+    const listElement = this.buildList(type);
+    this.replaceElement(listElement);
+  }
+
+  setData(data) {
+    this._data = data;
   }
 
   isValidListData(data) {
@@ -94,15 +108,6 @@ export default class List {
       data.type === LN.ORDERED_LIST ||
       data.type === LN.CHECKLIST
     );
-  }
-
-  // handle setting option change
-  setTune(type) {
-    // console.log("setTune type: ", type);
-
-    this.ui.setType(type);
-    const listElement = this.buildList(type);
-    this.replaceElement(listElement);
   }
 
   /**
@@ -123,6 +128,8 @@ export default class List {
    * @return {HTMLElement} listElement
    */
   buildList(type) {
+    console.log("build before this._data: ", this._data);
+
     switch (type) {
       case LN.UNORDERED_LIST: {
         return this.ui.buildList(this._data);
@@ -238,28 +245,6 @@ export default class List {
     //   oldView.parentNode.replaceChild(this.render(), oldView);
     // }
   }
-
-  /**
-   * Return List data
-   * @return {ListData}
-   */
-  // get data2() {
-  //   this._data.items = [];
-
-  //   const items = this.elements.wrapper.querySelectorAll(
-  //     `.${this.CSS.listItem}`
-  //   );
-
-  //   for (let i = 0; i < items.length; i++) {
-  //     const value = items[i].innerHTML.replace("<br>", " ").trim();
-
-  //     if (value) {
-  //       this._data.items.push(items[i].innerHTML);
-  //     }
-  //   }
-
-  //   return this._data;
-  // }
 
   /**
    * Returns current List item by the caret position

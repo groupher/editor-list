@@ -16,7 +16,7 @@ import iconList from "./icons";
 const isDOM = el => el instanceof Element;
 
 export default class Ui {
-  constructor({ api, data, config, setTune }) {
+  constructor({ api, data, config, setTune, setData }) {
     this.api = api;
     this.config = config;
 
@@ -25,6 +25,7 @@ export default class Ui {
 
     this.settings = iconList;
     this.setTune = setTune;
+    this.setData = setData;
 
     // all the textField's data-index array
     this.textFieldsIndexes = [];
@@ -133,21 +134,26 @@ export default class Ui {
 
   // 构建列表
   buildList(data, listType = LN.UNORDERED_LIST) {
-    this._data = data;
-
+    // this._data = null;
+    // this._data = data;
+    // console.log("in ui this._data: ", this._data);
     const Wrapper = make("div", [this.CSS.baseBlock, this.CSS.listWrapper]);
 
-    if (this._data.items.length) {
-      this._data.items = this.dropEmptyItem(data.items);
+    if (data.items.length) {
+      // this._data.items = this.dropEmptyItem(data.items);
+      data.items = this.dropEmptyItem(data.items);
+      this._data = { items: [], type: listType };
 
-      this._data.items.forEach((item, index) => {
+      // this._data.items.forEach((item, index) => {
+      data.items.forEach((item, index) => {
         const NewItem = this.createListItem(item, listType, index);
 
         this._data.items.push(NewItem);
         Wrapper.appendChild(NewItem);
       });
       // console.log("this._data.items: ", this._data.items);
-      this._data.items = this.dropRawItem(data.items);
+      // this._data.items = this.dropRawItem(data.items);
+      this._data.items = this.dropRawItem(this._data.items);
     } else {
       this._data.items = this.dropEmptyItem(data.items);
       const NewItem = this.createListItem(null, listType);
@@ -163,22 +169,24 @@ export default class Ui {
     this.bindKeyDownEvent(Wrapper, listType);
 
     this.element = Wrapper;
-    this.orgLabel.setElement(this.element);
+    // this.orgLabel.setElement(this.element);
     return Wrapper;
   }
 
   // 待办项
   buildCheckList(data) {
     this._data = data;
+    // console.log("buildCheckList data: ", data);
     this._data.items = this.dropEmptyItem(data.items);
 
     const Wrapper = make("div", [this.CSS.baseBlock, this.CSS.listWrapper]);
 
-    if (this._data.items.length) {
-      this._data.items.forEach((item, index) => {
+    if (data.items.length) {
+      this._data = { items: [], type: LN.CHECKLIST };
+      data.items.forEach((item, index) => {
         const NewItem = this.createChecklistItem(item, index);
 
-        // this._elements.items.push(newItem);
+        this._data.items.push(NewItem);
         Wrapper.appendChild(NewItem);
       });
     } else {
@@ -377,19 +385,19 @@ export default class Ui {
     const ListItem = make("div", this.CSS.listItem);
     const Prefix = make("span", prefixClass);
 
-    const randomColor = {
-      0: [this.CSS.listLabel, this.CSS.labelGreen],
-      1: [this.CSS.listLabel, this.CSS.labelRed],
-      2: [this.CSS.listLabel, this.CSS.labelWarn],
-      3: [this.CSS.listLabel, this.CSS.labelDefault]
-    };
+    // const randomColor = {
+    //   0: [this.CSS.listLabel, this.CSS.labelGreen],
+    //   1: [this.CSS.listLabel, this.CSS.labelRed],
+    //   2: [this.CSS.listLabel, this.CSS.labelWarn],
+    //   3: [this.CSS.listLabel, this.CSS.labelDefault]
+    // };
 
-    const Label = make("div", randomColor[itemIndex], {
-      innerHTML: "已完成",
-      "data-index": itemIndex
-    });
+    // const Lthis._dataabel = make("div", randomColor[itemIndex], {
+    //   innerHTML: "已完成",
+    //   "data-index": itemIndex
+    // });
 
-    tippy(Label, this.labelPopover(itemIndex));
+    // tippy(Label, this.labelPopover(itemIndex));
 
     const TextField = make("div", this.CSS.listTextField, {
       innerHTML: item ? item.text : "",
@@ -417,7 +425,7 @@ export default class Ui {
     );
 
     ListItem.appendChild(Prefix);
-    ListItem.appendChild(Label);
+    // ListItem.appendChild(Label);
     ListItem.appendChild(TextField);
 
     return ListItem;
@@ -550,7 +558,7 @@ export default class Ui {
       itemEl.addEventListener("click", () => {
         this.setTune(item.name);
 
-        this.clearSettingHighlight(wrapper);
+        this.clearSettingHighlight(Wrapper);
         // mark active
         itemEl.classList.toggle(this.CSS.settingsButtonActive);
       });
@@ -579,15 +587,19 @@ export default class Ui {
     data.type = this._data.type;
     const items = [];
 
+    const textFieldClass = this.getCSS(this._data.type, "textField");
+
     for (let index = 0; index < this._data.items.length; index += 1) {
       const item = this._data.items[index];
 
       if (isDOM(item)) {
-        const text = item.querySelector(`.${this.CSS.listTextField}`).innerHTML;
+        const text = item.querySelector(`.${textFieldClass}`).innerHTML;
         items.push({ text });
       }
     }
     data.items = items;
+    console.log("before tu parent: ", data);
+    this.setData(data);
     return data;
 
     // return this._data;
