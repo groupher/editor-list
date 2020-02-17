@@ -185,14 +185,13 @@
       opacity: 0.4;
       position: relative;
 
-      &--active {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: white;
+      &--active svg {
+        width: 14px;
+        height: 14px;
         position: absolute;
-        top: 6px;
-        left: 6px;
+        top: 3px;
+        left: 2px;
+        fill: white;
       }
 
       &__green {
