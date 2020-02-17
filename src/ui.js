@@ -69,8 +69,6 @@ export default class Ui {
       labelRed: "cdx-list-label__red",
       labelWarn: "cdx-list-label__warn",
       labelDefault: "cdx-list-label__default",
-      // wrapperOrdered: "cdx-list--ordered",
-      // wrapperUnordered: "cdx-list--unordered",
 
       // checklist
       checklistWrapper: "cdx-checklist",
@@ -440,7 +438,7 @@ export default class Ui {
     const ListItem = make("div", this.CSS.checklistItem, {
       "data-index": itemIndex
     });
-    const Checkbox = make("span", this.CSS.checklistBox);
+    const Checkbox = make("div", this.CSS.checklistBox);
     const TextField = make("div", this.CSS.checklistTextField, {
       innerHTML: item ? item.text : "",
       contentEditable: true

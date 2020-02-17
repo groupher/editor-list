@@ -64,6 +64,7 @@
 .cdx-checklist {
   &__item {
     display: flex;
+    align-items: center;
     padding: 0 10px;
     box-sizing: content-box;
 
@@ -77,8 +78,8 @@
       display: inline-block;
       flex-shrink: 0;
       position: relative;
-      width: 20px;
-      height: 20px;
+      width: 16px !important;
+      height: 16px !important;
       margin: 10px 10px 10px 0;
       border-radius: 50%;
       border: 1px solid #6e8f94 !important;
@@ -91,11 +92,13 @@
 
       &::after {
         position: absolute;
-        top: 5px;
-        left: 5px;
-        width: 8px;
-        height: 5px;
-        border: 2px solid #fcfff4;
+        top: 5px !important;
+        left: 4px !important;
+        width: 6px !important;
+        height: 3px !important;
+        border: 2px solid;
+        border-color: #fcfff4 !important;
+        border-radius: 1px;
         border-top: none;
         border-right: none;
         background: transparent;
