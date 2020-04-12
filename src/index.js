@@ -82,7 +82,6 @@ export default class List {
 
   // handle setting option change
   setTune(type) {
-    console.log("--> setTune type: ", type);
     if (type === LN.ORG_MODE || type === LN.SORT) {
       console.log("TODO: ", type);
       return false;

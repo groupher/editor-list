@@ -44,7 +44,7 @@ export default class OrgLabel {
       labelPopoverRowSpotGreen: "label-popover-row-spot__green",
       labelPopoverRowSpotRed: "label-popover-row-spot__red",
       labelPopoverRowSpotWarn: "label-popover-row-spot__warn",
-      labelPopoverRowSpotDefault: "label-popover-row-spot__default"
+      labelPopoverRowSpotDefault: "label-popover-row-spot__default",
     };
   }
 
@@ -127,7 +127,7 @@ export default class OrgLabel {
     }
 
     const InputBox = make("input", [this.CSS.labelPopoverInput, inputClass], {
-      value: "已完成"
+      value: "已完成",
     });
 
     return InputBox;
@@ -138,19 +138,19 @@ export default class OrgLabel {
 
     const SpotGreen = make("div", [
       this.CSS.labelPopoverRowSpot,
-      this.CSS.labelPopoverRowSpotGreen
+      this.CSS.labelPopoverRowSpotGreen,
     ]);
     const SpotRed = make("div", [
       this.CSS.labelPopoverRowSpot,
-      this.CSS.labelPopoverRowSpotRed
+      this.CSS.labelPopoverRowSpotRed,
     ]);
     const SpotWarn = make("div", [
       this.CSS.labelPopoverRowSpot,
-      this.CSS.labelPopoverRowSpotWarn
+      this.CSS.labelPopoverRowSpotWarn,
     ]);
     const SpotDefault = make("div", [
       this.CSS.labelPopoverRowSpot,
-      this.CSS.labelPopoverRowSpotDefault
+      this.CSS.labelPopoverRowSpotDefault,
     ]);
 
     SpotGreen.addEventListener("click", () =>
@@ -173,7 +173,7 @@ export default class OrgLabel {
 
     const ActiveDot = make("div", this.CSS.labelPopoverSpotActive, {
       innerHTML:
-        '<svg t="1581913245157" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5676" width="200" height="200"><path d="M853.333333 256L384 725.333333l-213.333333-213.333333" p-id="5677"></path></svg>'
+        '<svg t="1581913245157" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5676" width="200" height="200"><path d="M853.333333 256L384 725.333333l-213.333333-213.333333" p-id="5677"></path></svg>',
     });
     switch (active) {
       case "red": {

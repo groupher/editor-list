@@ -201,6 +201,7 @@ export default class Ui {
     });
 
     this.element = Wrapper;
+    this.orgLabel.setElement(this.element);
     return Wrapper;
   }
 
@@ -416,8 +417,6 @@ export default class Ui {
           this.textFieldsIndexes,
           (i) => i === target.dataset.index
         );
-        console.log("updateIndex: ", updateIndex);
-
         this._data.items[updateIndex].text = target.innerHTML;
       }, 300)
     );
@@ -480,6 +479,9 @@ export default class Ui {
    */
   toggleCheckbox(event) {
     const checkListItem = event.target.closest(`.${this.CSS.checklistItem}`);
+    // null means clicked label selector, just ignore it
+    if (!checkListItem) return false;
+
     const checkbox = checkListItem.querySelector(`.${this.CSS.checklistBox}`);
 
     const itemIndex = checkListItem.dataset.index;
@@ -611,10 +613,8 @@ export default class Ui {
       }
     }
     data.items = items;
-    console.log("before tu parent: ", data);
     this.setData(data);
     return data;
-
     // return this._data;
   }
 }
