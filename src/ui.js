@@ -6,14 +6,14 @@ import {
   make,
   moveCaretToEnd,
   debounce,
-  findIndex
+  findIndex,
 } from "@groupher/editor-utils";
 
 import OrgLabel from "./orgLabel";
 import LN from "./LN";
 import iconList from "./icons";
 
-const isDOM = el => el instanceof Element;
+const isDOM = (el) => el instanceof Element;
 
 export default class Ui {
   constructor({ api, data, config, setTune, setData }) {
@@ -31,7 +31,7 @@ export default class Ui {
     this.textFieldsIndexes = [];
 
     this.orgLabel = new OrgLabel({
-      api: this.api
+      api: this.api,
     });
   }
 
@@ -78,7 +78,7 @@ export default class Ui {
       checklistTextField: "cdx-checklist__item-text",
 
       // label
-      labelPopover: "label-popover"
+      labelPopover: "label-popover",
     };
   }
 
@@ -86,16 +86,16 @@ export default class Ui {
     const N = {
       [LN.UNORDERED_LIST]: {
         textField: "listTextField",
-        item: "listItem"
+        item: "listItem",
       },
       [LN.ORDERED_LIST]: {
         textField: "listTextField",
-        item: "listItem"
+        item: "listItem",
       },
       [LN.CHECKLIST]: {
         textField: "checklistTextField",
-        item: "checklistItem"
-      }
+        item: "checklistItem",
+      },
     };
 
     return this.CSS[N[type][key]];
@@ -167,7 +167,7 @@ export default class Ui {
     this.bindKeyDownEvent(Wrapper, listType);
 
     this.element = Wrapper;
-    // this.orgLabel.setElement(this.element);
+    this.orgLabel.setElement(this.element);
     return Wrapper;
   }
 
@@ -196,7 +196,7 @@ export default class Ui {
 
     this.bindKeyDownEvent(Wrapper, LN.CHECKLIST);
 
-    Wrapper.addEventListener("click", event => {
+    Wrapper.addEventListener("click", (event) => {
       this.toggleCheckbox(event);
     });
 
@@ -214,7 +214,7 @@ export default class Ui {
   bindKeyDownEvent(node, type) {
     node.addEventListener(
       "keydown",
-      event => {
+      (event) => {
         const [ENTER, BACKSPACE] = [13, 8]; // key codes
 
         switch (event.keyCode) {
@@ -365,7 +365,7 @@ export default class Ui {
       trigger: "click",
       placement: "bottom",
       // allowing you to hover over and click inside them.
-      interactive: true
+      interactive: true,
     };
   }
 
@@ -383,24 +383,24 @@ export default class Ui {
     const ListItem = make("div", this.CSS.listItem);
     const Prefix = make("span", prefixClass);
 
-    // const randomColor = {
-    //   0: [this.CSS.listLabel, this.CSS.labelGreen],
-    //   1: [this.CSS.listLabel, this.CSS.labelRed],
-    //   2: [this.CSS.listLabel, this.CSS.labelWarn],
-    //   3: [this.CSS.listLabel, this.CSS.labelDefault]
-    // };
+    const randomColor = {
+      0: [this.CSS.listLabel, this.CSS.labelGreen],
+      1: [this.CSS.listLabel, this.CSS.labelRed],
+      2: [this.CSS.listLabel, this.CSS.labelWarn],
+      3: [this.CSS.listLabel, this.CSS.labelDefault],
+    };
 
-    // const Lthis._dataabel = make("div", randomColor[itemIndex], {
-    //   innerHTML: "已完成",
-    //   "data-index": itemIndex
-    // });
+    const Label = make("div", randomColor[itemIndex], {
+      innerHTML: "已完成",
+      "data-index": itemIndex,
+    });
 
-    // tippy(Label, this.labelPopover(itemIndex));
+    tippy(Label, this.labelPopover(itemIndex));
 
     const TextField = make("div", this.CSS.listTextField, {
       innerHTML: item ? item.text : "",
       "data-index": itemIndex,
-      contentEditable: true
+      contentEditable: true,
     });
 
     TextField.addEventListener(
@@ -414,7 +414,7 @@ export default class Ui {
 
         const updateIndex = findIndex(
           this.textFieldsIndexes,
-          i => i === target.dataset.index
+          (i) => i === target.dataset.index
         );
         console.log("updateIndex: ", updateIndex);
 
@@ -423,7 +423,7 @@ export default class Ui {
     );
 
     ListItem.appendChild(Prefix);
-    // ListItem.appendChild(Label);
+    ListItem.appendChild(Label);
     ListItem.appendChild(TextField);
 
     return ListItem;
@@ -436,12 +436,12 @@ export default class Ui {
    */
   createChecklistItem(item = null, itemIndex = 0) {
     const ListItem = make("div", this.CSS.checklistItem, {
-      "data-index": itemIndex
+      "data-index": itemIndex,
     });
     const Checkbox = make("div", this.CSS.checklistBox);
     const TextField = make("div", this.CSS.checklistTextField, {
       innerHTML: item ? item.text : "",
-      contentEditable: true
+      contentEditable: true,
     });
 
     if (item && item.checked) {
@@ -449,11 +449,26 @@ export default class Ui {
       this._data.items[itemIndex].checked = true;
     }
 
-    TextField.addEventListener("input", ev => {
+    const randomColor = {
+      0: [this.CSS.listLabel, this.CSS.labelGreen],
+      1: [this.CSS.listLabel, this.CSS.labelRed],
+      2: [this.CSS.listLabel, this.CSS.labelWarn],
+      3: [this.CSS.listLabel, this.CSS.labelDefault],
+    };
+
+    const Label = make("div", randomColor[itemIndex], {
+      innerHTML: "已完成",
+      "data-index": itemIndex,
+    });
+
+    tippy(Label, this.labelPopover(itemIndex));
+
+    TextField.addEventListener("input", (ev) => {
       this._data.items[itemIndex].text = ev.target.innerHTML;
     });
 
     ListItem.appendChild(Checkbox);
+    ListItem.appendChild(Label);
     ListItem.appendChild(TextField);
 
     return ListItem;
@@ -542,9 +557,9 @@ export default class Ui {
     const Wrapper = make("div", [this.CSS.settingsWrapper], {});
 
     // this.clearSettingHighlight();
-    this.settings.forEach(item => {
+    this.settings.forEach((item) => {
       const itemEl = make("div", this.CSS.settingsButton, {
-        innerHTML: item.icon
+        innerHTML: item.icon,
       });
 
       this.api.tooltip.onHover(itemEl, item.title, { placement: "top" });
@@ -575,7 +590,7 @@ export default class Ui {
   clearSettingHighlight(node) {
     // clear other buttons
     const buttons = node.querySelectorAll("." + this.CSS.settingsButton);
-    Array.from(buttons).forEach(button =>
+    Array.from(buttons).forEach((button) =>
       button.classList.remove(this.CSS.settingsButtonActive)
     );
   }

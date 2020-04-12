@@ -34,7 +34,7 @@ export default class List {
     return {
       icon:
         '<svg width="17" height="13" viewBox="0 0 17 13" xmlns="http://www.w3.org/2000/svg"> <path d="M5.625 4.85h9.25a1.125 1.125 0 0 1 0 2.25h-9.25a1.125 1.125 0 0 1 0-2.25zm0-4.85h9.25a1.125 1.125 0 0 1 0 2.25h-9.25a1.125 1.125 0 0 1 0-2.25zm0 9.85h9.25a1.125 1.125 0 0 1 0 2.25h-9.25a1.125 1.125 0 0 1 0-2.25zm-4.5-5a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25zm0-4.85a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25zm0 9.85a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25z"/></svg>',
-      title: this.i18n === "en" ? "List" : "列表类"
+      title: this.i18n === "en" ? "List" : "列表类",
     };
   }
 
@@ -60,7 +60,7 @@ export default class List {
     // the default
     const defaultData = {
       type: LN.UNORDERED_LIST,
-      items: []
+      items: [],
     };
 
     this._data = this.isValidListData(data) ? data : defaultData;
@@ -76,13 +76,17 @@ export default class List {
       config: this.config,
       data: this._data,
       setTune: this.setTune.bind(this),
-      setData: this.setData.bind(this)
+      setData: this.setData.bind(this),
     });
   }
 
   // handle setting option change
   setTune(type) {
-    console.log("-> setTune type: ", type);
+    console.log("--> setTune type: ", type);
+    if (type === LN.ORG_MODE || type === LN.SORT) {
+      console.log("TODO: ", type);
+      return false;
+    }
 
     this.ui.setType(type);
     const listElement = this.buildList(type);
@@ -175,7 +179,7 @@ export default class List {
        * @param {ListData} data
        * @return {string}
        */
-      export: data => {
+      export: (data) => {
         // return data.items.join(". ");
         return data.items[0].text;
       },
@@ -184,12 +188,12 @@ export default class List {
        * @param string
        * @return {ListData}
        */
-      import: string => {
+      import: (string) => {
         return {
           items: [string],
-          type: "unordered"
+          type: "unordered",
         };
-      }
+      },
     };
   }
 
@@ -200,8 +204,8 @@ export default class List {
     return {
       type: {},
       items: {
-        br: true
-      }
+        br: true,
+      },
     };
   }
 
@@ -220,7 +224,7 @@ export default class List {
   get CSS() {
     return {
       wrapper: "cdx-list",
-      listItem: "cdx-list__item"
+      listItem: "cdx-list__item",
     };
   }
 
