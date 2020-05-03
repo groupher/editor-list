@@ -597,22 +597,40 @@ export default class Ui {
     );
   }
 
+  parseLabel(item) {
+    if (item.querySelector(`.${this.CSS.labelGreen}`)) return "green";
+    if (item.querySelector(`.${this.CSS.labelRed}`)) return "red";
+    if (item.querySelector(`.${this.CSS.labelWarn}`)) return "warn";
+    if (item.querySelector(`.${this.CSS.labelDefault}`)) return "default";
+
+    return null;
+  }
+
   get data() {
     const data = {};
     data.type = this._data.type;
     const items = [];
 
     const textFieldClass = this.getCSS(this._data.type, "textField");
+    const itemClass = this.getCSS(this._data.type, "item");
+    // console.log("itemClass: ", itemClass);
 
     for (let index = 0; index < this._data.items.length; index += 1) {
       const item = this._data.items[index];
 
       if (isDOM(item)) {
-        const text = item.querySelector(`.${textFieldClass}`).innerHTML;
-        items.push({ text });
+        // console.log("item ", item);
+
+        const result = {
+          text: item.querySelector(`.${textFieldClass}`).innerHTML,
+          label: this.parseLabel(item),
+        };
+
+        items.push({ ...result });
       }
     }
     data.items = items;
+    console.log("before up: ", data.items);
     this.setData(data);
     return data;
     // return this._data;

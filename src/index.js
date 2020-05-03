@@ -131,8 +131,6 @@ export default class List {
    * @return {HTMLElement} listElement
    */
   buildList(type) {
-    console.log("build before this._data: ", this._data);
-
     switch (type) {
       case LN.UNORDERED_LIST: {
         return this.ui.buildList(this._data);
@@ -165,6 +163,7 @@ export default class List {
    * @public
    */
   save() {
+    console.log("saving data: ", this.ui.data);
     return this.ui.data; // this.data;
   }
 
