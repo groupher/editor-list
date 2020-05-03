@@ -603,12 +603,20 @@ export default class Ui {
     return item.querySelector(`.${textFieldClass}`).innerHTML;
   }
 
-  // parse label info
-  parseLabel(item) {
+  // parse label type
+  parseLabelType(item) {
     if (item.querySelector(`.${this.CSS.labelGreen}`)) return "green";
     if (item.querySelector(`.${this.CSS.labelRed}`)) return "red";
     if (item.querySelector(`.${this.CSS.labelWarn}`)) return "warn";
     if (item.querySelector(`.${this.CSS.labelDefault}`)) return "default";
+
+    return null;
+  }
+
+  // parse label info
+  parseLabel(item) {
+    const label = item.querySelector(`.${this.CSS.listLabel}`);
+    if (label) return label.innerText;
 
     return null;
   }
@@ -634,6 +642,7 @@ export default class Ui {
         items.push({
           text: this.parseContent(item),
           label: this.parseLabel(item),
+          labelType: this.parseLabelType(item),
           checked: this.parseCheck(item),
         });
       }
@@ -641,7 +650,7 @@ export default class Ui {
     data.items = items;
     console.log("before up: ", data.items);
     this.setData(data);
+
     return data;
-    // return this._data;
   }
 }
