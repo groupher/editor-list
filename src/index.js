@@ -96,6 +96,7 @@ export default class List {
     this._data = data;
   }
 
+  // check is the data is valid
   isValidListData(data) {
     if (!(data && data.type && data.items && Array.isArray(data.items))) {
       return false;

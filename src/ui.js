@@ -101,8 +101,47 @@ export default class Ui {
     return this.CSS[N[type][key]];
   }
 
+  // get init label state when editor load
+  getInitLabelState(item) {
+    const labelClassMap = {
+      green: [this.CSS.listLabel, this.CSS.labelGreen],
+      red: [this.CSS.listLabel, this.CSS.labelRed],
+      warn: [this.CSS.listLabel, this.CSS.labelWarn],
+      default: [this.CSS.listLabel, this.CSS.labelDefault],
+    };
+
+    // console.log("# -> getInitLabelState this._date.items: ", this._data.items);
+    let hasLabelInGroup = false;
+    for (let index = 0; index < this._data.items.length; index++) {
+      const element = this._data.items[index];
+      // console.log("is current element: ", element);
+      if (isDOM(element) && element.querySelector(`.${this.CSS.listLabel}`)) {
+        hasLabelInGroup = true;
+      }
+    }
+
+    // 当插入新行的时候需要判断是否其他的行已经有 label, 如果有的话返回默认的 label
+    if (!item) {
+      return hasLabelInGroup
+        ? {
+            hasLabel: true,
+            label: "default",
+            labelClass: labelClassMap["default"],
+          }
+        : { hasLabel: false };
+    }
+    // console.log("# -> getInitLabelState: ", item);
+    const hasLabel = item.label && item.labelType;
+
+    return {
+      hasLabel,
+      labelClass: hasLabel ? labelClassMap[item.labelType] : null,
+      label: item.label,
+    };
+  }
+
   // drop empty item when convert to other type of list
-  // otherwise will cause strange beheave
+  // otherwise will cause strange behavior
   dropEmptyItem(items) {
     let rawItems = [];
     for (let index = 0; index < items.length; index += 1) {
@@ -132,17 +171,20 @@ export default class Ui {
 
   // 构建列表
   buildList(data, listType = LN.UNORDERED_LIST) {
-    // this._data = null;
-    // this._data = data;
-    // console.log("in ui this._data: ", this._data);
+    this._data = data;
+    this._data.items = this.dropEmptyItem(data.items);
+
+    console.log("in ui this._data: ", data);
     const Wrapper = make("div", [this.CSS.baseBlock, this.CSS.listWrapper]);
 
     if (data.items.length) {
       // this._data.items = this.dropEmptyItem(data.items);
-      data.items = this.dropEmptyItem(data.items);
+      // data.items = this.dropEmptyItem(data.items);
       this._data = { items: [], type: listType };
 
-      // this._data.items.forEach((item, index) => {
+      console.log("### 0 data.items: ", data.items);
+      console.log("### 0 _data: ", this._data);
+
       data.items.forEach((item, index) => {
         const NewItem = this.createListItem(item, listType, index);
 
@@ -153,7 +195,8 @@ export default class Ui {
       // this._data.items = this.dropRawItem(data.items);
       this._data.items = this.dropRawItem(this._data.items);
     } else {
-      this._data.items = this.dropEmptyItem(data.items);
+      console.log("### 1");
+      // this._data.items = this.dropEmptyItem(data.items);
       const NewItem = this.createListItem(null, listType);
 
       this._data.items.push(NewItem);
@@ -176,11 +219,11 @@ export default class Ui {
     this._data = data;
     // console.log("buildCheckList data: ", data);
     this._data.items = this.dropEmptyItem(data.items);
-
     const Wrapper = make("div", [this.CSS.baseBlock, this.CSS.listWrapper]);
 
     if (data.items.length) {
-      this._data = { items: [], type: LN.CHECKLIST };
+      this._data = { items: [{}], type: LN.CHECKLIST };
+
       data.items.forEach((item, index) => {
         const NewItem = this.createChecklistItem(item, index);
 
@@ -384,20 +427,6 @@ export default class Ui {
     const ListItem = make("div", this.CSS.listItem);
     const Prefix = make("span", prefixClass);
 
-    const randomColor = {
-      0: [this.CSS.listLabel, this.CSS.labelGreen],
-      1: [this.CSS.listLabel, this.CSS.labelRed],
-      2: [this.CSS.listLabel, this.CSS.labelWarn],
-      3: [this.CSS.listLabel, this.CSS.labelDefault],
-    };
-
-    const Label = make("div", randomColor[itemIndex], {
-      innerHTML: "已完成",
-      "data-index": itemIndex,
-    });
-
-    tippy(Label, this.labelPopover(itemIndex));
-
     const TextField = make("div", this.CSS.listTextField, {
       innerHTML: item ? item.text : "",
       "data-index": itemIndex,
@@ -421,8 +450,20 @@ export default class Ui {
       }, 300)
     );
 
+    let Label = null;
+    const labelState = this.getInitLabelState(item);
+
+    if (labelState.hasLabel) {
+      Label = make("div", labelState.labelClass, {
+        innerHTML: labelState.label,
+        "data-index": itemIndex,
+      });
+
+      tippy(Label, this.labelPopover(itemIndex));
+    }
+
     ListItem.appendChild(Prefix);
-    ListItem.appendChild(Label);
+    if (labelState.hasLabel) ListItem.appendChild(Label);
     ListItem.appendChild(TextField);
 
     return ListItem;
@@ -448,26 +489,24 @@ export default class Ui {
       this._data.items[itemIndex].checked = true;
     }
 
-    const randomColor = {
-      0: [this.CSS.listLabel, this.CSS.labelGreen],
-      1: [this.CSS.listLabel, this.CSS.labelRed],
-      2: [this.CSS.listLabel, this.CSS.labelWarn],
-      3: [this.CSS.listLabel, this.CSS.labelDefault],
-    };
+    let Label = null;
+    const labelState = this.getInitLabelState(item);
 
-    const Label = make("div", randomColor[itemIndex], {
-      innerHTML: "已完成",
-      "data-index": itemIndex,
-    });
+    if (labelState.hasLabel) {
+      Label = make("div", labelState.labelClass, {
+        innerHTML: labelState.label,
+        "data-index": itemIndex,
+      });
 
-    tippy(Label, this.labelPopover(itemIndex));
+      tippy(Label, this.labelPopover(itemIndex));
+    }
 
     TextField.addEventListener("input", (ev) => {
       this._data.items[itemIndex].text = ev.target.innerHTML;
     });
 
     ListItem.appendChild(Checkbox);
-    ListItem.appendChild(Label);
+    if (labelState.hasLabel) ListItem.appendChild(Label);
     ListItem.appendChild(TextField);
 
     return ListItem;
@@ -623,7 +662,7 @@ export default class Ui {
 
   // parse checked or not
   parseCheck(item) {
-    if (item.className.indexOf("cdx-checklist__item--checked") >= 0) {
+    if (item.className.indexOf(this.CSS.checklistItemChecked) >= 0) {
       return true;
     }
 
