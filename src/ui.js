@@ -597,6 +597,13 @@ export default class Ui {
     );
   }
 
+  // parse item's innerHTML as content
+  parseContent(item) {
+    const textFieldClass = this.getCSS(this._data.type, "textField");
+    return item.querySelector(`.${textFieldClass}`).innerHTML;
+  }
+
+  // parse label info
   parseLabel(item) {
     if (item.querySelector(`.${this.CSS.labelGreen}`)) return "green";
     if (item.querySelector(`.${this.CSS.labelRed}`)) return "red";
@@ -606,27 +613,29 @@ export default class Ui {
     return null;
   }
 
+  // parse checked or not
+  parseCheck(item) {
+    if (item.className.indexOf("cdx-checklist__item--checked") >= 0) {
+      return true;
+    }
+
+    return false;
+  }
+
   get data() {
     const data = {};
     data.type = this._data.type;
     const items = [];
 
-    const textFieldClass = this.getCSS(this._data.type, "textField");
-    const itemClass = this.getCSS(this._data.type, "item");
-    // console.log("itemClass: ", itemClass);
-
     for (let index = 0; index < this._data.items.length; index += 1) {
       const item = this._data.items[index];
 
       if (isDOM(item)) {
-        // console.log("item ", item);
-
-        const result = {
-          text: item.querySelector(`.${textFieldClass}`).innerHTML,
+        items.push({
+          text: this.parseContent(item),
           label: this.parseLabel(item),
-        };
-
-        items.push({ ...result });
+          checked: this.parseCheck(item),
+        });
       }
     }
     data.items = items;
