@@ -82,8 +82,9 @@ export default class OrgLabel {
   }
 
   // highlight label in texts and popover selector
-  highlightCurrentLabel(index, color = "green") {
-    const TargetLabel = this.findTargetLabel(index, color);
+  highlightCurrentLabel(item, color = "green") {
+    const curIndex = item.dataset.index;
+    const TargetLabel = this.findTargetLabel(curIndex, color);
 
     // highlight in texts
     TargetLabel.classList.remove(this.CSS.labelGreen);
@@ -100,14 +101,34 @@ export default class OrgLabel {
       `.${this.CSS.labelPopoverInput}`
     );
 
-    LabelSelectors.replaceWith(this.buildLabelSelectors(index, color));
-    LabelInput.replaceWith(this.buildLabelInput(index, color));
+    LabelSelectors.replaceWith(this.buildLabelSelectors(item, color));
+    LabelInput.replaceWith(this.buildLabelInput(item, color));
   }
 
-  buildLabelInput(index, active = "green") {
+  // get the current label's default state
+  _getActiveLabel(item) {
+    const CurLabel = item.querySelector(`.${this.CSS.listLabel}`);
+    const value = CurLabel.innerText;
+    let color = null;
+
+    if (CurLabel.className.indexOf(this.CSS.labelGreen) >= 0) {
+      color = "green";
+    } else if (CurLabel.className.indexOf(this.CSS.labelRed) >= 0) {
+      color = "red";
+    } else if (CurLabel.className.indexOf(this.CSS.labelWarn) >= 0) {
+      color = "warn";
+    } else {
+      color = "default";
+    }
+
+    return { value, color };
+  }
+
+  // label input component
+  buildLabelInput(item, active = "green") {
     let inputClass;
 
-    switch (active) {
+    switch (this._getActiveLabel(item).color) {
       case "red": {
         inputClass = this.CSS.labelPopoverInputRed;
         break;
@@ -127,15 +148,16 @@ export default class OrgLabel {
     }
 
     const InputBox = make("input", [this.CSS.labelPopoverInput, inputClass], {
-      value: "已完成",
+      value: this._getActiveLabel(item).value,
     });
+    // TODO:  Input onChange
 
     return InputBox;
   }
 
-  buildLabelSelectors(index, active = "green") {
+  // label type selector component
+  buildLabelSelectors(item, active = "green") {
     const Wrapper = make("div", this.CSS.labelPopoverRow);
-
     const SpotGreen = make("div", [
       this.CSS.labelPopoverRowSpot,
       this.CSS.labelPopoverRowSpotGreen,
@@ -154,16 +176,16 @@ export default class OrgLabel {
     ]);
 
     SpotGreen.addEventListener("click", () =>
-      this.highlightCurrentLabel(index, "green")
+      this.highlightCurrentLabel(item, "green")
     );
     SpotRed.addEventListener("click", () =>
-      this.highlightCurrentLabel(index, "red")
+      this.highlightCurrentLabel(item, "red")
     );
     SpotWarn.addEventListener("click", () =>
-      this.highlightCurrentLabel(index, "warn")
+      this.highlightCurrentLabel(item, "warn")
     );
     SpotDefault.addEventListener("click", () =>
-      this.highlightCurrentLabel(index, "default")
+      this.highlightCurrentLabel(item, "default")
     );
 
     Wrapper.appendChild(SpotGreen);
@@ -175,7 +197,7 @@ export default class OrgLabel {
       innerHTML:
         '<svg t="1581913245157" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5676" width="200" height="200"><path d="M853.333333 256L384 725.333333l-213.333333-213.333333" p-id="5677"></path></svg>',
     });
-    switch (active) {
+    switch (this._getActiveLabel(item).color) {
       case "red": {
         SpotRed.appendChild(ActiveDot);
         break;

@@ -174,16 +174,12 @@ export default class Ui {
     this._data = data;
     this._data.items = this.dropEmptyItem(data.items);
 
-    console.log("in ui this._data: ", data);
     const Wrapper = make("div", [this.CSS.baseBlock, this.CSS.listWrapper]);
 
     if (data.items.length) {
       // this._data.items = this.dropEmptyItem(data.items);
       // data.items = this.dropEmptyItem(data.items);
       this._data = { items: [], type: listType };
-
-      console.log("### 0 data.items: ", data.items);
-      console.log("### 0 _data: ", this._data);
 
       data.items.forEach((item, index) => {
         const NewItem = this.createListItem(item, listType, index);
@@ -195,7 +191,6 @@ export default class Ui {
       // this._data.items = this.dropRawItem(data.items);
       this._data.items = this.dropRawItem(this._data.items);
     } else {
-      console.log("### 1");
       // this._data.items = this.dropEmptyItem(data.items);
       const NewItem = this.createListItem(null, listType);
 
@@ -230,6 +225,7 @@ export default class Ui {
         this._data.items.push(NewItem);
         Wrapper.appendChild(NewItem);
       });
+      console.log("-> after build: ", this._data.items);
     } else {
       const NewItem = this.createChecklistItem(null);
 
@@ -393,11 +389,11 @@ export default class Ui {
   }
 
   // popover content
-  labelPopover(index, active = "green") {
+  labelPopover(item, active = "green") {
     const Wrapper = make("div", this.CSS.labelPopover);
 
-    const Selectors = this.orgLabel.buildLabelSelectors(index, active);
-    const Input = this.orgLabel.buildLabelInput(index, active);
+    const Selectors = this.orgLabel.buildLabelSelectors(item, active);
+    const Input = this.orgLabel.buildLabelInput(item, active);
 
     Wrapper.appendChild(Input);
     Wrapper.appendChild(Selectors);
@@ -458,12 +454,13 @@ export default class Ui {
         innerHTML: labelState.label,
         "data-index": itemIndex,
       });
-
-      tippy(Label, this.labelPopover(itemIndex));
     }
 
     ListItem.appendChild(Prefix);
-    if (labelState.hasLabel) ListItem.appendChild(Label);
+    if (labelState.hasLabel) {
+      ListItem.appendChild(Label);
+      tippy(Label, this.labelPopover(ListItem));
+    }
     ListItem.appendChild(TextField);
 
     return ListItem;
@@ -497,8 +494,6 @@ export default class Ui {
         innerHTML: labelState.label,
         "data-index": itemIndex,
       });
-
-      tippy(Label, this.labelPopover(itemIndex));
     }
 
     TextField.addEventListener("input", (ev) => {
@@ -506,7 +501,10 @@ export default class Ui {
     });
 
     ListItem.appendChild(Checkbox);
-    if (labelState.hasLabel) ListItem.appendChild(Label);
+    if (labelState.hasLabel) {
+      ListItem.appendChild(Label);
+      tippy(Label, this.labelPopover(ListItem));
+    }
     ListItem.appendChild(TextField);
 
     return ListItem;
