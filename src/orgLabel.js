@@ -1,5 +1,7 @@
 import { make } from "@groupher/editor-utils";
 
+import { debounce } from "@groupher/editor-utils";
+
 import LN from "./LN";
 
 export default class OrgLabel {
@@ -9,6 +11,7 @@ export default class OrgLabel {
 
     // this._data = null;
     this.element = null;
+    this.labelValueMap = {};
     // all the textField's data-index array
   }
 
@@ -64,7 +67,7 @@ export default class OrgLabel {
     return null;
   }
 
-  getCurLabelClass(color) {
+  _getCurLabelTypeClass(color) {
     let targetClass;
     switch (color) {
       case "red": {
@@ -86,12 +89,14 @@ export default class OrgLabel {
     const curIndex = item.dataset.index;
     const TargetLabel = this.findTargetLabel(curIndex, color);
 
+    console.log("TargetLabel -> ", TargetLabel);
+
     // highlight in texts
     TargetLabel.classList.remove(this.CSS.labelGreen);
     TargetLabel.classList.remove(this.CSS.labelRed);
     TargetLabel.classList.remove(this.CSS.labelWarn);
     TargetLabel.classList.remove(this.CSS.labelDefault);
-    TargetLabel.classList.add(this.getCurLabelClass(color));
+    TargetLabel.classList.add(this._getCurLabelTypeClass(color));
 
     // highlight in popover
     const LabelSelectors = this.element.querySelector(
@@ -103,32 +108,74 @@ export default class OrgLabel {
 
     LabelSelectors.replaceWith(this.buildLabelSelectors(item, color));
     LabelInput.replaceWith(this.buildLabelInput(item, color));
+
+    const curColor = this._parseColorByClassName(TargetLabel.className);
+
+    if (this.labelValueMap[curColor]) {
+      const CurInput = this.element.querySelector(
+        `.${this.CSS.labelPopoverInput}`
+      );
+      CurInput.value = this.labelValueMap[curColor];
+      TargetLabel.innerText = this.labelValueMap[curColor];
+    }
+    // console.log("-> sibling -> ", this._getSiblingLabelValue(TargetLabel));
+  }
+
+  _parseColorByClassName(className) {
+    if (className.indexOf(this.CSS.labelGreen) >= 0) {
+      return "green";
+    } else if (className.indexOf(this.CSS.labelRed) >= 0) {
+      return "red";
+    } else if (className.indexOf(this.CSS.labelWarn) >= 0) {
+      return "warn";
+    } else {
+      return "default";
+    }
   }
 
   // get the current label's default state
-  _getActiveLabel(item) {
+  _getActiveLabelState(item) {
     const CurLabel = item.querySelector(`.${this.CSS.listLabel}`);
     const value = CurLabel.innerText;
-    let color = null;
+    const color = this._parseColorByClassName(CurLabel.className);
 
-    if (CurLabel.className.indexOf(this.CSS.labelGreen) >= 0) {
+    return { value, color };
+  }
+
+  _getSiblingLabelValue(labelItem) {
+    console.log("_getSiblingLabelValue: ", labelItem.className);
+
+    if (labelItem.className.indexOf(this.CSS.labelGreen) >= 0) {
       color = "green";
-    } else if (CurLabel.className.indexOf(this.CSS.labelRed) >= 0) {
+    } else if (labelItem.className.indexOf(this.CSS.labelRed) >= 0) {
       color = "red";
-    } else if (CurLabel.className.indexOf(this.CSS.labelWarn) >= 0) {
+    } else if (labelItem.className.indexOf(this.CSS.labelWarn) >= 0) {
       color = "warn";
     } else {
       color = "default";
     }
+  }
 
-    return { value, color };
+  // change all the label with the same type
+  _labelInputOnChange(item, value) {
+    const curLabel = this._getActiveLabelState(item);
+    const labelTypeClass = this._getCurLabelTypeClass(curLabel.color);
+
+    const someLabelNodeList = item.parentNode.querySelectorAll(
+      `.${labelTypeClass}`
+    );
+
+    for (let index = 0; index < someLabelNodeList.length; index++) {
+      const element = someLabelNodeList[index];
+      element.innerText = value;
+    }
   }
 
   // label input component
   buildLabelInput(item, active = "green") {
     let inputClass;
 
-    switch (this._getActiveLabel(item).color) {
+    switch (this._getActiveLabelState(item).color) {
       case "red": {
         inputClass = this.CSS.labelPopoverInputRed;
         break;
@@ -148,15 +195,36 @@ export default class OrgLabel {
     }
 
     const InputBox = make("input", [this.CSS.labelPopoverInput, inputClass], {
-      value: this._getActiveLabel(item).value,
+      value: this._getActiveLabelState(item).value,
     });
-    // TODO:  Input onChange
+
+    InputBox.addEventListener(
+      "input",
+      debounce(({ target: { value } }) => {
+        this._labelInputOnChange(item, value);
+        this._setLabelValueMap(item);
+      }),
+      200
+    );
 
     return InputBox;
   }
 
+  _setLabelValueMap(item, updateExist = true) {
+    const { value, color } = this._getActiveLabelState(item);
+    if (updateExist) {
+      return (this.labelValueMap[color] = value);
+    }
+
+    if (!this.labelValueMap[color]) {
+      this.labelValueMap[color] = value;
+    }
+  }
+
   // label type selector component
   buildLabelSelectors(item, active = "green") {
+    this._setLabelValueMap(item, false);
+
     const Wrapper = make("div", this.CSS.labelPopoverRow);
     const SpotGreen = make("div", [
       this.CSS.labelPopoverRowSpot,
@@ -197,7 +265,7 @@ export default class OrgLabel {
       innerHTML:
         '<svg t="1581913245157" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5676" width="200" height="200"><path d="M853.333333 256L384 725.333333l-213.333333-213.333333" p-id="5677"></path></svg>',
     });
-    switch (this._getActiveLabel(item).color) {
+    switch (this._getActiveLabelState(item).color) {
       case "red": {
         SpotRed.appendChild(ActiveDot);
         break;
