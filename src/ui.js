@@ -30,6 +30,7 @@ export default class Ui {
     // all the textField's data-index array
     this.textFieldsIndexes = [];
 
+    this.defaultLabelTypeValue = "default";
     this.orgLabel = new OrgLabel({
       api: this.api,
     });
@@ -125,7 +126,7 @@ export default class Ui {
       return hasLabelInGroup
         ? {
             hasLabel: true,
-            label: "default",
+            label: this.orgLabel.getDefaultLabelTypeValue(),
             labelClass: labelClassMap["default"],
           }
         : { hasLabel: false };

@@ -19,6 +19,10 @@ export default class OrgLabel {
     this.element = element;
   }
 
+  getDefaultLabelTypeValue() {
+    return this.labelValueMap["default"] || "default";
+  }
+
   /**
    * CSS classes
    * @constructor
