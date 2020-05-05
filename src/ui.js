@@ -477,10 +477,20 @@ export default class Ui {
    * @return {HTMLElement} checkListItem - new element of checklist
    */
   createChecklistItem(item = null, itemIndex = 0) {
+    let hideLabel = "true";
+    if (item || this._hasLabelInList(true)) {
+      hideLabel = "false";
+    }
+    // const hideLabel = item ? !!item.hideLabel : "false";
+
+    console.log("hello hideLabel: ", hideLabel);
+
     const ListItem = make("div", this.CSS.checklistItem, {
       "data-index": itemIndex,
-      "data-hideLabel": item ? !!item.hideLabel : "false",
+      // "data-hideLabel": item ? !!item.hideLabel : "false",
+      "data-hideLabel": hideLabel,
     });
+
     const Checkbox = make("div", this.CSS.checklistBox);
     const TextField = make("div", this.CSS.checklistTextField, {
       innerHTML: item ? item.text : "",
@@ -526,6 +536,10 @@ export default class Ui {
       if (item) {
         // hide or show label
         !item.hideLabel
+          ? (Label.style.display = "block")
+          : (Label.style.display = "none");
+      } else {
+        this._hasLabelInList(true)
           ? (Label.style.display = "block")
           : (Label.style.display = "none");
       }
