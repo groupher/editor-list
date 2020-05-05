@@ -127,7 +127,7 @@ export default class Ui {
         ? {
             hasLabel: true,
             label: this.orgLabel.getDefaultLabelTypeValue(),
-            labelClass: labelClassMap["default"],
+            labelClass: labelClassMap[LN.DEFAULT],
           }
         : { hasLabel: false };
     }
@@ -420,9 +420,10 @@ export default class Ui {
         ? this.CSS.orderListPrefix
         : this.CSS.unorderListPrefix;
 
+    console.log("the item: ", item);
     const ListItem = make("div", this.CSS.listItem, {
       "data-index": itemIndex,
-      "data-hideLabel": !!item.hideLabel,
+      "data-hideLabel": item ? !!item.hideLabel : "false",
     });
     const Prefix = make("span", prefixClass);
 
@@ -473,7 +474,7 @@ export default class Ui {
   createChecklistItem(item = null, itemIndex = 0) {
     const ListItem = make("div", this.CSS.checklistItem, {
       "data-index": itemIndex,
-      "data-hideLabel": !!item.hideLabel,
+      "data-hideLabel": item ? !!item.hideLabel : "false",
     });
     const Checkbox = make("div", this.CSS.checklistBox);
     const TextField = make("div", this.CSS.checklistTextField, {
@@ -481,9 +482,12 @@ export default class Ui {
       contentEditable: true,
     });
 
-    TextField.addEventListener("input", (ev) => {
-      this._data.items[itemIndex].text = ev.target.innerHTML;
-    });
+    TextField.addEventListener(
+      "input",
+      debounce(({ target }) => {
+        this._data.items[itemIndex].text = target.innerHTML;
+      })
+    );
 
     if (item && item.checked) {
       ListItem.classList.add(this.CSS.checklistItemChecked);
@@ -505,16 +509,21 @@ export default class Ui {
   }
 
   _appendLabelIfNeed(item, itemIndex) {
+    // if (!item) return { need: false, LabelEl: null };
     const labelState = this.getInitLabelState(item);
+
     if (labelState.hasLabel) {
       const Label = make("div", labelState.labelClass, {
         innerHTML: labelState.label,
         "data-index": itemIndex,
       });
-      // hide or show label
-      !item.hideLabel
-        ? (Label.style.display = "block")
-        : (Label.style.display = "none");
+      // NOTE: this only works on existed item, if item is null, means new insert
+      if (item) {
+        // hide or show label
+        !item.hideLabel
+          ? (Label.style.display = "block")
+          : (Label.style.display = "none");
+      }
 
       return { need: true, LabelEl: Label };
     }
@@ -566,7 +575,9 @@ export default class Ui {
       .querySelector(`.${textFieldClass}`)
       .innerHTML.replace("<br>", " ")
       .trim();
-    const firstItem = this._data.items[0];
+
+    const DomList = this._data.items.filter((item) => isDOM(item));
+    const firstItem = DomList[0];
     const firstItemText = firstItem
       .querySelector(`.${textFieldClass}`)
       .innerHTML.replace("<br>", " ")
@@ -689,8 +700,6 @@ export default class Ui {
     const data = {};
     data.type = this._data.type;
     const items = [];
-
-    console.log("before export: ", this._data.items);
 
     for (let index = 0; index < this._data.items.length; index += 1) {
       const item = this._data.items[index];
