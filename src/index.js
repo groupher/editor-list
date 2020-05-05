@@ -81,9 +81,24 @@ export default class List {
   }
 
   // handle setting option change
-  setTune(type) {
+  setTune(type, data) {
+    // functional type
     if (type === LN.ORG_MODE || type === LN.SORT) {
-      console.log("TODO: ", type);
+      console.log("oo data: ", data.items);
+
+      this._data.items = data.items.map((item) => {
+        // console.log("each item.hideLabel: ", item.hideLabel);
+        return {
+          ...item,
+          hideLabel: !item.hideLabel,
+        };
+      });
+
+      console.log("after this._data: ", this._data.items);
+
+      const listElement = this.buildList(this._data.type);
+      this.replaceElement(listElement);
+
       return false;
     }
 

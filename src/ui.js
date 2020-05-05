@@ -226,7 +226,6 @@ export default class Ui {
         this._data.items.push(NewItem);
         Wrapper.appendChild(NewItem);
       });
-      console.log("-> after build: ", this._data.items);
     } else {
       const NewItem = this.createChecklistItem(null);
 
@@ -421,12 +420,14 @@ export default class Ui {
         ? this.CSS.orderListPrefix
         : this.CSS.unorderListPrefix;
 
-    const ListItem = make("div", this.CSS.listItem);
+    const ListItem = make("div", this.CSS.listItem, {
+      "data-index": itemIndex,
+      "data-hideLabel": !!item.hideLabel,
+    });
     const Prefix = make("span", prefixClass);
 
     const TextField = make("div", this.CSS.listTextField, {
       innerHTML: item ? item.text : "",
-      "data-index": itemIndex,
       contentEditable: true,
     });
 
@@ -447,23 +448,20 @@ export default class Ui {
       }, 300)
     );
 
-    let Label = null;
-    const labelState = this.getInitLabelState(item);
-
-    if (labelState.hasLabel) {
-      Label = make("div", labelState.labelClass, {
-        innerHTML: labelState.label,
-        "data-index": itemIndex,
-      });
+    // 保留 checked 状态
+    if (item && item.checked) {
+      ListItem.dataset.checked = true;
     }
 
     ListItem.appendChild(Prefix);
-    if (labelState.hasLabel) {
-      ListItem.appendChild(Label);
-      tippy(Label, this.labelPopover(ListItem));
-    }
-    ListItem.appendChild(TextField);
 
+    const { need, LabelEl } = this._appendLabelIfNeed(item, itemIndex);
+    if (need) {
+      ListItem.appendChild(LabelEl);
+      tippy(LabelEl, this.labelPopover(ListItem));
+    }
+
+    ListItem.appendChild(TextField);
     return ListItem;
   }
 
@@ -475,6 +473,7 @@ export default class Ui {
   createChecklistItem(item = null, itemIndex = 0) {
     const ListItem = make("div", this.CSS.checklistItem, {
       "data-index": itemIndex,
+      "data-hideLabel": !!item.hideLabel,
     });
     const Checkbox = make("div", this.CSS.checklistBox);
     const TextField = make("div", this.CSS.checklistTextField, {
@@ -482,33 +481,44 @@ export default class Ui {
       contentEditable: true,
     });
 
-    if (item && item.checked) {
-      ListItem.classList.add(this.CSS.checklistItemChecked);
-      this._data.items[itemIndex].checked = true;
-    }
-
-    let Label = null;
-    const labelState = this.getInitLabelState(item);
-
-    if (labelState.hasLabel) {
-      Label = make("div", labelState.labelClass, {
-        innerHTML: labelState.label,
-        "data-index": itemIndex,
-      });
-    }
-
     TextField.addEventListener("input", (ev) => {
       this._data.items[itemIndex].text = ev.target.innerHTML;
     });
 
-    ListItem.appendChild(Checkbox);
-    if (labelState.hasLabel) {
-      ListItem.appendChild(Label);
-      tippy(Label, this.labelPopover(ListItem));
+    if (item && item.checked) {
+      ListItem.classList.add(this.CSS.checklistItemChecked);
+      this._data.items[itemIndex].checked = true;
+      ListItem.dataset.checked = true;
     }
+
+    ListItem.appendChild(Checkbox);
+
+    const { need, LabelEl } = this._appendLabelIfNeed(item, itemIndex);
+    if (need) {
+      ListItem.appendChild(LabelEl);
+      tippy(LabelEl, this.labelPopover(ListItem));
+    }
+
     ListItem.appendChild(TextField);
 
     return ListItem;
+  }
+
+  _appendLabelIfNeed(item, itemIndex) {
+    const labelState = this.getInitLabelState(item);
+    if (labelState.hasLabel) {
+      const Label = make("div", labelState.labelClass, {
+        innerHTML: labelState.label,
+        "data-index": itemIndex,
+      });
+      // hide or show label
+      !item.hideLabel
+        ? (Label.style.display = "block")
+        : (Label.style.display = "none");
+
+      return { need: true, LabelEl: Label };
+    }
+    return { need: false, LabelEl: null };
   }
 
   /**
@@ -526,6 +536,8 @@ export default class Ui {
     if (checkbox.contains(event.target)) {
       const curCheckState = this._data.items[itemIndex].checked;
       this._data.items[itemIndex].checked = !curCheckState;
+      // 当切换到非 checklist 的时候保留切换状态
+      checkListItem.dataset.checked = !curCheckState;
       checkListItem.classList.toggle(this.CSS.checklistItemChecked);
     }
   }
@@ -609,7 +621,7 @@ export default class Ui {
       }
 
       itemEl.addEventListener("click", () => {
-        this.setTune(item.name);
+        this.setTune(item.name, this.exportData());
 
         this.clearSettingHighlight(Wrapper);
         // mark active
@@ -643,10 +655,10 @@ export default class Ui {
 
   // parse label type
   parseLabelType(item) {
-    if (item.querySelector(`.${this.CSS.labelGreen}`)) return "green";
-    if (item.querySelector(`.${this.CSS.labelRed}`)) return "red";
-    if (item.querySelector(`.${this.CSS.labelWarn}`)) return "warn";
-    if (item.querySelector(`.${this.CSS.labelDefault}`)) return "default";
+    if (item.querySelector(`.${this.CSS.labelGreen}`)) return LN.GREEN;
+    if (item.querySelector(`.${this.CSS.labelRed}`)) return LN.RED;
+    if (item.querySelector(`.${this.CSS.labelWarn}`)) return LN.WARN;
+    if (item.querySelector(`.${this.CSS.labelDefault}`)) return LN.DEFAULT;
 
     return null;
   }
@@ -661,17 +673,24 @@ export default class Ui {
 
   // parse checked or not
   parseCheck(item) {
-    if (item.className.indexOf(this.CSS.checklistItemChecked) >= 0) {
+    if (item.dataset.checked && item.dataset.checked === "true") {
       return true;
     }
 
     return false;
+    // if (item.className.indexOf(this.CSS.checklistItemChecked) >= 0) {
+    //   return true;
+    // }
+
+    // return false;
   }
 
-  get data() {
+  exportData() {
     const data = {};
     data.type = this._data.type;
     const items = [];
+
+    console.log("before export: ", this._data.items);
 
     for (let index = 0; index < this._data.items.length; index += 1) {
       const item = this._data.items[index];
@@ -682,13 +701,19 @@ export default class Ui {
           label: this.parseLabel(item),
           labelType: this.parseLabelType(item),
           checked: this.parseCheck(item),
+          hideLabel: item.dataset.hidelabel === "true" ? true : false, // NOTE:  dataset is not case sensitive
         });
       }
     }
-    data.items = items;
-    console.log("before up: ", data.items);
-    this.setData(data);
 
+    data.items = items;
+    return data;
+  }
+
+  get data() {
+    const data = this.exportData();
+
+    this.setData(data);
     return data;
   }
 }
