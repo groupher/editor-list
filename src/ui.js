@@ -102,6 +102,21 @@ export default class Ui {
     return this.CSS[N[type][key]];
   }
 
+  _hasLabelInList(visible = false) {
+    for (let index = 0; index < this._data.items.length; index++) {
+      const element = this._data.items[index];
+      // console.log("is current element: ", element);
+      if (isDOM(element)) {
+        const LabelList = element.querySelector(`.${this.CSS.listLabel}`);
+        if (visible && LabelList) {
+          return LabelList.style.display === "block";
+        }
+        if (LabelList) return true;
+      }
+    }
+    return false;
+  }
+
   // get init label state when editor load
   getInitLabelState(item) {
     const labelClassMap = {
@@ -111,19 +126,9 @@ export default class Ui {
       default: [this.CSS.listLabel, this.CSS.labelDefault],
     };
 
-    // console.log("# -> getInitLabelState this._date.items: ", this._data.items);
-    let hasLabelInGroup = false;
-    for (let index = 0; index < this._data.items.length; index++) {
-      const element = this._data.items[index];
-      // console.log("is current element: ", element);
-      if (isDOM(element) && element.querySelector(`.${this.CSS.listLabel}`)) {
-        hasLabelInGroup = true;
-      }
-    }
-
     // 当插入新行的时候需要判断是否其他的行已经有 label, 如果有的话返回默认的 label
     if (!item) {
-      return hasLabelInGroup
+      return this._hasLabelInList()
         ? {
             hasLabel: true,
             label: this.orgLabel.getDefaultLabelTypeValue(),
@@ -628,6 +633,10 @@ export default class Ui {
       this.api.tooltip.onHover(itemEl, item.title, { placement: "top" });
 
       if (this._data.type === item.name) {
+        itemEl.classList.add(this.CSS.settingsButtonActive);
+      }
+
+      if (item.name === LN.ORG_MODE && this._hasLabelInList(true)) {
         itemEl.classList.add(this.CSS.settingsButtonActive);
       }
 

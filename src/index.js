@@ -84,8 +84,6 @@ export default class List {
   setTune(type, data) {
     // functional type
     if (type === LN.ORG_MODE || type === LN.SORT) {
-      console.log("oo data: ", data.items);
-
       this._data.items = data.items.map((item) => {
         // console.log("each item.hideLabel: ", item.hideLabel);
         return {
