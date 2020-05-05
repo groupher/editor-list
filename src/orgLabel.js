@@ -20,7 +20,7 @@ export default class OrgLabel {
   }
 
   getDefaultLabelTypeValue() {
-    return this.labelValueMap["default"] || "default";
+    return this.labelValueMap["default"] || "标签";
   }
 
   /**
@@ -71,16 +71,16 @@ export default class OrgLabel {
     return null;
   }
 
-  _getCurLabelTypeClass(color) {
+  _getCurLabelTypeClass(type) {
     let targetClass;
-    switch (color) {
-      case "red": {
+    switch (type) {
+      case LN.RED: {
         return this.CSS.labelRed;
       }
-      case "warn": {
+      case LN.WARN: {
         return this.CSS.labelWarn;
       }
-      case "default": {
+      case LN.DEFAULT: {
         return this.CSS.labelDefault;
       }
       default:
@@ -89,18 +89,16 @@ export default class OrgLabel {
   }
 
   // highlight label in texts and popover selector
-  highlightCurrentLabel(item, color = "green") {
+  highlightCurrentLabel(item, type) {
     const curIndex = item.dataset.index;
-    const TargetLabel = this.findTargetLabel(curIndex, color);
-
-    console.log("TargetLabel -> ", TargetLabel);
+    const TargetLabel = this.findTargetLabel(curIndex, type);
 
     // highlight in texts
     TargetLabel.classList.remove(this.CSS.labelGreen);
     TargetLabel.classList.remove(this.CSS.labelRed);
     TargetLabel.classList.remove(this.CSS.labelWarn);
     TargetLabel.classList.remove(this.CSS.labelDefault);
-    TargetLabel.classList.add(this._getCurLabelTypeClass(color));
+    TargetLabel.classList.add(this._getCurLabelTypeClass(type));
 
     // highlight in popover
     const LabelSelectors = this.element.querySelector(
@@ -110,30 +108,29 @@ export default class OrgLabel {
       `.${this.CSS.labelPopoverInput}`
     );
 
-    LabelSelectors.replaceWith(this.buildLabelSelectors(item, color));
-    LabelInput.replaceWith(this.buildLabelInput(item, color));
+    LabelSelectors.replaceWith(this.buildLabelSelectors(item, type));
+    LabelInput.replaceWith(this.buildLabelInput(item, type));
 
-    const curColor = this._parseColorByClassName(TargetLabel.className);
+    const curType = this._parseTypeByClassName(TargetLabel.className);
 
-    if (this.labelValueMap[curColor]) {
+    if (this.labelValueMap[curType]) {
       const CurInput = this.element.querySelector(
         `.${this.CSS.labelPopoverInput}`
       );
-      CurInput.value = this.labelValueMap[curColor];
-      TargetLabel.innerText = this.labelValueMap[curColor];
+      CurInput.value = this.labelValueMap[curType];
+      TargetLabel.innerText = this.labelValueMap[curType];
     }
-    // console.log("-> sibling -> ", this._getSiblingLabelValue(TargetLabel));
   }
 
-  _parseColorByClassName(className) {
+  _parseTypeByClassName(className) {
     if (className.indexOf(this.CSS.labelGreen) >= 0) {
-      return "green";
+      return LN.GREEN;
     } else if (className.indexOf(this.CSS.labelRed) >= 0) {
-      return "red";
+      return LN.RED;
     } else if (className.indexOf(this.CSS.labelWarn) >= 0) {
-      return "warn";
+      return LN.WARN;
     } else {
-      return "default";
+      return LN.DEFAULT;
     }
   }
 
@@ -141,29 +138,15 @@ export default class OrgLabel {
   _getActiveLabelState(item) {
     const CurLabel = item.querySelector(`.${this.CSS.listLabel}`);
     const value = CurLabel.innerText;
-    const color = this._parseColorByClassName(CurLabel.className);
+    const type = this._parseTypeByClassName(CurLabel.className);
 
-    return { value, color };
-  }
-
-  _getSiblingLabelValue(labelItem) {
-    console.log("_getSiblingLabelValue: ", labelItem.className);
-
-    if (labelItem.className.indexOf(this.CSS.labelGreen) >= 0) {
-      color = "green";
-    } else if (labelItem.className.indexOf(this.CSS.labelRed) >= 0) {
-      color = "red";
-    } else if (labelItem.className.indexOf(this.CSS.labelWarn) >= 0) {
-      color = "warn";
-    } else {
-      color = "default";
-    }
+    return { value, type };
   }
 
   // change all the label with the same type
   _labelInputOnChange(item, value) {
     const curLabel = this._getActiveLabelState(item);
-    const labelTypeClass = this._getCurLabelTypeClass(curLabel.color);
+    const labelTypeClass = this._getCurLabelTypeClass(curLabel.type);
 
     const someLabelNodeList = item.parentNode.querySelectorAll(
       `.${labelTypeClass}`
@@ -176,19 +159,19 @@ export default class OrgLabel {
   }
 
   // label input component
-  buildLabelInput(item, active = "green") {
+  buildLabelInput(item) {
     let inputClass;
 
-    switch (this._getActiveLabelState(item).color) {
-      case "red": {
+    switch (this._getActiveLabelState(item).type) {
+      case LN.RED: {
         inputClass = this.CSS.labelPopoverInputRed;
         break;
       }
-      case "warn": {
+      case LN.WARN: {
         inputClass = this.CSS.labelPopoverInputWarn;
         break;
       }
-      case "green": {
+      case LN.GREEN: {
         inputClass = this.CSS.labelPopoverInputGreen;
         break;
       }
@@ -215,18 +198,18 @@ export default class OrgLabel {
   }
 
   _setLabelValueMap(item, updateExist = true) {
-    const { value, color } = this._getActiveLabelState(item);
+    const { value, type } = this._getActiveLabelState(item);
     if (updateExist) {
-      return (this.labelValueMap[color] = value);
+      return (this.labelValueMap[type] = value);
     }
 
-    if (!this.labelValueMap[color]) {
-      this.labelValueMap[color] = value;
+    if (!this.labelValueMap[type]) {
+      this.labelValueMap[type] = value;
     }
   }
 
   // label type selector component
-  buildLabelSelectors(item, active = "green") {
+  buildLabelSelectors(item) {
     this._setLabelValueMap(item, false);
 
     const Wrapper = make("div", this.CSS.labelPopoverRow);
@@ -248,16 +231,16 @@ export default class OrgLabel {
     ]);
 
     SpotGreen.addEventListener("click", () =>
-      this.highlightCurrentLabel(item, "green")
+      this.highlightCurrentLabel(item, LN.GREEN)
     );
     SpotRed.addEventListener("click", () =>
-      this.highlightCurrentLabel(item, "red")
+      this.highlightCurrentLabel(item, LN.RED)
     );
     SpotWarn.addEventListener("click", () =>
-      this.highlightCurrentLabel(item, "warn")
+      this.highlightCurrentLabel(item, LN.WARN)
     );
     SpotDefault.addEventListener("click", () =>
-      this.highlightCurrentLabel(item, "default")
+      this.highlightCurrentLabel(item, LN.DEFAULT)
     );
 
     Wrapper.appendChild(SpotGreen);
@@ -269,16 +252,16 @@ export default class OrgLabel {
       innerHTML:
         '<svg t="1581913245157" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5676" width="200" height="200"><path d="M853.333333 256L384 725.333333l-213.333333-213.333333" p-id="5677"></path></svg>',
     });
-    switch (this._getActiveLabelState(item).color) {
-      case "red": {
+    switch (this._getActiveLabelState(item).type) {
+      case LN.RED: {
         SpotRed.appendChild(ActiveDot);
         break;
       }
-      case "warn": {
+      case LN.WARN: {
         SpotWarn.appendChild(ActiveDot);
         break;
       }
-      case "green": {
+      case LN.GREEN: {
         SpotGreen.appendChild(ActiveDot);
         break;
       }

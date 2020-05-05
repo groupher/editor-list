@@ -4,6 +4,11 @@ const LN = {
   CHECKLIST: "checklist",
   ORG_MODE: "org_mode",
   SORT: "sort",
+  // ---
+  RED: "red",
+  GREEN: "green",
+  WARN: "warn",
+  DEFAULT: "default",
 };
 
 export default LN;
