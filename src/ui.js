@@ -136,7 +136,6 @@ export default class Ui {
         }
         : { hasLabel: false };
     }
-    // console.log("# -> getInitLabelState: ", item);
     const hasLabel = item.label && item.labelType;
 
     return {
@@ -393,7 +392,7 @@ export default class Ui {
     this.textFieldsIndexes = textFieldsIndexes;
   }
 
-  // popover content
+  // label popover content
   labelPopover(item, active = "green") {
     const Wrapper = make("div", this.CSS.labelPopover);
 
@@ -414,6 +413,21 @@ export default class Ui {
     };
   }
 
+  // 
+  /**
+   * item's hideLabel dataset value set to true or false
+   * 当前 Item 的 hideLabel 标志位，需要根据初始状态，当前列表中是否已经有 Label 等状态综合判断
+   * 
+   * @param {HTMLElement} item - GeneralListElement (ListItem or CheckListItem) 
+   */
+  _shouldHideLabel(item) {
+    if (!item) {
+      return this._hasLabelInList(true) ? false : true
+    } else {
+      return !!item.hideLabel
+    }
+  }
+
   /**
    * Create Checklist items
    * @param {ChecklistData} item - data.item
@@ -427,7 +441,8 @@ export default class Ui {
 
     const ListItem = make("div", this.CSS.listItem, {
       "data-index": itemIndex,
-      "data-hideLabel": item ? !!item.hideLabel : "false",
+      // "data-hideLabel": item ? !!item.hideLabel : "false",
+      "data-hideLabel": this._shouldHideLabel(item),
     });
     const Prefix = make("span", prefixClass);
 
@@ -476,18 +491,9 @@ export default class Ui {
    * @return {HTMLElement} checkListItem - new element of checklist
    */
   createChecklistItem(item = null, itemIndex = 0) {
-    let hideLabel = "true";
-    if (item || this._hasLabelInList(true)) {
-      hideLabel = "false";
-    }
-    // const hideLabel = item ? !!item.hideLabel : "false";
-
-    console.log("hello hideLabel: ", hideLabel);
-
     const ListItem = make("div", this.CSS.checklistItem, {
       "data-index": itemIndex,
-      // "data-hideLabel": item ? !!item.hideLabel : "false",
-      "data-hideLabel": hideLabel,
+      "data-hideLabel": this._shouldHideLabel(item),
     });
 
     const Checkbox = make("div", this.CSS.checklistBox);
@@ -522,8 +528,15 @@ export default class Ui {
     return ListItem;
   }
 
+  /**
+   * is the Label Element should add to current LitItem
+   * 根据当前列表项是否需要添加 Label 前缀，如果是在不同 ListType 之间切换，则需要控制 Label 的显示以便保留 Label 相关状态
+   * 
+   * @param { HTMLElement } item - GeneralListElement (ListItem or CheckListItem) 
+   * @param { Number } itemIndex - index of current list item
+   * @return {{ need: boolean, LabelEl: HTMLElement | null }}
+   */
   _appendLabelIfNeed(item, itemIndex) {
-    // if (!item) return { need: false, LabelEl: null };
     const labelState = this.getInitLabelState(item);
 
     if (labelState.hasLabel) {
@@ -531,6 +544,7 @@ export default class Ui {
         innerHTML: labelState.label,
         "data-index": itemIndex,
       });
+
       // NOTE: this only works on existed item, if item is null, means new insert
       if (item) {
         // hide or show label

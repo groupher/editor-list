@@ -85,15 +85,14 @@ export default class List {
     // functional type
     // if (type === LN.ORG_MODE || type === LN.SORT) {
     if (type === LN.ORG_MODE) {
+      // // NOTE:  这里取反是要获取下一个状态，因为切换前的状态和我们要使用的状态是相反的
+      // const hasLabelInList = !this.ui._hasLabelInList(true)
       this._data.items = data.items.map(({ label, labelType, hideLabel, ...restProps }) => {
-        // label = null means it's the first init list plugin without label
-        const _hideLabel = label ? !hideLabel : false
-
         return {
           ...restProps,
           label: label || LN.DEFAULT_LABEL,
           labelType: labelType || LN.DEFAULT,
-          hideLabel: _hideLabel,
+          hideLabel: label ? !hideLabel : false
         };
       });
 
