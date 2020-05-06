@@ -130,10 +130,10 @@ export default class Ui {
     if (!item) {
       return this._hasLabelInList()
         ? {
-          hasLabel: true,
-          label: this.orgLabel.getDefaultLabelTypeValue(),
-          labelClass: labelClassMap[LN.DEFAULT],
-        }
+            hasLabel: true,
+            label: this.orgLabel.getDefaultLabelTypeValue(),
+            labelClass: labelClassMap[LN.DEFAULT],
+          }
         : { hasLabel: false };
     }
     const hasLabel = item.label && item.labelType;
@@ -413,18 +413,18 @@ export default class Ui {
     };
   }
 
-  // 
+  //
   /**
    * item's hideLabel dataset value set to true or false
    * 当前 Item 的 hideLabel 标志位，需要根据初始状态，当前列表中是否已经有 Label 等状态综合判断
-   * 
-   * @param {HTMLElement} item - GeneralListElement (ListItem or CheckListItem) 
+   *
+   * @param {HTMLElement} item - GeneralListElement (ListItem or CheckListItem)
    */
   _shouldHideLabel(item) {
     if (!item) {
-      return this._hasLabelInList(true) ? false : true
+      return this._hasLabelInList(true) ? false : true;
     } else {
-      return !!item.hideLabel
+      return !!item.hideLabel;
     }
   }
 
@@ -531,8 +531,8 @@ export default class Ui {
   /**
    * is the Label Element should add to current LitItem
    * 根据当前列表项是否需要添加 Label 前缀，如果是在不同 ListType 之间切换，则需要控制 Label 的显示以便保留 Label 相关状态
-   * 
-   * @param { HTMLElement } item - GeneralListElement (ListItem or CheckListItem) 
+   *
+   * @param { HTMLElement } item - GeneralListElement (ListItem or CheckListItem)
    * @param { Number } itemIndex - index of current list item
    * @return {{ need: boolean, LabelEl: HTMLElement | null }}
    */
@@ -695,13 +695,13 @@ export default class Ui {
   }
 
   // parse item's innerHTML as content
-  parseContent(item) {
+  _parseContent(item) {
     const textFieldClass = this.getCSS(this._data.type, "textField");
     return item.querySelector(`.${textFieldClass}`).innerHTML;
   }
 
   // parse label type
-  parseLabelType(item) {
+  _parseLabelType(item) {
     if (item.querySelector(`.${this.CSS.labelGreen}`)) return LN.GREEN;
     if (item.querySelector(`.${this.CSS.labelRed}`)) return LN.RED;
     if (item.querySelector(`.${this.CSS.labelWarn}`)) return LN.WARN;
@@ -711,7 +711,7 @@ export default class Ui {
   }
 
   // parse label info
-  parseLabel(item) {
+  _parseLabel(item) {
     const label = item.querySelector(`.${this.CSS.listLabel}`);
     if (label) return label.innerText;
 
@@ -719,7 +719,7 @@ export default class Ui {
   }
 
   // parse checked or not
-  parseCheck(item) {
+  _parseCheck(item) {
     if (item.dataset.checked && item.dataset.checked === "true") {
       return true;
     }
@@ -742,10 +742,10 @@ export default class Ui {
 
       if (isDOM(item)) {
         items.push({
-          text: this.parseContent(item),
-          label: this.parseLabel(item),
-          labelType: this.parseLabelType(item),
-          checked: this.parseCheck(item),
+          text: this._parseContent(item),
+          label: this._parseLabel(item),
+          labelType: this._parseLabelType(item),
+          checked: this._parseCheck(item),
           hideLabel: item.dataset.hidelabel === "true" ? true : false, // NOTE:  dataset is not case sensitive
         });
       }
