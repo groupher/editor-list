@@ -20,7 +20,7 @@ export default class OrgLabel {
   }
 
   getDefaultLabelTypeValue() {
-    return this.labelValueMap["default"] || "标签";
+    return this.labelValueMap["default"] || LN.DEFAULT_LABEL;
   }
 
   /**

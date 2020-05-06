@@ -9,6 +9,7 @@ const LN = {
   GREEN: "green",
   WARN: "warn",
   DEFAULT: "default",
+  DEFAULT_LABEL: "标签",
 };
 
 export default LN;

@@ -83,12 +83,17 @@ export default class List {
   // handle setting option change
   setTune(type, data) {
     // functional type
-    if (type === LN.ORG_MODE || type === LN.SORT) {
-      this._data.items = data.items.map((item) => {
-        // console.log("each item.hideLabel: ", item.hideLabel);
+    // if (type === LN.ORG_MODE || type === LN.SORT) {
+    if (type === LN.ORG_MODE) {
+      this._data.items = data.items.map(({ label, labelType, hideLabel, ...restProps }) => {
+        // label = null means it's the first init list plugin without label
+        const _hideLabel = label ? !hideLabel : false
+
         return {
-          ...item,
-          hideLabel: !item.hideLabel,
+          ...restProps,
+          label: label || LN.DEFAULT_LABEL,
+          labelType: labelType || LN.DEFAULT,
+          hideLabel: _hideLabel,
         };
       });
 

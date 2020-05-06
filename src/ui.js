@@ -130,10 +130,10 @@ export default class Ui {
     if (!item) {
       return this._hasLabelInList()
         ? {
-            hasLabel: true,
-            label: this.orgLabel.getDefaultLabelTypeValue(),
-            labelClass: labelClassMap[LN.DEFAULT],
-          }
+          hasLabel: true,
+          label: this.orgLabel.getDefaultLabelTypeValue(),
+          labelClass: labelClassMap[LN.DEFAULT],
+        }
         : { hasLabel: false };
     }
     // console.log("# -> getInitLabelState: ", item);
@@ -425,7 +425,6 @@ export default class Ui {
         ? this.CSS.orderListPrefix
         : this.CSS.unorderListPrefix;
 
-    console.log("the item: ", item);
     const ListItem = make("div", this.CSS.listItem, {
       "data-index": itemIndex,
       "data-hideLabel": item ? !!item.hideLabel : "false",
