@@ -667,6 +667,15 @@ export default class Ui {
         itemEl.classList.add(this.CSS.settingsButtonActive);
       }
 
+      if (item.name === LN.SORT) {
+        if (this._hasLabelInList(true)) {
+          // itemEl.classList.add(this.CSS.settingsButtonActive);
+          itemEl.style.visibility = "visible";
+        } else {
+          itemEl.style.visibility = "hidden";
+        }
+      }
+
       itemEl.addEventListener("click", () => {
         this.setTune(item.name, this.exportData());
 
@@ -725,11 +734,6 @@ export default class Ui {
     }
 
     return false;
-    // if (item.className.indexOf(this.CSS.checklistItemChecked) >= 0) {
-    //   return true;
-    // }
-
-    // return false;
   }
 
   exportData() {

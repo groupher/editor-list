@@ -83,20 +83,38 @@ export default class List {
   // handle setting option change
   setTune(type, data) {
     // functional type
-    // if (type === LN.ORG_MODE || type === LN.SORT) {
     if (type === LN.ORG_MODE) {
-      // // NOTE:  这里取反是要获取下一个状态，因为切换前的状态和我们要使用的状态是相反的
-      // const hasLabelInList = !this.ui._hasLabelInList(true)
-      this._data.items = data.items.map(({ label, labelType, hideLabel, ...restProps }) => {
-        return {
-          ...restProps,
-          label: label || LN.DEFAULT_LABEL,
-          labelType: labelType || LN.DEFAULT,
-          hideLabel: label ? !hideLabel : false
-        };
-      });
+      this._data.items = data.items.map(
+        ({ label, labelType, hideLabel, ...restProps }) => {
+          return {
+            ...restProps,
+            label: label || LN.DEFAULT_LABEL,
+            labelType: labelType || LN.DEFAULT,
+            hideLabel: label ? !hideLabel : false,
+          };
+        }
+      );
+      const listElement = this.buildList(this._data.type);
+      this.replaceElement(listElement);
 
-      console.log("after this._data: ", this._data.items);
+      return false;
+    }
+
+    if (type === LN.SORT) {
+      console.log("TODO:  sort it: ", this._data.items);
+
+      const LABEL_ORDER = {
+        green: 2,
+        warn: 1,
+        red: 0,
+        default: 3,
+      };
+
+      this._data.items = this._data.items.sort(
+        (t1, t2) => LABEL_ORDER[t1.labelType] - LABEL_ORDER[t2.labelType]
+      );
+
+      console.log("after sort: ", this._data.items);
 
       const listElement = this.buildList(this._data.type);
       this.replaceElement(listElement);
