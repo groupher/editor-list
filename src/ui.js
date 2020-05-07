@@ -653,7 +653,7 @@ export default class Ui {
   renderSettings() {
     const Wrapper = make("div", [this.CSS.settingsWrapper], {});
 
-    // this.clearSettingHighlight();
+    console.log("hello?")
     this.settings.forEach((item) => {
       const itemEl = make("div", this.CSS.settingsButton, {
         innerHTML: item.icon,
@@ -672,14 +672,19 @@ export default class Ui {
       }
 
       if (item.name === LN.SORT) {
-        this.api.tooltip.onHover(itemEl, item[this.sortType], { placement: "top" });
+        const curSortTypeIndex = LN.SORT_ENUM.indexOf(this.sortType)
+        console.log("the curSortTypeIndex: ", curSortTypeIndex)
+        const nextSortTypeIndex = curSortTypeIndex >= LN.SORT_ENUM.length - 1 ? 0 : curSortTypeIndex + 1
+        const nextSortType = LN.SORT_ENUM[nextSortTypeIndex]
+
+        this.api.tooltip.onHover(itemEl, item[nextSortType], { placement: "top" });
         this._hasLabelInList(true) ? itemEl.style.visibility = "visible" : itemEl.style.visibility = "hidden";
 
-        if (this.sortType === LN.SORT_DOWN) {
+        if (nextSortType === LN.SORT_DOWN) {
           itemEl.classList.add(this.CSS.settingsButtonRotate);
         }
 
-        if (this.sortType !== LN.SORT_DEFAULT) {
+        if (nextSortType === LN.SORT_DEFAULT) {
           itemEl.classList.add(this.CSS.settingsButtonActive);
         }
       }

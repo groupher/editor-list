@@ -14,6 +14,7 @@ const LN = {
   SORT_DEFAULT: 'sort_default',
   SORT_UP: 'sort_up',
   SORT_DOWN: 'sort_down',
+  SORT_ENUM: ['sort_default', 'sort_up', 'sort_down'],
 
   SORT_ORDER: {
     'sort_up': {

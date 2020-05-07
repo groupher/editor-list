@@ -67,7 +67,6 @@ export default class List {
 
     this.api = api;
     this.i18n = config.i18n || "en";
-    this.sortEnum = [LN.SORT_DEFAULT, LN.SORT_UP, LN.SORT_DOWN];
 
     /**
      * Module for working with UI
@@ -102,10 +101,9 @@ export default class List {
     }
 
     if (type === LN.SORT) {
-      const curSortTypeIndex = this.sortEnum.indexOf(sortType)
-      const nextSortTypeIndex = curSortTypeIndex >= this.sortEnum.length - 1 ? 0 : curSortTypeIndex + 1
-
-      const nextSortType = this.sortEnum[nextSortTypeIndex]
+      const curSortTypeIndex = LN.SORT_ENUM.indexOf(sortType)
+      const nextSortTypeIndex = curSortTypeIndex >= LN.SORT_ENUM.length - 1 ? 0 : curSortTypeIndex + 1
+      const nextSortType = LN.SORT_ENUM[nextSortTypeIndex]
 
       this.ui.setSortType(nextSortType)
 

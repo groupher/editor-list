@@ -32,7 +32,7 @@ const iconList = [
   // only show when org-list is active
   {
     name: LN.SORT,
-    title: "按标签排序",
+    // title: "重置排序",
     sort_up: "按标签顺序",
     sort_down: "按标签逆序",
     sort_default: '按标签排序',
