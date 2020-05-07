@@ -27,6 +27,7 @@ export default class Ui {
     this.setTune = setTune;
     this.setData = setData;
 
+    this.sortType = LN.SORT_DEFAULT
     // all the textField's data-index array
     this.textFieldsIndexes = [];
 
@@ -51,6 +52,7 @@ export default class Ui {
       settingsWrapper: "cdx-custom-settings",
       settingsButton: this.api.styles.settingsButton,
       settingsButtonActive: this.api.styles.settingsButtonActive,
+      settingsButtonRotate: 'cdx-setting-button-rotate',
 
       // list
       listWrapper: "cdx-list",
@@ -130,10 +132,10 @@ export default class Ui {
     if (!item) {
       return this._hasLabelInList()
         ? {
-            hasLabel: true,
-            label: this.orgLabel.getDefaultLabelTypeValue(),
-            labelClass: labelClassMap[LN.DEFAULT],
-          }
+          hasLabel: true,
+          label: this.orgLabel.getDefaultLabelTypeValue(),
+          labelClass: labelClassMap[LN.DEFAULT],
+        }
         : { hasLabel: false };
     }
     const hasLabel = item.label && item.labelType;
@@ -657,7 +659,9 @@ export default class Ui {
         innerHTML: item.icon,
       });
 
-      this.api.tooltip.onHover(itemEl, item.title, { placement: "top" });
+      if (item.name !== LN.SORT) {
+        this.api.tooltip.onHover(itemEl, item.title, { placement: "top" });
+      }
 
       if (this._data.type === item.name) {
         itemEl.classList.add(this.CSS.settingsButtonActive);
@@ -668,16 +672,20 @@ export default class Ui {
       }
 
       if (item.name === LN.SORT) {
-        if (this._hasLabelInList(true)) {
-          // itemEl.classList.add(this.CSS.settingsButtonActive);
-          itemEl.style.visibility = "visible";
-        } else {
-          itemEl.style.visibility = "hidden";
+        this.api.tooltip.onHover(itemEl, item[this.sortType], { placement: "top" });
+        this._hasLabelInList(true) ? itemEl.style.visibility = "visible" : itemEl.style.visibility = "hidden";
+
+        if (this.sortType === LN.SORT_DOWN) {
+          itemEl.classList.add(this.CSS.settingsButtonRotate);
+        }
+
+        if (this.sortType !== LN.SORT_DEFAULT) {
+          itemEl.classList.add(this.CSS.settingsButtonActive);
         }
       }
 
       itemEl.addEventListener("click", () => {
-        this.setTune(item.name, this.exportData());
+        this.setTune(item.name, this.exportData(), this.sortType);
 
         this.clearSettingHighlight(Wrapper);
         // mark active
@@ -688,6 +696,11 @@ export default class Ui {
     });
 
     return Wrapper;
+  }
+
+  // set sort icon type in settings menu
+  setSortType(type) {
+    this.sortType = type
   }
 
   // TODO:  use utils function

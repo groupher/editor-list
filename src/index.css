@@ -229,3 +229,7 @@
   max-width: 120px;
   flex-wrap: wrap;
 }
+
+.cdx-setting-button-rotate {
+  transform: rotate(180deg);
+}

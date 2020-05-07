@@ -67,6 +67,7 @@ export default class List {
 
     this.api = api;
     this.i18n = config.i18n || "en";
+    this.sortEnum = [LN.SORT_DEFAULT, LN.SORT_UP, LN.SORT_DOWN];
 
     /**
      * Module for working with UI
@@ -81,7 +82,7 @@ export default class List {
   }
 
   // handle setting option change
-  setTune(type, data) {
+  setTune(type, data, sortType) {
     // functional type
     if (type === LN.ORG_MODE) {
       this._data.items = data.items.map(
@@ -101,20 +102,16 @@ export default class List {
     }
 
     if (type === LN.SORT) {
-      console.log("TODO:  sort it: ", this._data.items);
+      const curSortTypeIndex = this.sortEnum.indexOf(sortType)
+      const nextSortTypeIndex = curSortTypeIndex >= this.sortEnum.length - 1 ? 0 : curSortTypeIndex + 1
 
-      const LABEL_ORDER = {
-        green: 2,
-        warn: 1,
-        red: 0,
-        default: 3,
-      };
+      const nextSortType = this.sortEnum[nextSortTypeIndex]
+
+      this.ui.setSortType(nextSortType)
 
       this._data.items = this._data.items.sort(
-        (t1, t2) => LABEL_ORDER[t1.labelType] - LABEL_ORDER[t2.labelType]
+        (t1, t2) => LN.SORT_ORDER[nextSortType][t1.labelType] - LN.SORT_ORDER[nextSortType][t2.labelType]
       );
-
-      console.log("after sort: ", this._data.items);
 
       const listElement = this.buildList(this._data.type);
       this.replaceElement(listElement);
