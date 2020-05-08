@@ -29,6 +29,10 @@
   }
 }
 
+.cdx-checklist__item--checked .cdx-checklist__item-text {
+  text-decoration: line-through;
+}
+
 .cdx-list {
   &__item {
     display: flex;
