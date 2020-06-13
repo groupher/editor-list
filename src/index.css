@@ -76,54 +76,67 @@
       outline: none;
       flex-grow: 1;
       padding: 10px 0;
+      color: #49676b;
+    }
+
+    &-bracket {
+      svg {
+        fill: #6a8f94;
+      }
+    }
+
+    &-bracket-right {
+      svg {
+        fill: #6a8f94;
+        margin-left: 10px;
+      }
+    }
+
+    &-check-sign {
+      position: absolute;
+      left: 8px;
+      transform: rotate(-10deg);
+      svg {
+        fill: #6a8f94;
+        width: 26px;
+        height: 26px;
+        opacity: 0.1;
+
+        &:hover {
+          opacity: 0.3;
+        }
+      }
+    }
+
+    &-check-sign-active {
+      svg {
+        opacity: 1;
+        &:hover {
+          opacity: 1;
+        }
+      }
     }
 
     &-checkbox {
-      display: inline-block;
-      flex-shrink: 0;
+      display: flex;
+      align-items: center;
       position: relative;
-      width: 16px !important;
       height: 16px !important;
       margin: 10px 10px 10px 0;
-      border-radius: 50%;
-      border: 1px solid #6e8f94 !important;
+      /* border-radius: 50%; */
+      /* border: 1px solid #6e8f94 !important; */
       cursor: pointer;
       user-select: none;
 
       &:hover {
         border-color: #b5b5b5;
       }
-
-      &::after {
-        position: absolute;
-        top: 5px !important;
-        left: 4px !important;
-        width: 6px !important;
-        height: 3px !important;
-        border: 2px solid;
-        border-color: #fcfff4 !important;
-        border-radius: 1px;
-        border-top: none;
-        border-right: none;
-        background: transparent;
-        content: "";
-        opacity: 0;
-        transform: rotate(-45deg);
-      }
     }
 
     &--checked {
       ^&-checkbox {
-        background: #6e8f94 !important;
-        border-color: #6e8f94 !important;
-
-        &:hover {
-          background: #6e8f94;
-        }
-
-        &::after {
-          opacity: 1;
-        }
+        /* background: #6e8f94 !important; */
+        /* border-color: #6e8f94 !important; */
       }
     }
   }
