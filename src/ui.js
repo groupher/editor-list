@@ -502,30 +502,7 @@ export default class Ui {
       "data-hideLabel": this._shouldHideLabel(item),
     });
 
-    const LeftBracket = make("div", this.CSS.checklistBracket, {
-      innerHTML:
-        '<svg t="1592048015933" width="15px" height="15px" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2908" width="200" height="200"><path d="M430.08 204.8h163.84v81.92H512v450.56h81.92v81.92H430.08z" p-id="2909"></path></svg>',
-    });
-    const CheckSign = make("div", this.CSS.checklistBracketCheckSign, {
-      innerHTML:
-        '<svg t="1592049095081" width="20px" height="20px" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="9783" width="200" height="200"><path d="M853.333333 256L384 725.333333l-213.333333-213.333333" p-id="9784"></path></svg>',
-    });
-
-    const RightBracket = make("div", this.CSS.checklistBracketRight, {
-      innerHTML:
-        '<svg t="1592048041260" width="15px" height="15px" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3043" width="200" height="200"><path d="M593.92 204.8H430.08v81.92h81.92v450.56H430.08v81.92h163.84z" p-id="3044"></path></svg>',
-    });
-
-    const Checkbox = make("div", this.CSS.checklistBox);
-    Checkbox.appendChild(LeftBracket);
-    Checkbox.appendChild(CheckSign);
-    Checkbox.appendChild(RightBracket);
-
-    // const Checkbox = make("div", this.CSS.checklistBox, {
-    //   innerHTML:
-    //     '<svg t="1581913245157" class="icon" width="20px" height="20px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5676" width="200" height="200"><path d="M853.333333 256L384 725.333333l-213.333333-213.333333" p-id="5677"></path></svg>',
-    // });
-
+    const Checkbox = this._buildCheckBox();
     const TextField = make("div", this.CSS.checklistTextField, {
       innerHTML: item ? item.text : "",
       contentEditable: true,
@@ -539,8 +516,8 @@ export default class Ui {
     );
 
     if (item && item.checked) {
-      ListItem.classList.add(this.CSS.checklistItemChecked);
       Checkbox.classList.add(this.CSS.checklistBracketCheckSignChecked);
+      ListItem.classList.add(this.CSS.checklistItemChecked);
       this._data.items[itemIndex].checked = true;
       ListItem.dataset.checked = true;
     }
@@ -556,6 +533,32 @@ export default class Ui {
     ListItem.appendChild(TextField);
 
     return ListItem;
+  }
+
+  _buildCheckBox() {
+    const LeftBracket = make("div", this.CSS.checklistBracket, {
+      innerHTML:
+        '<svg t="1592048015933" width="15px" height="15px" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2908" width="200" height="200"><path d="M430.08 204.8h163.84v81.92H512v450.56h81.92v81.92H430.08z" p-id="2909"></path></svg>',
+    });
+    const CheckSign = make("div", this.CSS.checklistBracketCheckSign, {
+      innerHTML:
+        '<svg t="1592049095081" width="20px" height="20px" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="9783" width="200" height="200"><path d="M853.333333 256L384 725.333333l-213.333333-213.333333" p-id="9784"></path></svg>',
+      // must set this contentEditable, this is a workaround for editorjs's plus icon apear and jumpy
+      // 这里必须设置 contentEditable, 否则 editorjs 的增加按钮会闪现
+      contentEditable: true,
+    });
+
+    const RightBracket = make("div", this.CSS.checklistBracketRight, {
+      innerHTML:
+        '<svg t="1592048041260" width="15px" height="15px" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3043" width="200" height="200"><path d="M593.92 204.8H430.08v81.92h81.92v450.56H430.08v81.92h163.84z" p-id="3044"></path></svg>',
+    });
+
+    const Checkbox = make("div", this.CSS.checklistBox);
+    Checkbox.appendChild(LeftBracket);
+    Checkbox.appendChild(CheckSign);
+    Checkbox.appendChild(RightBracket);
+
+    return Checkbox;
   }
 
   /**
@@ -608,9 +611,9 @@ export default class Ui {
       const curCheckState = this._data.items[itemIndex].checked;
       this._data.items[itemIndex].checked = !curCheckState;
       // 当切换到非 checklist 的时候保留切换状态
-      CheckListItem.dataset.checked = !curCheckState;
-      CheckListItem.classList.toggle(this.CSS.checklistItemChecked);
       Checkbox.classList.toggle(this.CSS.checklistBracketCheckSignChecked);
+      CheckListItem.classList.toggle(this.CSS.checklistItemChecked);
+      CheckListItem.dataset.checked = !curCheckState;
     }
   }
 

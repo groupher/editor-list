@@ -107,6 +107,7 @@
       position: absolute;
       left: 8px;
       transform: rotate(-10deg);
+      outline: none;
       svg {
         fill: #6a8f94;
         width: 26px;
