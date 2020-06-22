@@ -5,6 +5,7 @@
   margin-right: 10px;
   font-size: 12px;
   font-family: sans-serif;
+  word-break: keep-all;
 
   &:hover {
     cursor: pointer;
@@ -36,31 +37,42 @@
 .cdx-list {
   &__item {
     display: flex;
-    align-items: center;
-    padding: 0 10px;
+    align-items: baseline;
     box-sizing: content-box;
+    position: relative;
 
     &-text {
       outline: none;
       flex-grow: 1;
       padding: 10px 0;
+      color: #526c73;
     }
     &-unorder-prefix {
-      width: 5px;
-      height: 5px;
-      background: grey;
-      border-radius: 50%;
-      margin-right: 10px;
+      position: relative;
+      margin-right: 24px;
+
+      &::before {
+        content: '';
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        background: #09aac1;
+        border-radius: 50%;
+        top: -9px;
+        left: 0;
+      }
     }
     &-order-prefix {
-      margin-right: 10px;
+      color: #09aac1;
+      margin-right: 24px;
+      font-size: 15px;
     }
     &-prefix-index {
-      width: 5px;
-      height: 5px;
-      background: grey;
+      width: 6px;
+      height: 6px;
+      background: #09aac1;
       border-radius: 50%;
-      margin-right: 10px;
+      margin-right: 24px;
     }
   }
 }
@@ -68,15 +80,14 @@
 .cdx-checklist {
   &__item {
     display: flex;
-    align-items: center;
-    padding: 0 10px;
+    align-items: baseline;
     box-sizing: content-box;
 
     &-text {
       outline: none;
       flex-grow: 1;
       padding: 10px 0;
-      color: #49676b;
+      color: #526c73;
     }
 
     &-bracket {
@@ -123,8 +134,7 @@
       position: relative;
       height: 16px !important;
       margin: 10px 10px 10px 0;
-      /* border-radius: 50%; */
-      /* border: 1px solid #6e8f94 !important; */
+      margin-right: 16px;
       cursor: pointer;
       user-select: none;
 

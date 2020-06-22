@@ -136,10 +136,10 @@ export default class Ui {
     if (!item) {
       return this._hasLabelInList()
         ? {
-            hasLabel: true,
-            label: this.orgLabel.getDefaultLabelTypeValue(),
-            labelClass: labelClassMap[LN.DEFAULT],
-          }
+          hasLabel: true,
+          label: this.orgLabel.getDefaultLabelTypeValue(),
+          labelClass: labelClassMap[LN.DEFAULT],
+        }
         : { hasLabel: false };
     }
     const hasLabel = item.label && item.labelType;
@@ -450,7 +450,7 @@ export default class Ui {
       // "data-hideLabel": item ? !!item.hideLabel : "false",
       "data-hideLabel": this._shouldHideLabel(item),
     });
-    const Prefix = make("span", prefixClass);
+    const Prefix = make("div", prefixClass);
 
     const TextField = make("div", this.CSS.listTextField, {
       innerHTML: item ? item.text : "",
