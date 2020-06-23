@@ -35,6 +35,7 @@
 }
 
 .cdx-list {
+  padding: 1.2em 0;
   &__item {
     display: flex;
     align-items: baseline;
@@ -49,7 +50,7 @@
     }
     &-unorder-prefix {
       position: relative;
-      margin-right: 24px;
+      margin-right: 26px;
 
       &::before {
         content: '';
@@ -64,7 +65,7 @@
     }
     &-order-prefix {
       color: #09aac1;
-      margin-right: 24px;
+      margin-right: 20px;
       font-size: 15px;
     }
     &-prefix-index {
