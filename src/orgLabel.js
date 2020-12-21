@@ -108,8 +108,8 @@ export default class OrgLabel {
       `.${this.CSS.labelPopoverInput}`
     );
 
-    LabelSelectors.replaceWith(this.buildLabelSelectors(item, type));
-    LabelInput.replaceWith(this.buildLabelInput(item, type));
+    LabelSelectors.replaceWith(this.drawLabelSelectors(item, type));
+    LabelInput.replaceWith(this.drawLabelInput(item, type));
 
     const curType = this._parseTypeByClassName(TargetLabel.className);
 
@@ -159,7 +159,7 @@ export default class OrgLabel {
   }
 
   // label input component
-  buildLabelInput(item) {
+  drawLabelInput(item) {
     let inputClass;
 
     switch (this._getActiveLabelState(item).type) {
@@ -209,7 +209,7 @@ export default class OrgLabel {
   }
 
   // label type selector component
-  buildLabelSelectors(item) {
+  drawLabelSelectors(item) {
     this._setLabelValueMap(item, false);
 
     const Wrapper = make("div", this.CSS.labelPopoverRow);

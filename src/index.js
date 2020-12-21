@@ -94,7 +94,7 @@ export default class List {
           };
         }
       );
-      const listElement = this.buildList(this._data.type);
+      const listElement = this.drawList(this._data.type);
       this.replaceElement(listElement);
 
       return false;
@@ -111,14 +111,14 @@ export default class List {
         (t1, t2) => LN.SORT_ORDER[nextSortType][t1.labelType] - LN.SORT_ORDER[nextSortType][t2.labelType]
       );
 
-      const listElement = this.buildList(this._data.type);
+      const listElement = this.drawList(this._data.type);
       this.replaceElement(listElement);
 
       return false;
     }
 
     this.ui.setType(type);
-    const listElement = this.buildList(type);
+    const listElement = this.drawList(type);
     this.replaceElement(listElement);
   }
 
@@ -161,16 +161,16 @@ export default class List {
    * @param {string} type list type
    * @return {HTMLElement} listElement
    */
-  buildList(type) {
+  drawList(type) {
     switch (type) {
       case LN.UNORDERED_LIST: {
-        return this.ui.buildList(this._data);
+        return this.ui.drawList(this._data);
       }
       case LN.ORDERED_LIST: {
-        return this.ui.buildList(this._data, type);
+        return this.ui.drawList(this._data, type);
       }
       case LN.CHECKLIST: {
-        return this.ui.buildCheckList(this._data, type);
+        return this.ui.drawCheckList(this._data, type);
       }
       default:
         return make("div", null, { innerHTML: "wrong list type" });
@@ -184,7 +184,7 @@ export default class List {
    */
   render() {
     const { type } = this._data;
-    this.element = this.buildList(type);
+    this.element = this.drawList(type);
 
     return this.element;
   }

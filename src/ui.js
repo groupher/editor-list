@@ -136,10 +136,10 @@ export default class Ui {
     if (!item) {
       return this._hasLabelInList()
         ? {
-          hasLabel: true,
-          label: this.orgLabel.getDefaultLabelTypeValue(),
-          labelClass: labelClassMap[LN.DEFAULT],
-        }
+            hasLabel: true,
+            label: this.orgLabel.getDefaultLabelTypeValue(),
+            labelClass: labelClassMap[LN.DEFAULT],
+          }
         : { hasLabel: false };
     }
     const hasLabel = item.label && item.labelType;
@@ -181,7 +181,7 @@ export default class Ui {
   }
 
   // 构建列表
-  buildList(data, listType = LN.UNORDERED_LIST) {
+  drawList(data, listType = LN.UNORDERED_LIST) {
     this._data = data;
     this._data.items = this.dropEmptyItem(data.items);
 
@@ -221,9 +221,9 @@ export default class Ui {
   }
 
   // 待办项
-  buildCheckList(data) {
+  drawCheckList(data) {
     this._data = data;
-    // console.log("buildCheckList data: ", data);
+    // console.log("drawCheckList data: ", data);
     this._data.items = this.dropEmptyItem(data.items);
     const Wrapper = make("div", [this.CSS.baseBlock, this.CSS.listWrapper]);
 
@@ -402,8 +402,8 @@ export default class Ui {
   labelPopover(item, active = "green") {
     const Wrapper = make("div", this.CSS.labelPopover);
 
-    const Selectors = this.orgLabel.buildLabelSelectors(item, active);
-    const Input = this.orgLabel.buildLabelInput(item, active);
+    const Selectors = this.orgLabel.drawLabelSelectors(item, active);
+    const Input = this.orgLabel.drawLabelInput(item, active);
 
     Wrapper.appendChild(Input);
     Wrapper.appendChild(Selectors);
@@ -502,7 +502,7 @@ export default class Ui {
       "data-hideLabel": this._shouldHideLabel(item),
     });
 
-    const Checkbox = this._buildCheckBox();
+    const Checkbox = this._drawCheckBox();
     const TextField = make("div", this.CSS.checklistTextField, {
       innerHTML: item ? item.text : "",
       contentEditable: true,
@@ -535,7 +535,7 @@ export default class Ui {
     return ListItem;
   }
 
-  _buildCheckBox() {
+  _drawCheckBox() {
     const LeftBracket = make("div", this.CSS.checklistBracket, {
       innerHTML:
         '<svg t="1592048015933" width="15px" height="15px" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2908" width="200" height="200"><path d="M430.08 204.8h163.84v81.92H512v450.56h81.92v81.92H430.08z" p-id="2909"></path></svg>',
@@ -685,7 +685,6 @@ export default class Ui {
   renderSettings() {
     const Wrapper = make("div", [this.CSS.settingsWrapper], {});
 
-    console.log("hello?");
     this.settings.forEach((item) => {
       const itemEl = make("div", this.CSS.settingsButton, {
         innerHTML: item.icon,
@@ -705,7 +704,6 @@ export default class Ui {
 
       if (item.name === LN.SORT) {
         const curSortTypeIndex = LN.SORT_ENUM.indexOf(this.sortType);
-        console.log("the curSortTypeIndex: ", curSortTypeIndex);
         const nextSortTypeIndex =
           curSortTypeIndex >= LN.SORT_ENUM.length - 1
             ? 0
