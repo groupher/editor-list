@@ -10,8 +10,28 @@ import {
 } from "@groupher/editor-utils";
 
 import OrgLabel from "./orgLabel";
-import LN from "./LN";
+import {
+  LABEL_TYPE,
+  SORT,
+  SORT_DEFAULT,
+  SORT_DOWN,
+  SORT_ENUM,
+  ORG_MODE,
+  UNORDERED_LIST,
+  ORDERED_LIST,
+  CHECKLIST,
+} from "./constant";
 import iconList from "./icons";
+
+/**
+ * @typedef {Object} ListData
+ * @description Tool's input and output data format
+ * @property {String} text — list item's content
+ * @property {Boolean} checked — this item checked or not
+ * @property {String} labelType — label type: default | red | green | warn
+ * @property {String} label — label content
+ * @property {Number} hideLabel - has label or not
+ */
 
 const isDOM = (el) => el instanceof Element;
 
@@ -27,7 +47,7 @@ export default class Ui {
     this.setTune = setTune;
     this.setData = setData;
 
-    this.sortType = LN.SORT_DEFAULT;
+    this.sortType = SORT_DEFAULT;
     // all the textField's data-index array
     this.textFieldsIndexes = [];
 
@@ -90,15 +110,15 @@ export default class Ui {
 
   getCSS(type, key) {
     const N = {
-      [LN.UNORDERED_LIST]: {
+      [UNORDERED_LIST]: {
         textField: "listTextField",
         item: "listItem",
       },
-      [LN.ORDERED_LIST]: {
+      [ORDERED_LIST]: {
         textField: "listTextField",
         item: "listItem",
       },
-      [LN.CHECKLIST]: {
+      [CHECKLIST]: {
         textField: "checklistTextField",
         item: "checklistItem",
       },
@@ -137,7 +157,7 @@ export default class Ui {
         ? {
             hasLabel: true,
             label: this.orgLabel.getDefaultLabelTypeValue(),
-            labelClass: labelClassMap[LN.DEFAULT],
+            labelClass: labelClassMap[LABEL_TYPE.DEFAULT],
           }
         : { hasLabel: false };
     }
@@ -180,7 +200,14 @@ export default class Ui {
   }
 
   // 构建列表
-  drawList(data, listType = LN.UNORDERED_LIST) {
+  /**
+   * draw order or unorder list
+   *
+   * @param {data: ListData, listType: UNORDERED_LIST}
+   * @returns {HTMLElement}
+   * @memberof UI
+   */
+  drawList(data, listType = UNORDERED_LIST) {
     this._data = data;
     this._data.items = this.dropEmptyItem(data.items);
 
@@ -208,7 +235,7 @@ export default class Ui {
       Wrapper.appendChild(NewItem);
     }
 
-    if (listType === LN.ORDERED_LIST) {
+    if (listType === ORDERED_LIST) {
       setTimeout(() => this.rebuildListIndex(Wrapper), 100);
     }
 
@@ -227,7 +254,7 @@ export default class Ui {
     const Wrapper = make("div", [this.CSS.baseBlock, this.CSS.listWrapper]);
 
     if (data.items.length) {
-      this._data = { items: [{}], type: LN.CHECKLIST };
+      this._data = { items: [{}], type: CHECKLIST };
 
       data.items.forEach((item, index) => {
         const NewItem = this.createChecklistItem(item, index);
@@ -242,7 +269,7 @@ export default class Ui {
       Wrapper.appendChild(NewItem);
     }
 
-    this.bindKeyDownEvent(Wrapper, LN.CHECKLIST);
+    this.bindKeyDownEvent(Wrapper, CHECKLIST);
 
     Wrapper.addEventListener("click", (event) => {
       this.toggleCheckbox(event);
@@ -302,16 +329,14 @@ export default class Ui {
     const newItemIndex = lastItemIndex + 1;
 
     /**
-     * Prevent checklist item generation if last item is empty and get out of checklist
+     * Prevent checklist item generation if last item is empty and get out of block
      */
     if (currentNode === lastItem && !lastItemText) {
-      // TODO:  extract goOutOfItem
-
-      /** Insert New Block and set caret */
       const currentItem = event.target.closest(`.${itemClass}`);
       currentItem.remove();
       this._data.items = items.slice(0, items.length - 1);
 
+      /** Insert New Block and set caret */
       const nextBlockIndex = this.api.blocks.getCurrentBlockIndex() + 1;
       this.api.blocks.insert("paragraph", {}, {}, nextBlockIndex);
       this.api.caret.setToBlock(nextBlockIndex, "start");
@@ -321,19 +346,19 @@ export default class Ui {
     }
 
     /**
-     * Create new checklist item
+     * Create new list item
      */
     let newItem;
     switch (type) {
-      case LN.CHECKLIST: {
+      case CHECKLIST: {
         newItem = this.createChecklistItem(null, newItemIndex);
         break;
       }
-      case LN.ORDERED_LIST: {
+      case ORDERED_LIST: {
         newItem = this.createListItem(null, type, newItemIndex);
         break;
       }
-      case LN.UNORDERED_LIST: {
+      case UNORDERED_LIST: {
         newItem = this.createListItem(null, type, newItemIndex);
         break;
       }
@@ -372,7 +397,7 @@ export default class Ui {
      */
     moveCaretToEnd(newItem.querySelector(`.${textFieldClass}`));
 
-    if (type === LN.ORDERED_LIST) {
+    if (type === ORDERED_LIST) {
       this.rebuildListIndex(node);
     }
   }
@@ -438,9 +463,9 @@ export default class Ui {
    * @param {ChecklistData} item - data.item
    * @return {HTMLElement} checkListItem - new element of checklist
    */
-  createListItem(item = null, listType = LN.ORDERED_LIST, itemIndex = 0) {
+  createListItem(item = null, listType = ORDERED_LIST, itemIndex = 0) {
     const prefixClass =
-      listType === LN.ORDERED_LIST
+      listType === ORDERED_LIST
         ? this.CSS.orderListPrefix
         : this.CSS.unorderListPrefix;
 
@@ -630,7 +655,7 @@ export default class Ui {
    * Handle backspace
    * @param {KeyboardEvent} event
    */
-  backspace(event, type = LN.UNORDERED_LIST) {
+  backspace(event, type = UNORDERED_LIST) {
     const textFieldClass = this.getCSS(type, "textField");
     const itemClass = this.getCSS(type, "item");
 
@@ -689,7 +714,7 @@ export default class Ui {
         innerHTML: item.icon,
       });
 
-      if (item.name !== LN.SORT) {
+      if (item.name !== SORT) {
         this.api.tooltip.onHover(itemEl, item.title, { placement: "top" });
       }
 
@@ -697,17 +722,15 @@ export default class Ui {
         itemEl.classList.add(this.CSS.settingsButtonActive);
       }
 
-      if (item.name === LN.ORG_MODE && this._hasLabelInList(true)) {
+      if (item.name === ORG_MODE && this._hasLabelInList(true)) {
         itemEl.classList.add(this.CSS.settingsButtonActive);
       }
 
-      if (item.name === LN.SORT) {
-        const curSortTypeIndex = LN.SORT_ENUM.indexOf(this.sortType);
+      if (item.name === SORT) {
+        const curSortTypeIndex = SORT_ENUM.indexOf(this.sortType);
         const nextSortTypeIndex =
-          curSortTypeIndex >= LN.SORT_ENUM.length - 1
-            ? 0
-            : curSortTypeIndex + 1;
-        const nextSortType = LN.SORT_ENUM[nextSortTypeIndex];
+          curSortTypeIndex >= SORT_ENUM.length - 1 ? 0 : curSortTypeIndex + 1;
+        const nextSortType = SORT_ENUM[nextSortTypeIndex];
 
         this.api.tooltip.onHover(itemEl, item[nextSortType], {
           placement: "top",
@@ -716,11 +739,11 @@ export default class Ui {
           ? (itemEl.style.visibility = "visible")
           : (itemEl.style.visibility = "hidden");
 
-        if (nextSortType === LN.SORT_DOWN) {
+        if (nextSortType === SORT_DOWN) {
           itemEl.classList.add(this.CSS.settingsButtonRotate);
         }
 
-        if (nextSortType === LN.SORT_DEFAULT) {
+        if (nextSortType === SORT_DEFAULT) {
           itemEl.classList.add(this.CSS.settingsButtonActive);
         }
       }
@@ -765,10 +788,11 @@ export default class Ui {
 
   // parse label type
   _parseLabelType(item) {
-    if (item.querySelector(`.${this.CSS.labelGreen}`)) return LN.GREEN;
-    if (item.querySelector(`.${this.CSS.labelRed}`)) return LN.RED;
-    if (item.querySelector(`.${this.CSS.labelWarn}`)) return LN.WARN;
-    if (item.querySelector(`.${this.CSS.labelDefault}`)) return LN.DEFAULT;
+    if (item.querySelector(`.${this.CSS.labelGreen}`)) return LABEL_TYPE.GREEN;
+    if (item.querySelector(`.${this.CSS.labelRed}`)) return LABEL_TYPE.RED;
+    if (item.querySelector(`.${this.CSS.labelWarn}`)) return LABEL_TYPE.WARN;
+    if (item.querySelector(`.${this.CSS.labelDefault}`))
+      return LABEL_TYPE.DEFAULT;
 
     return null;
   }

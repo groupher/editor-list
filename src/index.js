@@ -2,7 +2,17 @@ import { make } from "@groupher/editor-utils";
 
 import "./index.css";
 import Ui from "./ui";
-import LN from "./LN";
+import {
+  UNORDERED_LIST,
+  ORDERED_LIST,
+  CHECKLIST,
+  ORG_MODE,
+  DEFAULT_LABEL,
+  LABEL_TYPE,
+  SORT,
+  SORT_ENUM,
+  SORT_ORDER,
+} from "./constant";
 
 /**
  * @typedef {object} ListData
@@ -59,7 +69,7 @@ export default class List {
      * */
     // the default
     const defaultData = {
-      type: LN.UNORDERED_LIST,
+      type: UNORDERED_LIST,
       items: [],
     };
 
@@ -83,13 +93,13 @@ export default class List {
   // handle setting option change
   setTune(type, data, sortType) {
     // functional type
-    if (type === LN.ORG_MODE) {
+    if (type === ORG_MODE) {
       this._data.items = data.items.map(
         ({ label, labelType, hideLabel, ...restProps }) => {
           return {
             ...restProps,
-            label: label || LN.DEFAULT_LABEL,
-            labelType: labelType || LN.DEFAULT,
+            label: label || DEFAULT_LABEL,
+            labelType: labelType || LABEL_TYPE.DEFAULT,
             hideLabel: label ? !hideLabel : false,
           };
         }
@@ -100,15 +110,18 @@ export default class List {
       return false;
     }
 
-    if (type === LN.SORT) {
-      const curSortTypeIndex = LN.SORT_ENUM.indexOf(sortType)
-      const nextSortTypeIndex = curSortTypeIndex >= LN.SORT_ENUM.length - 1 ? 0 : curSortTypeIndex + 1
-      const nextSortType = LN.SORT_ENUM[nextSortTypeIndex]
+    if (type === SORT) {
+      const curSortTypeIndex = SORT_ENUM.indexOf(sortType);
+      const nextSortTypeIndex =
+        curSortTypeIndex >= SORT_ENUM.length - 1 ? 0 : curSortTypeIndex + 1;
+      const nextSortType = SORT_ENUM[nextSortTypeIndex];
 
-      this.ui.setSortType(nextSortType)
+      this.ui.setSortType(nextSortType);
 
       this._data.items = this._data.items.sort(
-        (t1, t2) => LN.SORT_ORDER[nextSortType][t1.labelType] - LN.SORT_ORDER[nextSortType][t2.labelType]
+        (t1, t2) =>
+          SORT_ORDER[nextSortType][t1.labelType] -
+          SORT_ORDER[nextSortType][t2.labelType]
       );
 
       const listElement = this.drawList(this._data.type);
@@ -138,9 +151,9 @@ export default class List {
     }
 
     return (
-      data.type === LN.UNORDERED_LIST ||
-      data.type === LN.ORDERED_LIST ||
-      data.type === LN.CHECKLIST
+      data.type === UNORDERED_LIST ||
+      data.type === ORDERED_LIST ||
+      data.type === CHECKLIST
     );
   }
 
@@ -163,13 +176,13 @@ export default class List {
    */
   drawList(type) {
     switch (type) {
-      case LN.UNORDERED_LIST: {
+      case UNORDERED_LIST: {
         return this.ui.drawList(this._data);
       }
-      case LN.ORDERED_LIST: {
+      case ORDERED_LIST: {
         return this.ui.drawList(this._data, type);
       }
-      case LN.CHECKLIST: {
+      case CHECKLIST: {
         return this.ui.drawCheckList(this._data, type);
       }
       default:
@@ -194,7 +207,7 @@ export default class List {
    * @public
    */
   save() {
-    console.log("saving data: ", this.ui.data);
+    console.log("list saving data: ", this.ui.data);
     return this.ui.data; // this.data;
   }
 
