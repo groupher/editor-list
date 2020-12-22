@@ -49,7 +49,6 @@ export default class Ui {
     return {
       baseBlock: this.api.styles.block,
       // settings
-      settingsWrapper: "cdx-custom-settings",
       settingsButton: this.api.styles.settingsButton,
       settingsButtonActive: this.api.styles.settingsButtonActive,
       settingsButtonRotate: "cdx-setting-button-rotate",
@@ -683,7 +682,7 @@ export default class Ui {
    * @public
    */
   renderSettings() {
-    const Wrapper = make("div", [this.CSS.settingsWrapper], {});
+    const Wrapper = make("div");
 
     this.settings.forEach((item) => {
       const itemEl = make("div", this.CSS.settingsButton, {
