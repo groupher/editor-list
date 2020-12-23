@@ -7,6 +7,7 @@ import {
   moveCaretToEnd,
   debounce,
   findIndex,
+  clazz,
 } from "@groupher/editor-utils";
 
 import OrgLabel from "./orgLabel";
@@ -22,6 +23,7 @@ import {
   CHECKLIST,
 } from "./constant";
 import iconList from "./icons";
+import { canItemIndent, indentElement } from "./helper";
 
 /**
  * @typedef {Object} ListData
@@ -35,7 +37,7 @@ import iconList from "./icons";
 
 const isDOM = (el) => el instanceof Element;
 
-export default class Ui {
+export default class UI {
   constructor({ api, data, config, setTune, setData }) {
     this.api = api;
     this.config = config;
@@ -55,6 +57,8 @@ export default class Ui {
     this.orgLabel = new OrgLabel({
       api: this.api,
     });
+
+    this.curFocusListItem = null;
   }
 
   setType(type) {
@@ -213,6 +217,7 @@ export default class Ui {
 
     const Wrapper = make("div", [this.CSS.baseBlock, this.CSS.listWrapper]);
 
+    // exist items
     if (data.items.length) {
       // this._data.items = this.dropEmptyItem(data.items);
       // data.items = this.dropEmptyItem(data.items);
@@ -231,6 +236,8 @@ export default class Ui {
       // this._data.items = this.dropEmptyItem(data.items);
       const NewItem = this.createListItem(null, listType);
 
+      NewItem.addEventListener("keyup", (e) => this.onIndent(e));
+
       this._data.items.push(NewItem);
       Wrapper.appendChild(NewItem);
     }
@@ -244,6 +251,40 @@ export default class Ui {
     this.element = Wrapper;
     this.orgLabel.setElement(this.element);
     return Wrapper;
+  }
+
+  onIndent(e) {
+    // console.log("onKeyUp e.code: ", e.code);
+    const ListItemEl = e.target.parentNode;
+    // console.log("on Indent");
+    this.curFocusListItem = ListItemEl;
+
+    if (e.code === "Tab") {
+      this.api.toolbar.close();
+      e.target.focus();
+      // console.log("do the indent: ", ListItemEl);
+      // console.log("this._data.items: ", this._data.items);
+      // console.log("ListItemEl dataset: ", ListItemEl.dataset);
+      const listIndex = ListItemEl.dataset.index;
+
+      console.log(
+        "ui canItemIndent: ",
+        canItemIndent(this._data.items, ListItemEl)
+      );
+
+      // DEBUG
+      if (canItemIndent(this._data.items, ListItemEl)) {
+        indentElement(ListItemEl);
+        // const indentClass = "cdx-list-indent-1";
+        // clazz.add(ListItemEl, indentClass);
+        // ListItemEl.setAttribute("data-indent", 1);
+      }
+      // DEBUG end
+    }
+
+    // if (e.code !== "Backspace" && e.code !== "Delete") {
+    //   return;
+    // }
   }
 
   // 待办项
@@ -474,6 +515,9 @@ export default class Ui {
       // "data-hideLabel": item ? !!item.hideLabel : "false",
       "data-hideLabel": this._shouldHideLabel(item),
     });
+
+    ListItem.addEventListener("keyup", (e) => this.onIndent(e));
+
     const Prefix = make("div", prefixClass);
 
     const TextField = make("div", this.CSS.listTextField, {
