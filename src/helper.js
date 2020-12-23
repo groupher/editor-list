@@ -1,5 +1,12 @@
 import { findIndex, clazz } from "@groupher/editor-utils";
 
+/**
+ * is current list item can be indent or not
+ *
+ * @param {[HTMLElement]} items
+ * @param {HTMLElement} curItemEl
+ * @returns {Boolean}
+ */
 export const canItemIndent = (items, curItemEl) => {
   const curIndex = findIndex(items, (itemEl) => curItemEl === itemEl);
 
@@ -30,6 +37,24 @@ export const canItemIndent = (items, curItemEl) => {
   console.log("#- previousIndent: ", previousIndent);
 
   return true;
+};
+
+/**
+ * is current list item can be un-indent (indent to left) or not
+ * @param {*} curItemEl
+ * @returns
+ */
+export const canItemUnIndent = (curItemEl) => {
+  if (
+    clazz.has(curItemEl, getIndentClass(1)) ||
+    clazz.has(curItemEl, getIndentClass(2)) ||
+    clazz.has(curItemEl, getIndentClass(3)) ||
+    clazz.has(curItemEl, getIndentClass(4)) ||
+    clazz.has(curItemEl, getIndentClass(5))
+  ) {
+    return true;
+  }
+  return false;
 };
 
 /**
@@ -64,8 +89,14 @@ const getIndentLevel = (el) => {
   return parseInt(currentLevel) + 1;
 };
 
+const getUnIndentLevel = (el) => {
+  const currentLevel = el.dataset.indent || "0";
+  return parseInt(currentLevel);
+};
+
 /**
- * add indent class to given element
+ * indent current list element
+ * by add indent class to given element
  *
  * @param {HTMLElement} el
  */
@@ -78,4 +109,20 @@ export const indentElement = (el) => {
 
   clazz.add(el, indentClass);
   el.setAttribute("data-indent", indentLevel);
+};
+
+/**
+ * indent current list element to left
+ *
+ * @param {HTMLElement} el
+ */
+export const unIndentElement = (el) => {
+  const indentLevel = getUnIndentLevel(el);
+  const indentClass = getIndentClass(indentLevel);
+
+  console.log("unIndentElement el: ", el);
+  console.log("unIndentElement indentLevel: ", indentLevel);
+
+  clazz.remove(el, indentClass);
+  el.setAttribute("data-indent", indentLevel - 1);
 };

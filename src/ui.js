@@ -22,8 +22,15 @@ import {
   ORDERED_LIST,
   CHECKLIST,
 } from "./constant";
+
 import iconList from "./icons";
-import { canItemIndent, indentElement } from "./helper";
+
+import {
+  canItemIndent,
+  indentElement,
+  canItemUnIndent,
+  unIndentElement,
+} from "./helper";
 
 /**
  * @typedef {Object} ListData
@@ -254,7 +261,7 @@ export default class UI {
   }
 
   onIndent(e) {
-    // console.log("onKeyUp e.code: ", e.code);
+    console.log("onKeyUp e.code: ", e.code);
     const ListItemEl = e.target.parentNode;
     // console.log("on Indent");
     this.curFocusListItem = ListItemEl;
@@ -265,7 +272,6 @@ export default class UI {
       // console.log("do the indent: ", ListItemEl);
       // console.log("this._data.items: ", this._data.items);
       // console.log("ListItemEl dataset: ", ListItemEl.dataset);
-      const listIndex = ListItemEl.dataset.index;
 
       console.log(
         "ui canItemIndent: ",
@@ -280,6 +286,12 @@ export default class UI {
         // ListItemEl.setAttribute("data-indent", 1);
       }
       // DEBUG end
+    }
+
+    if (e.code === "ArrowLeft") {
+      if (canItemUnIndent(ListItemEl)) {
+        unIndentElement(ListItemEl);
+      }
     }
 
     // if (e.code !== "Backspace" && e.code !== "Delete") {
