@@ -751,11 +751,9 @@ export default class UI {
      */
     if (currentIndex && !currentItemText) {
       event.preventDefault();
-      console.log("DELETING 删除列表项: ", type);
       currentItem.remove();
 
       if (type === ORDERED_LIST) {
-        console.log("重建排序");
         setTimeout(() => this.rebuildListIndex(this.element), 100);
       }
 
