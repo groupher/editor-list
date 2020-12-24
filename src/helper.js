@@ -62,7 +62,7 @@ export const canItemUnIndent = (curItemEl) => {
  * @param {number} level
  * @returns {string} - level class
  */
-const getIndentClass = (level) => {
+export const getIndentClass = (level) => {
   switch (level) {
     case 1: {
       return "cdx-list-indent-1";

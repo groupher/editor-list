@@ -30,6 +30,7 @@ import {
   indentElement,
   canItemUnIndent,
   unIndentElement,
+  getIndentClass,
 } from "./helper";
 
 /**
@@ -261,7 +262,7 @@ export default class UI {
   }
 
   onIndent(e) {
-    console.log("onKeyUp e.code: ", e.code);
+    // console.log("onKeyUp e.code: ", e.code);
     const ListItemEl = e.target.parentNode;
     // console.log("on Indent");
     this.curFocusListItem = ListItemEl;
@@ -522,8 +523,12 @@ export default class UI {
         ? this.CSS.orderListPrefix
         : this.CSS.unorderListPrefix;
 
-    const ListItem = make("div", this.CSS.listItem, {
+    const indentClass = item ? getIndentClass(item.indent) : "";
+    const listClass = [this.CSS.listItem, indentClass];
+
+    const ListItem = make("div", listClass, {
       "data-index": itemIndex,
+      "data-indent": item ? item.indent : 0,
       // "data-hideLabel": item ? !!item.hideLabel : "false",
       "data-hideLabel": this._shouldHideLabel(item),
     });
@@ -577,10 +582,16 @@ export default class UI {
    * @return {HTMLElement} checkListItem - new element of checklist
    */
   createChecklistItem(item = null, itemIndex = 0) {
-    const ListItem = make("div", this.CSS.checklistItem, {
+    const indentClass = item ? getIndentClass(item.indent) : "";
+    const listClass = [this.CSS.checklistItem, indentClass];
+
+    const ListItem = make("div", listClass, {
       "data-index": itemIndex,
+      "data-indent": item ? item.indent : 0,
       "data-hideLabel": this._shouldHideLabel(item),
     });
+
+    ListItem.addEventListener("keyup", (e) => this.onIndent(e));
 
     const Checkbox = this._drawCheckBox();
     const TextField = make("div", this.CSS.checklistTextField, {
@@ -885,6 +896,7 @@ export default class UI {
           labelType: this._parseLabelType(item),
           checked: this._parseCheck(item),
           hideLabel: item.dataset.hidelabel === "true" ? true : false, // NOTE:  dataset is not case sensitive
+          indent: parseInt(item.dataset.indent) || 0,
         });
       }
     }

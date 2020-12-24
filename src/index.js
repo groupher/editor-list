@@ -207,7 +207,7 @@ export default class List {
    * @public
    */
   save() {
-    console.log("list saving data: ", this.ui.data);
+    console.log("# list saving data: ", this.ui.data);
     return this.ui.data; // this.data;
   }
 
