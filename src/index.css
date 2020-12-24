@@ -41,25 +41,28 @@
     align-items: baseline;
     box-sizing: content-box;
     position: relative;
+    width: 100%;
 
     &-text {
+      font-size: 15px;
       outline: none;
       flex-grow: 1;
       padding: 10px 0;
       color: #526c73;
+      word-break: break-all;
     }
     &-unorder-prefix {
       position: relative;
       margin-right: 26px;
 
       &::before {
-        content: '';
+        content: "";
         position: absolute;
         width: 6px;
         height: 6px;
         background: #09aac1;
         border-radius: 50%;
-        top: -9px;
+        top: -8px;
         left: 0;
       }
     }
@@ -89,6 +92,7 @@
       flex-grow: 1;
       padding: 10px 0;
       color: #526c73;
+      word-break: break-all;
     }
 
     &-bracket {
@@ -250,15 +254,26 @@
   margin-right: 10px;
 }
 
-.cdx-custom-settings {
-  display: flex;
-  border-bottom: 1px solid;
-  border-bottom-color: lightgrey;
-  padding-bottom: 3px;
-  max-width: 120px;
-  flex-wrap: wrap;
-}
-
 .cdx-setting-button-rotate {
   transform: rotate(180deg);
+}
+
+.cdx-list-indent-1 {
+  margin-left: 30px;
+}
+
+.cdx-list-indent-2 {
+  margin-left: 60px;
+}
+
+.cdx-list-indent-3 {
+  margin-left: 90px;
+}
+
+.cdx-list-indent-4 {
+  margin-left: 120px;
+}
+
+.cdx-list-indent-5 {
+  margin-left: 150px;
 }

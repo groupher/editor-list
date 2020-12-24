@@ -1,8 +1,7 @@
 import { make } from "@groupher/editor-utils";
-
 import { debounce } from "@groupher/editor-utils";
 
-import LN from "./LN";
+import { DEFAULT_LABEL, LABEL_TYPE } from "./constant";
 
 export default class OrgLabel {
   constructor({ api, config, element, setElement }) {
@@ -20,7 +19,7 @@ export default class OrgLabel {
   }
 
   getDefaultLabelTypeValue() {
-    return this.labelValueMap["default"] || LN.DEFAULT_LABEL;
+    return this.labelValueMap["default"] || DEFAULT_LABEL;
   }
 
   /**
@@ -74,13 +73,13 @@ export default class OrgLabel {
   _getCurLabelTypeClass(type) {
     let targetClass;
     switch (type) {
-      case LN.RED: {
+      case LABEL_TYPE.RED: {
         return this.CSS.labelRed;
       }
-      case LN.WARN: {
+      case LABEL_TYPE.WARN: {
         return this.CSS.labelWarn;
       }
-      case LN.DEFAULT: {
+      case LABEL_TYPE.DEFAULT: {
         return this.CSS.labelDefault;
       }
       default:
@@ -124,13 +123,13 @@ export default class OrgLabel {
 
   _parseTypeByClassName(className) {
     if (className.indexOf(this.CSS.labelGreen) >= 0) {
-      return LN.GREEN;
+      return LABEL_TYPE.GREEN;
     } else if (className.indexOf(this.CSS.labelRed) >= 0) {
-      return LN.RED;
+      return LABEL_TYPE.RED;
     } else if (className.indexOf(this.CSS.labelWarn) >= 0) {
-      return LN.WARN;
+      return LABEL_TYPE.WARN;
     } else {
-      return LN.DEFAULT;
+      return LABEL_TYPE.DEFAULT;
     }
   }
 
@@ -163,15 +162,15 @@ export default class OrgLabel {
     let inputClass;
 
     switch (this._getActiveLabelState(item).type) {
-      case LN.RED: {
+      case LABEL_TYPE.RED: {
         inputClass = this.CSS.labelPopoverInputRed;
         break;
       }
-      case LN.WARN: {
+      case LABEL_TYPE.WARN: {
         inputClass = this.CSS.labelPopoverInputWarn;
         break;
       }
-      case LN.GREEN: {
+      case LABEL_TYPE.GREEN: {
         inputClass = this.CSS.labelPopoverInputGreen;
         break;
       }
@@ -231,16 +230,16 @@ export default class OrgLabel {
     ]);
 
     SpotGreen.addEventListener("click", () =>
-      this.highlightCurrentLabel(item, LN.GREEN)
+      this.highlightCurrentLabel(item, LABEL_TYPE.GREEN)
     );
     SpotRed.addEventListener("click", () =>
-      this.highlightCurrentLabel(item, LN.RED)
+      this.highlightCurrentLabel(item, LABEL_TYPE.RED)
     );
     SpotWarn.addEventListener("click", () =>
-      this.highlightCurrentLabel(item, LN.WARN)
+      this.highlightCurrentLabel(item, LABEL_TYPE.WARN)
     );
     SpotDefault.addEventListener("click", () =>
-      this.highlightCurrentLabel(item, LN.DEFAULT)
+      this.highlightCurrentLabel(item, LABEL_TYPE.DEFAULT)
     );
 
     Wrapper.appendChild(SpotGreen);
@@ -253,15 +252,15 @@ export default class OrgLabel {
         '<svg t="1581913245157" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5676" width="200" height="200"><path d="M853.333333 256L384 725.333333l-213.333333-213.333333" p-id="5677"></path></svg>',
     });
     switch (this._getActiveLabelState(item).type) {
-      case LN.RED: {
+      case LABEL_TYPE.RED: {
         SpotRed.appendChild(ActiveDot);
         break;
       }
-      case LN.WARN: {
+      case LABEL_TYPE.WARN: {
         SpotWarn.appendChild(ActiveDot);
         break;
       }
-      case LN.GREEN: {
+      case LABEL_TYPE.GREEN: {
         SpotGreen.appendChild(ActiveDot);
         break;
       }

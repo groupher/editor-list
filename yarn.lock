@@ -526,9 +526,12 @@
     lodash "^4.17.11"
     to-fast-properties "^2.0.0"
 
-"@groupher/editor-utils@0.1.17":
-  version "0.1.17"
-  resolved "https://registry.npm.taobao.org/@groupher/editor-utils/download/@groupher/editor-utils-0.1.17.tgz#4df7996f35ac037805638ca985b22a0d75e90f1e"
+"@groupher/editor-utils@0.1.81":
+  version "0.1.81"
+  resolved "https://registry.npm.taobao.org/@groupher/editor-utils/download/@groupher/editor-utils-0.1.81.tgz#df67eedaebef6fdf9ffe982b4a4c37355544a25a"
+  dependencies:
+    debug "^4.1.1"
+    pubsub-js "^1.8.0"
 
 "@webassemblyjs/ast@1.8.3":
   version "1.8.3"
@@ -1250,6 +1253,12 @@ debug@^4.1.0:
   resolved "https://registry.yarnpkg.com/debug/-/debug-4.1.1.tgz#3b72260255109c6b589cee050f1d516139664791"
   dependencies:
     ms "^2.1.1"
+
+debug@^4.1.1:
+  version "4.3.1"
+  resolved "https://registry.npm.taobao.org/debug/download/debug-4.3.1.tgz?cache=0&sync_timestamp=1607566512593&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fdebug%2Fdownload%2Fdebug-4.3.1.tgz#f0d229c505e0c6d8c49ac553d1b13dc183f6b2ee"
+  dependencies:
+    ms "2.1.2"
 
 decamelize@^1.2.0:
   version "1.2.0"
@@ -2255,6 +2264,10 @@ ms@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
 
+ms@2.1.2:
+  version "2.1.2"
+  resolved "https://registry.npm.taobao.org/ms/download/ms-2.1.2.tgz?cache=0&sync_timestamp=1607433816745&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fms%2Fdownload%2Fms-2.1.2.tgz#d09d1f357b443f493382a8eb3ccd183872ae6009"
+
 ms@^2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.1.tgz#30a5864eb3ebb0a66f2ebe6d727af06a09d86e0a"
@@ -2697,6 +2710,10 @@ public-encrypt@^4.0.0:
     parse-asn1 "^5.0.0"
     randombytes "^2.0.1"
     safe-buffer "^5.1.2"
+
+pubsub-js@^1.8.0:
+  version "1.9.1"
+  resolved "https://registry.npm.taobao.org/pubsub-js/download/pubsub-js-1.9.1.tgz?cache=0&sync_timestamp=1605253039926&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fpubsub-js%2Fdownload%2Fpubsub-js-1.9.1.tgz#49f4252fca1439dcc72f0795b354e167861b004c"
 
 pump@^2.0.0:
   version "2.0.1"
