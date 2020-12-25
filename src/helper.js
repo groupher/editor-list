@@ -114,6 +114,51 @@ export const unIndentElement = (el) => {
 };
 
 /**
+ * set order list's prefix number
+ *
+ * 第一级和第二级缩进比较特殊，也比较好判断，2-5 级缩进需要自己抓取上一个缩进的前缀标
+ *
+ * @param {number} level - indent level number
+ * @param {[HTMLElement] || [[HTMLElement]]} blocks - indent blocks array
+ * @returns
+ */
+export const setOrderListPrefixItem = (level, blocks) => {
+  const prefixClass = ".cdx-list__item-order-prefix";
+
+  switch (level) {
+    case 0: {
+      return Array.from(blocks).forEach((item, index) => {
+        const prefixNumberEl = item.querySelector(prefixClass);
+        prefixNumberEl.innerHTML = `${index + 1}.`;
+      });
+    }
+    case 1: {
+      return Array.from(blocks).forEach((block, blockIndex) => {
+        Array.from(block).forEach((item, index) => {
+          const prefixNumberEl = item.querySelector(prefixClass);
+          prefixNumberEl.innerHTML = `${blockIndex + 1}.${index + 1}`;
+        });
+      });
+    }
+
+    default: {
+      return Array.from(blocks).forEach((block, blockIndex) => {
+        Array.from(block).forEach((item, index) => {
+          // 最近一级 '父' 条目
+          const ParentIndentEl = block[0].previousElementSibling;
+
+          const prefixNumberEl = ParentIndentEl.querySelector(prefixClass);
+          const previousIndentPrefix = prefixNumberEl.innerText;
+
+          const curPrefixNumberEl = item.querySelector(prefixClass);
+          curPrefixNumberEl.innerHTML = `${previousIndentPrefix}.${index + 1}`;
+        });
+      });
+    }
+  }
+};
+
+/**
  * parse the indent elements
  * return as blocks
  * 返回分块的基于每个缩进单位的元素列表

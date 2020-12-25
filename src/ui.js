@@ -32,6 +32,7 @@ import {
   unIndentElement,
   getIndentClass,
   parseIndentBlocks,
+  setOrderListPrefixItem,
 } from "./helper";
 
 /**
@@ -717,80 +718,12 @@ export default class UI {
   rebuildOrderListIndex(node) {
     const validIndentLevels = [0, 1, 2, 3, 4, 5];
 
-    const blocks0 = parseIndentBlocks(node, 0);
-    const blocks1 = parseIndentBlocks(node, 1);
-    const blocks2 = parseIndentBlocks(node, 2);
-    const blocks3 = parseIndentBlocks(node, 3);
-    const blocks4 = parseIndentBlocks(node, 4);
-    const blocks5 = parseIndentBlocks(node, 5);
-    console.log("# blocks-0 -> ", blocks0);
-    console.log("# blocks-1 -> ", blocks1);
-    console.log("# blocks-2 -> ", blocks2);
-    console.log("# blocks-3 -> ", blocks3);
-    // console.log("# blocks-3 -> ", parseIndentBlocks(node, 3));
-    // console.log("# blocks-4 -> ", parseIndentBlocks(node, 4));
-    // console.log("# blocks-5 -> ", parseIndentBlocks(node, 5));
+    for (let index = 0; index < validIndentLevels.length; index++) {
+      const level = validIndentLevels[index];
 
-    const prefixClass = `.${this.CSS.orderListPrefix}`;
-    Array.from(blocks0).forEach((item, index) => {
-      const prefixNumberEl = item.querySelector(prefixClass);
-      prefixNumberEl.innerHTML = `${index + 1}.`;
-    });
-
-    Array.from(blocks1).forEach((block, blockIndex) => {
-      Array.from(block).forEach((item, index) => {
-        const prefixNumberEl = item.querySelector(prefixClass);
-        prefixNumberEl.innerHTML = `${blockIndex + 1}.${index + 1}`;
-      });
-    });
-
-    Array.from(blocks2).forEach((block, blockIndex) => {
-      Array.from(block).forEach((item, index) => {
-        const ParentIndentEl = block[0].previousElementSibling;
-
-        const prefixNumberEl = ParentIndentEl.querySelector(prefixClass);
-        const previousIndentPrefix = prefixNumberEl.innerText;
-
-        const curPrefixNumberEl = item.querySelector(prefixClass);
-        curPrefixNumberEl.innerHTML = `${previousIndentPrefix}.${index + 1}`;
-      });
-    });
-
-    Array.from(blocks3).forEach((block, blockIndex) => {
-      Array.from(block).forEach((item, index) => {
-        const ParentIndentEl = block[0].previousElementSibling;
-
-        const prefixNumberEl = ParentIndentEl.querySelector(prefixClass);
-        const previousIndentPrefix = prefixNumberEl.innerText;
-
-        const curPrefixNumberEl = item.querySelector(prefixClass);
-        curPrefixNumberEl.innerHTML = `${previousIndentPrefix}.${index + 1}`;
-      });
-    });
-
-    Array.from(blocks4).forEach((block, blockIndex) => {
-      Array.from(block).forEach((item, index) => {
-        const ParentIndentEl = block[0].previousElementSibling;
-
-        const prefixNumberEl = ParentIndentEl.querySelector(prefixClass);
-        const previousIndentPrefix = prefixNumberEl.innerText;
-
-        const curPrefixNumberEl = item.querySelector(prefixClass);
-        curPrefixNumberEl.innerHTML = `${previousIndentPrefix}.${index + 1}`;
-      });
-    });
-
-    Array.from(blocks5).forEach((block, blockIndex) => {
-      Array.from(block).forEach((item, index) => {
-        const ParentIndentEl = block[0].previousElementSibling;
-
-        const prefixNumberEl = ParentIndentEl.querySelector(prefixClass);
-        const previousIndentPrefix = prefixNumberEl.innerText;
-
-        const curPrefixNumberEl = item.querySelector(prefixClass);
-        curPrefixNumberEl.innerHTML = `${previousIndentPrefix}.${index + 1}`;
-      });
-    });
+      const blocks = parseIndentBlocks(node, level);
+      setOrderListPrefixItem(level, blocks);
+    }
   }
 
   /**
