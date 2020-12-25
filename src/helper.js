@@ -107,6 +107,10 @@ export const indentElement = (el) => {
  */
 export const unIndentElement = (el) => {
   const indentLevel = getUnIndentLevel(el);
+
+  console.log("> unIndentElement el: ", el);
+  console.log("> unIndentElement indentLevel: ", indentLevel);
+
   const indentClass = getIndentClass(indentLevel);
 
   clazz.remove(el, indentClass);
