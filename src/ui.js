@@ -52,6 +52,8 @@ export default class UI {
     this.api = api;
     this.config = config;
 
+    this.VALID_INDENT_LEVELS = [0, 1, 2, 3, 4, 5];
+
     this._data = null;
     this.element = null;
 
@@ -246,8 +248,6 @@ export default class UI {
       // this._data.items = this.dropEmptyItem(data.items);
       const NewItem = this.createListItem(null, listType);
 
-      NewItem.addEventListener("keyup", (e) => this.onIndent(e));
-
       this._data.items.push(NewItem);
       Wrapper.appendChild(NewItem);
     }
@@ -263,7 +263,7 @@ export default class UI {
     return Wrapper;
   }
 
-  onIndent(e) {
+  onIndent(e, listType) {
     // console.log("onKeyUp e.code: ", e.code);
     const ListItemEl = e.target.parentNode;
     // console.log("on Indent");
@@ -272,18 +272,14 @@ export default class UI {
     if (e.code === "Tab") {
       this.api.toolbar.close();
       e.target.focus();
-      // console.log("do the indent: ", ListItemEl);
-      // console.log("this._data.items: ", this._data.items);
-      // console.log("ListItemEl dataset: ", ListItemEl.dataset);
-
-      console.log(
-        "ui canItemIndent: ",
-        canItemIndent(this._data.items, ListItemEl)
-      );
 
       // DEBUG
       if (canItemIndent(this._data.items, ListItemEl)) {
         indentElement(ListItemEl);
+
+        if (listType === ORDERED_LIST) {
+          setTimeout(() => this.rebuildOrderListIndex(this.element), 100);
+        }
         // const indentClass = "cdx-list-indent-1";
         // clazz.add(ListItemEl, indentClass);
         // ListItemEl.setAttribute("data-indent", 1);
@@ -296,10 +292,6 @@ export default class UI {
         unIndentElement(ListItemEl);
       }
     }
-
-    // if (e.code !== "Backspace" && e.code !== "Delete") {
-    //   return;
-    // }
   }
 
   // 待办项
@@ -535,7 +527,7 @@ export default class UI {
       "data-hideLabel": this._shouldHideLabel(item),
     });
 
-    ListItem.addEventListener("keyup", (e) => this.onIndent(e));
+    ListItem.addEventListener("keyup", (e) => this.onIndent(e, listType));
 
     const Prefix = make("div", prefixClass);
 
@@ -716,10 +708,8 @@ export default class UI {
    * @memberof UI
    */
   rebuildOrderListIndex(node) {
-    const validIndentLevels = [0, 1, 2, 3, 4, 5];
-
-    for (let index = 0; index < validIndentLevels.length; index++) {
-      const level = validIndentLevels[index];
+    for (let index = 0; index < this.VALID_INDENT_LEVELS.length; index++) {
+      const level = this.VALID_INDENT_LEVELS[index];
 
       const blocks = parseIndentBlocks(node, level);
       setOrderListPrefixItem(level, blocks);
