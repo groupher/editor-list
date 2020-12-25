@@ -16,25 +16,17 @@ export const canItemIndent = (items, curItemEl) => {
   const previousIndex = curIndex - 1;
   const PreviousItemEl = items[previousIndex];
 
-  // console.log("> PreviousItemEl: ", PreviousItemEl.dataset);
   const previousIndent = PreviousItemEl.dataset.indent || "0";
   const currentIndent = curItemEl.dataset.indent || "0";
 
   const previousIndentNum = parseInt(previousIndent);
   const currentIndentNum = parseInt(currentIndent);
 
-  console.log("previousIndentNum -> ", previousIndentNum);
-  console.log("currentIndentNum -> ", currentIndentNum);
-
   // 不允许比上级缩进超过两级以上
   // TODO: 考虑删除的情况, 需要重新计算
   if (currentIndentNum - previousIndentNum >= 1) {
-    console.log("#- 多级禁止");
     return false;
   }
-
-  console.log("#- PreviousItemEl: ", PreviousItemEl);
-  console.log("#- previousIndent: ", previousIndent);
 
   return true;
 };
@@ -104,9 +96,6 @@ export const indentElement = (el) => {
   const indentLevel = getIndentLevel(el);
   const indentClass = getIndentClass(indentLevel);
 
-  console.log("#- cur el: ", el);
-  console.log("#- indentLevel: ", indentLevel);
-
   clazz.add(el, indentClass);
   el.setAttribute("data-indent", indentLevel);
 };
@@ -119,9 +108,6 @@ export const indentElement = (el) => {
 export const unIndentElement = (el) => {
   const indentLevel = getUnIndentLevel(el);
   const indentClass = getIndentClass(indentLevel);
-
-  console.log("unIndentElement el: ", el);
-  console.log("unIndentElement indentLevel: ", indentLevel);
 
   clazz.remove(el, indentClass);
   el.setAttribute("data-indent", indentLevel - 1);

@@ -251,7 +251,7 @@ export default class UI {
     }
 
     if (listType === ORDERED_LIST) {
-      setTimeout(() => this.rebuildListIndex(Wrapper), 100);
+      setTimeout(() => this.rebuildOrderListIndex(Wrapper), 100);
     }
 
     this.bindKeyDownEvent(Wrapper, listType);
@@ -452,7 +452,7 @@ export default class UI {
     moveCaretToEnd(newItem.querySelector(`.${textFieldClass}`));
 
     if (type === ORDERED_LIST) {
-      this.rebuildListIndex(node);
+      this.rebuildOrderListIndex(node);
     }
   }
 
@@ -708,14 +708,90 @@ export default class UI {
     }
   }
 
-  rebuildListIndex(node) {
-    const indexElements = node.parentNode.querySelectorAll(
-      "." + this.CSS.orderListPrefix
-    );
+  /**
+   * rebuild the order list index
+   * @param {HTMLElement} node
+   * @memberof UI
+   */
+  rebuildOrderListIndex(node) {
+    const validIndentLevels = [0, 1, 2, 3, 4, 5];
 
-    Array.from(indexElements).forEach((item, index) => {
-      item.innerHTML = `${index + 1}.`;
-    });
+    console.log("# get -> ", this.parseIndentElements(node, 1));
+
+    for (let index = 0; index < validIndentLevels.length; index++) {
+      const levelNum = validIndentLevels[index];
+
+      const indentElements = node.querySelectorAll(
+        `[data-indent='${levelNum}']`
+      );
+
+      Array.from(indentElements).forEach((item, index) => {
+        const prefixNumberEl = item.querySelector(
+          "." + this.CSS.orderListPrefix
+        );
+        prefixNumberEl.innerHTML = `${index + 1}.`;
+      });
+    }
+  }
+
+  parseIndentElements(node, level = 0) {
+    // const listItemElements = node.querySelectorAll(`.${this.CSS.listItem}`);
+
+    // 如果是 1, 就找出 0,1
+    // 如果是 2, 就找出 0,1,2
+    // 如果是 3, 就找出 0,1,2,3
+    const listItemElements = node.querySelectorAll(
+      "[data-indent='0'], [data-indent='1']"
+    );
+    console.log("# listItemElements: ", listItemElements);
+
+    const indentElements = node.querySelectorAll(`[data-indent='${level}']`);
+
+    const ret = [];
+
+    // console.log("# all items: ", listItemElements);
+    // console.log("# indent items: ", indentElements);
+
+    let sameLevelIndentEls = [];
+
+    for (let index = 0; index < indentElements.length; index++) {
+      const indentEl = indentElements[index];
+
+      const curIndentElIndex = parseInt(indentEl.dataset.index);
+      const nextListItemIndex = curIndentElIndex + 1;
+      const nextItem = listItemElements[nextListItemIndex];
+
+      console.log("cur: ", indentEl);
+      console.log("next: ", nextItem);
+
+      if (!nextItem) {
+        // 如果该条目下只有一个缩进的子条目
+        if (indentEl) {
+          sameLevelIndentEls.push(indentEl);
+        }
+
+        ret.push([...Array.from(new Set(sameLevelIndentEls))]);
+        sameLevelIndentEls = [];
+        return ret;
+      }
+
+      const curIndentElLevel = parseInt(indentEl.dataset.indent);
+      const nextItemIndentLevel = parseInt(nextItem.dataset.indent);
+
+      // 如果和下一个的 indent level 相同，说明属于同一个'区块'
+      if (curIndentElLevel === nextItemIndentLevel) {
+        // console.log("the same");
+        sameLevelIndentEls.push(indentEl);
+        sameLevelIndentEls.push(nextItem);
+      } else {
+        // console.log("not the same, break array: ", sameLevelIndentEls);
+        ret.push([...Array.from(new Set(sameLevelIndentEls))]);
+
+        sameLevelIndentEls = [];
+      }
+    }
+
+    return ret;
   }
 
   /**
@@ -754,7 +830,7 @@ export default class UI {
       currentItem.remove();
 
       if (type === ORDERED_LIST) {
-        setTimeout(() => this.rebuildListIndex(this.element), 100);
+        setTimeout(() => this.rebuildOrderListIndex(this.element), 100);
       }
 
       /**
