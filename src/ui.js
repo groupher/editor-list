@@ -716,7 +716,7 @@ export default class UI {
   rebuildOrderListIndex(node) {
     const validIndentLevels = [0, 1, 2, 3, 4, 5];
 
-    console.log("# get -> ", this.parseIndentElements(node, 4));
+    console.log("# get -> ", this.parseIndentElements(node, 5));
 
     for (let index = 0; index < validIndentLevels.length; index++) {
       const levelNum = validIndentLevels[index];
@@ -750,8 +750,12 @@ export default class UI {
     //   "[data-indent='2'], [data-indent='3']"
     // );
     // 如果 level 是 4, 就找出 3,4
+    // const listItemElements = node.querySelectorAll(
+    //   "[data-indent='3'], [data-indent='4']"
+    // );
+    // 如果 level 是 5, 就找出 4,5
     const listItemElements = node.querySelectorAll(
-      "[data-indent='3'], [data-indent='4']"
+      "[data-indent='4'], [data-indent='5']"
     );
 
     const indentElements = node.querySelectorAll(`[data-indent='${level}']`);
