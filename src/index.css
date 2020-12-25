@@ -260,20 +260,25 @@
 
 .cdx-list-indent-1 {
   margin-left: 30px;
+  width: calc(100% - 30px);
 }
 
 .cdx-list-indent-2 {
   margin-left: 60px;
+  width: calc(100% - 60px);
 }
 
 .cdx-list-indent-3 {
   margin-left: 90px;
+  width: calc(100% - 90px);
 }
 
 .cdx-list-indent-4 {
   margin-left: 120px;
+  width: calc(100% - 120px);
 }
 
 .cdx-list-indent-5 {
   margin-left: 150px;
+  width: calc(100% - 150px);
 }

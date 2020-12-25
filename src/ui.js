@@ -31,6 +31,8 @@ import {
   canItemUnIndent,
   unIndentElement,
   getIndentClass,
+  parseIndentBlocks,
+  setOrderListPrefixItem,
 } from "./helper";
 
 /**
@@ -49,6 +51,8 @@ export default class UI {
   constructor({ api, data, config, setTune, setData }) {
     this.api = api;
     this.config = config;
+
+    this.VALID_INDENT_LEVELS = [0, 1, 2, 3, 4, 5];
 
     this._data = null;
     this.element = null;
@@ -244,14 +248,12 @@ export default class UI {
       // this._data.items = this.dropEmptyItem(data.items);
       const NewItem = this.createListItem(null, listType);
 
-      NewItem.addEventListener("keyup", (e) => this.onIndent(e));
-
       this._data.items.push(NewItem);
       Wrapper.appendChild(NewItem);
     }
 
     if (listType === ORDERED_LIST) {
-      setTimeout(() => this.rebuildListIndex(Wrapper), 100);
+      setTimeout(() => this.rebuildOrderListIndex(Wrapper), 100);
     }
 
     this.bindKeyDownEvent(Wrapper, listType);
@@ -261,7 +263,7 @@ export default class UI {
     return Wrapper;
   }
 
-  onIndent(e) {
+  onIndent(e, listType) {
     // console.log("onKeyUp e.code: ", e.code);
     const ListItemEl = e.target.parentNode;
     // console.log("on Indent");
@@ -270,18 +272,14 @@ export default class UI {
     if (e.code === "Tab") {
       this.api.toolbar.close();
       e.target.focus();
-      // console.log("do the indent: ", ListItemEl);
-      // console.log("this._data.items: ", this._data.items);
-      // console.log("ListItemEl dataset: ", ListItemEl.dataset);
-
-      console.log(
-        "ui canItemIndent: ",
-        canItemIndent(this._data.items, ListItemEl)
-      );
 
       // DEBUG
       if (canItemIndent(this._data.items, ListItemEl)) {
         indentElement(ListItemEl);
+
+        if (listType === ORDERED_LIST) {
+          setTimeout(() => this.rebuildOrderListIndex(this.element), 100);
+        }
         // const indentClass = "cdx-list-indent-1";
         // clazz.add(ListItemEl, indentClass);
         // ListItemEl.setAttribute("data-indent", 1);
@@ -292,12 +290,11 @@ export default class UI {
     if (e.code === "ArrowLeft") {
       if (canItemUnIndent(ListItemEl)) {
         unIndentElement(ListItemEl);
+        if (listType === ORDERED_LIST) {
+          setTimeout(() => this.rebuildOrderListIndex(this.element), 100);
+        }
       }
     }
-
-    // if (e.code !== "Backspace" && e.code !== "Delete") {
-    //   return;
-    // }
   }
 
   // 待办项
@@ -452,7 +449,7 @@ export default class UI {
     moveCaretToEnd(newItem.querySelector(`.${textFieldClass}`));
 
     if (type === ORDERED_LIST) {
-      this.rebuildListIndex(node);
+      this.rebuildOrderListIndex(node);
     }
   }
 
@@ -533,7 +530,7 @@ export default class UI {
       "data-hideLabel": this._shouldHideLabel(item),
     });
 
-    ListItem.addEventListener("keyup", (e) => this.onIndent(e));
+    ListItem.addEventListener("keyup", (e) => this.onIndent(e, listType));
 
     const Prefix = make("div", prefixClass);
 
@@ -708,14 +705,18 @@ export default class UI {
     }
   }
 
-  rebuildListIndex(node) {
-    const indexElements = node.parentNode.querySelectorAll(
-      "." + this.CSS.orderListPrefix
-    );
+  /**
+   * rebuild the order list index
+   * @param {HTMLElement} node
+   * @memberof UI
+   */
+  rebuildOrderListIndex(node) {
+    for (let index = 0; index < this.VALID_INDENT_LEVELS.length; index++) {
+      const level = this.VALID_INDENT_LEVELS[index];
 
-    Array.from(indexElements).forEach((item, index) => {
-      item.innerHTML = `${index + 1}.`;
-    });
+      const blocks = parseIndentBlocks(node, level);
+      setOrderListPrefixItem(level, blocks);
+    }
   }
 
   /**
@@ -752,6 +753,10 @@ export default class UI {
     if (currentIndex && !currentItemText) {
       event.preventDefault();
       currentItem.remove();
+
+      if (type === ORDERED_LIST) {
+        setTimeout(() => this.rebuildOrderListIndex(this.element), 100);
+      }
 
       /**
        * Delete checklist item from tags array

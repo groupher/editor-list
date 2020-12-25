@@ -16,25 +16,17 @@ export const canItemIndent = (items, curItemEl) => {
   const previousIndex = curIndex - 1;
   const PreviousItemEl = items[previousIndex];
 
-  // console.log("> PreviousItemEl: ", PreviousItemEl.dataset);
   const previousIndent = PreviousItemEl.dataset.indent || "0";
   const currentIndent = curItemEl.dataset.indent || "0";
 
   const previousIndentNum = parseInt(previousIndent);
   const currentIndentNum = parseInt(currentIndent);
 
-  console.log("previousIndentNum -> ", previousIndentNum);
-  console.log("currentIndentNum -> ", currentIndentNum);
-
   // 不允许比上级缩进超过两级以上
   // TODO: 考虑删除的情况, 需要重新计算
   if (currentIndentNum - previousIndentNum >= 1) {
-    console.log("#- 多级禁止");
     return false;
   }
-
-  console.log("#- PreviousItemEl: ", PreviousItemEl);
-  console.log("#- previousIndent: ", previousIndent);
 
   return true;
 };
@@ -104,9 +96,6 @@ export const indentElement = (el) => {
   const indentLevel = getIndentLevel(el);
   const indentClass = getIndentClass(indentLevel);
 
-  console.log("#- cur el: ", el);
-  console.log("#- indentLevel: ", indentLevel);
-
   clazz.add(el, indentClass);
   el.setAttribute("data-indent", indentLevel);
 };
@@ -118,11 +107,124 @@ export const indentElement = (el) => {
  */
 export const unIndentElement = (el) => {
   const indentLevel = getUnIndentLevel(el);
+
   const indentClass = getIndentClass(indentLevel);
-
-  console.log("unIndentElement el: ", el);
-  console.log("unIndentElement indentLevel: ", indentLevel);
-
   clazz.remove(el, indentClass);
+
+  if (indentLevel > 1) {
+    clazz.add(el, getIndentClass(indentLevel - 1));
+  }
+
   el.setAttribute("data-indent", indentLevel - 1);
+};
+
+/**
+ * set order list's prefix number
+ *
+ * 第 0 级缩进比较特殊，也比较好判断，1-5 级缩进需要自己抓取上一个缩进的前缀标
+ *
+ * @param {number} level - indent level number
+ * @param {[HTMLElement] || [[HTMLElement]]} blocks - indent blocks array
+ * @returns
+ */
+export const setOrderListPrefixItem = (level, blocks) => {
+  const prefixClass = ".cdx-list__item-order-prefix";
+
+  if (level === 0) {
+    return Array.from(blocks).forEach((item, index) => {
+      const prefixNumberEl = item.querySelector(prefixClass);
+      prefixNumberEl.innerHTML = `${index + 1}.`;
+    });
+  }
+
+  return Array.from(blocks).forEach((block, blockIndex) => {
+    Array.from(block).forEach((item, index) => {
+      // 最近一级 '父' 条目
+      const ParentIndentEl = block[0].previousElementSibling;
+
+      const prefixNumberEl = ParentIndentEl.querySelector(prefixClass);
+
+      // 第 0 级会带 . 后缀，比如 1. xxx， 但是按照惯例后面的子层级没有 . 后缀
+      const previousIndentPrefix = prefixNumberEl.innerText.endsWith(".")
+        ? prefixNumberEl.innerText.slice(0, -1)
+        : prefixNumberEl.innerText;
+
+      const curPrefixNumberEl = item.querySelector(prefixClass);
+      curPrefixNumberEl.innerHTML = `${previousIndentPrefix}.${index + 1}`;
+    });
+  });
+};
+
+/**
+ * parse the indent elements
+ * return as blocks
+ * 返回分块的基于每个缩进单位的元素列表
+ *
+ * @param {HTMLElement} node - list wrapper
+ * @param {number} [level=0] - indent level number
+ * @returns {[HTMLElement]}
+ */
+export const parseIndentBlocks = (node, level = 0) => {
+  // TODO: 第一级需要特殊处理
+  if (level === 0) {
+    return node.querySelectorAll("[data-indent='0']");
+  }
+
+  // 找出当前 indent-level 以及父一级的元素列表, 因为 block 的隔断至于父一级的 level
+  // 有关，和子级（或嵌套子级）没有关系
+  const relatedItemElements = node.querySelectorAll(
+    `[data-indent='${level - 1}'], [data-indent='${level}']`
+  );
+  const indentElements = node.querySelectorAll(`[data-indent='${level}']`);
+
+  // console.log("# relatedItemElements: ", relatedItemElements);
+  // console.log("# indentElements: ", indentElements);
+
+  let sameLevelIndentEls = [];
+  const blocks = [];
+
+  for (let index = 0; index < indentElements.length; index++) {
+    const indentEl = indentElements[index];
+
+    const curIndentElIndex = findIndex(relatedItemElements, (item) => {
+      return item.dataset.index === indentEl.dataset.index;
+    });
+    const nextListItemIndex = curIndentElIndex + 1;
+
+    const nextItem = relatedItemElements[nextListItemIndex];
+
+    // console.log("cur: ", indentEl);
+    // console.log("next: ", nextItem);
+
+    if (!nextItem) {
+      // 如果该条目下只有一个缩进的子条目
+      if (indentEl) {
+        sameLevelIndentEls.push(indentEl);
+      }
+
+      blocks.push([...Array.from(new Set(sameLevelIndentEls))]);
+      sameLevelIndentEls = [];
+      return blocks;
+    }
+
+    const curIndentElLevel = parseInt(indentEl.dataset.indent);
+    const nextItemIndentLevel = parseInt(nextItem.dataset.indent);
+
+    // 如果和下一个的 indent level 相同，说明属于同一个'区块'
+    if (curIndentElLevel === nextItemIndentLevel) {
+      // console.log("the same");
+      sameLevelIndentEls.push(indentEl);
+      sameLevelIndentEls.push(nextItem);
+    } else {
+      // console.log("not the same, break array: ", sameLevelIndentEls);
+      if (indentEl) {
+        sameLevelIndentEls.push(indentEl);
+      }
+
+      blocks.push([...Array.from(new Set(sameLevelIndentEls))]);
+      sameLevelIndentEls = [];
+    }
+  }
+
+  return blocks;
 };
