@@ -112,3 +112,77 @@ export const unIndentElement = (el) => {
   clazz.remove(el, indentClass);
   el.setAttribute("data-indent", indentLevel - 1);
 };
+
+/**
+ * parse the indent elements
+ * return as blocks
+ * 返回分块的基于每个缩进单位的元素列表
+ *
+ * @param {HTMLElement} node - list wrapper
+ * @param {number} [level=0] - indent level number
+ * @returns {[HTMLElement]}
+ */
+export const parseIndentBlocks = (node, level = 0) => {
+  // TODO: 第一级需要特殊处理
+  if (level === 0) {
+    return node.querySelectorAll("[data-indent='0']");
+  }
+
+  // 找出当前 indent-level 以及父一级的元素列表, 因为 block 的隔断至于父一级的 level
+  // 有关，和子级（或嵌套子级）没有关系
+  const relatedItemElements = node.querySelectorAll(
+    `[data-indent='${level - 1}'], [data-indent='${level}']`
+  );
+  const indentElements = node.querySelectorAll(`[data-indent='${level}']`);
+
+  // console.log("# relatedItemElements: ", relatedItemElements);
+  // console.log("# indentElements: ", indentElements);
+
+  let sameLevelIndentEls = [];
+  const blocks = [];
+
+  for (let index = 0; index < indentElements.length; index++) {
+    const indentEl = indentElements[index];
+
+    const curIndentElIndex = findIndex(relatedItemElements, (item) => {
+      return item.dataset.index === indentEl.dataset.index;
+    });
+    const nextListItemIndex = curIndentElIndex + 1;
+
+    const nextItem = relatedItemElements[nextListItemIndex];
+
+    // console.log("cur: ", indentEl);
+    // console.log("next: ", nextItem);
+
+    if (!nextItem) {
+      // 如果该条目下只有一个缩进的子条目
+      if (indentEl) {
+        sameLevelIndentEls.push(indentEl);
+      }
+
+      blocks.push([...Array.from(new Set(sameLevelIndentEls))]);
+      sameLevelIndentEls = [];
+      return blocks;
+    }
+
+    const curIndentElLevel = parseInt(indentEl.dataset.indent);
+    const nextItemIndentLevel = parseInt(nextItem.dataset.indent);
+
+    // 如果和下一个的 indent level 相同，说明属于同一个'区块'
+    if (curIndentElLevel === nextItemIndentLevel) {
+      // console.log("the same");
+      sameLevelIndentEls.push(indentEl);
+      sameLevelIndentEls.push(nextItem);
+    } else {
+      // console.log("not the same, break array: ", sameLevelIndentEls);
+      if (indentEl) {
+        sameLevelIndentEls.push(indentEl);
+      }
+
+      blocks.push([...Array.from(new Set(sameLevelIndentEls))]);
+      sameLevelIndentEls = [];
+    }
+  }
+
+  return blocks;
+};

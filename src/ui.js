@@ -31,6 +31,7 @@ import {
   canItemUnIndent,
   unIndentElement,
   getIndentClass,
+  parseIndentBlocks,
 } from "./helper";
 
 /**
@@ -716,104 +717,80 @@ export default class UI {
   rebuildOrderListIndex(node) {
     const validIndentLevels = [0, 1, 2, 3, 4, 5];
 
-    console.log("# get -> ", this.parseIndentElements(node, 5));
+    const blocks0 = parseIndentBlocks(node, 0);
+    const blocks1 = parseIndentBlocks(node, 1);
+    const blocks2 = parseIndentBlocks(node, 2);
+    const blocks3 = parseIndentBlocks(node, 3);
+    const blocks4 = parseIndentBlocks(node, 4);
+    const blocks5 = parseIndentBlocks(node, 5);
+    console.log("# blocks-0 -> ", blocks0);
+    console.log("# blocks-1 -> ", blocks1);
+    console.log("# blocks-2 -> ", blocks2);
+    console.log("# blocks-3 -> ", blocks3);
+    // console.log("# blocks-3 -> ", parseIndentBlocks(node, 3));
+    // console.log("# blocks-4 -> ", parseIndentBlocks(node, 4));
+    // console.log("# blocks-5 -> ", parseIndentBlocks(node, 5));
 
-    for (let index = 0; index < validIndentLevels.length; index++) {
-      const levelNum = validIndentLevels[index];
+    const prefixClass = `.${this.CSS.orderListPrefix}`;
+    Array.from(blocks0).forEach((item, index) => {
+      const prefixNumberEl = item.querySelector(prefixClass);
+      prefixNumberEl.innerHTML = `${index + 1}.`;
+    });
 
-      const indentElements = node.querySelectorAll(
-        `[data-indent='${levelNum}']`
-      );
-
-      Array.from(indentElements).forEach((item, index) => {
-        const prefixNumberEl = item.querySelector(
-          "." + this.CSS.orderListPrefix
-        );
-        prefixNumberEl.innerHTML = `${index + 1}.`;
+    Array.from(blocks1).forEach((block, blockIndex) => {
+      Array.from(block).forEach((item, index) => {
+        const prefixNumberEl = item.querySelector(prefixClass);
+        prefixNumberEl.innerHTML = `${blockIndex + 1}.${index + 1}`;
       });
-    }
-  }
+    });
 
-  parseIndentElements(node, level = 0) {
-    // const listItemElements = node.querySelectorAll(`.${this.CSS.listItem}`);
+    Array.from(blocks2).forEach((block, blockIndex) => {
+      Array.from(block).forEach((item, index) => {
+        const ParentIndentEl = block[0].previousElementSibling;
 
-    // 如果 level 是 1, 就找出 0,1
-    // const listItemElements = node.querySelectorAll(
-    //   "[data-indent='0'], [data-indent='1']"
-    // );
-    // 如果 level 是 2, 就找出 1,2
-    // const listItemElements = node.querySelectorAll(
-    //   "[data-indent='1'], [data-indent='2']"
-    // );
-    // 如果 level 是 3, 就找出 2,3
-    // const listItemElements = node.querySelectorAll(
-    //   "[data-indent='2'], [data-indent='3']"
-    // );
-    // 如果 level 是 4, 就找出 3,4
-    // const listItemElements = node.querySelectorAll(
-    //   "[data-indent='3'], [data-indent='4']"
-    // );
-    // 如果 level 是 5, 就找出 4,5
-    const listItemElements = node.querySelectorAll(
-      "[data-indent='4'], [data-indent='5']"
-    );
+        const prefixNumberEl = ParentIndentEl.querySelector(prefixClass);
+        const previousIndentPrefix = prefixNumberEl.innerText;
 
-    const indentElements = node.querySelectorAll(`[data-indent='${level}']`);
-
-    // console.log("# listItemElements: ", listItemElements);
-    // console.log("# indentElements: ", indentElements);
-
-    let sameLevelIndentEls = [];
-    const ret = [];
-
-    for (let index = 0; index < indentElements.length; index++) {
-      const indentEl = indentElements[index];
-
-      // const curIndentElIndex = parseInt(indentEl.dataset.index);
-      // const nextListItemIndex = curIndentElIndex + 1;
-      const curIndentElIndex = findIndex(listItemElements, (item) => {
-        return item.dataset.index === indentEl.dataset.index;
+        const curPrefixNumberEl = item.querySelector(prefixClass);
+        curPrefixNumberEl.innerHTML = `${previousIndentPrefix}.${index + 1}`;
       });
-      const nextListItemIndex = curIndentElIndex + 1;
+    });
 
-      const nextItem = listItemElements[nextListItemIndex];
+    Array.from(blocks3).forEach((block, blockIndex) => {
+      Array.from(block).forEach((item, index) => {
+        const ParentIndentEl = block[0].previousElementSibling;
 
-      console.log("cur: ", indentEl);
-      console.log("next: ", nextItem);
+        const prefixNumberEl = ParentIndentEl.querySelector(prefixClass);
+        const previousIndentPrefix = prefixNumberEl.innerText;
 
-      if (!nextItem) {
-        // 如果该条目下只有一个缩进的子条目
-        if (indentEl) {
-          sameLevelIndentEls.push(indentEl);
-        }
+        const curPrefixNumberEl = item.querySelector(prefixClass);
+        curPrefixNumberEl.innerHTML = `${previousIndentPrefix}.${index + 1}`;
+      });
+    });
 
-        console.log("clean 1");
-        ret.push([...Array.from(new Set(sameLevelIndentEls))]);
-        sameLevelIndentEls = [];
-        return ret;
-      }
+    Array.from(blocks4).forEach((block, blockIndex) => {
+      Array.from(block).forEach((item, index) => {
+        const ParentIndentEl = block[0].previousElementSibling;
 
-      const curIndentElLevel = parseInt(indentEl.dataset.indent);
-      const nextItemIndentLevel = parseInt(nextItem.dataset.indent);
+        const prefixNumberEl = ParentIndentEl.querySelector(prefixClass);
+        const previousIndentPrefix = prefixNumberEl.innerText;
 
-      // 如果和下一个的 indent level 相同，说明属于同一个'区块'
-      if (curIndentElLevel === nextItemIndentLevel) {
-        // console.log("the same");
-        sameLevelIndentEls.push(indentEl);
-        sameLevelIndentEls.push(nextItem);
-      } else {
-        // console.log("not the same, break array: ", sameLevelIndentEls);
-        // console.log("clean 2");
-        if (indentEl) {
-          sameLevelIndentEls.push(indentEl);
-        }
+        const curPrefixNumberEl = item.querySelector(prefixClass);
+        curPrefixNumberEl.innerHTML = `${previousIndentPrefix}.${index + 1}`;
+      });
+    });
 
-        ret.push([...Array.from(new Set(sameLevelIndentEls))]);
-        sameLevelIndentEls = [];
-      }
-    }
+    Array.from(blocks5).forEach((block, blockIndex) => {
+      Array.from(block).forEach((item, index) => {
+        const ParentIndentEl = block[0].previousElementSibling;
 
-    return ret;
+        const prefixNumberEl = ParentIndentEl.querySelector(prefixClass);
+        const previousIndentPrefix = prefixNumberEl.innerText;
+
+        const curPrefixNumberEl = item.querySelector(prefixClass);
+        curPrefixNumberEl.innerHTML = `${previousIndentPrefix}.${index + 1}`;
+      });
+    });
   }
 
   /**
