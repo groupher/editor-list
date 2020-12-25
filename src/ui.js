@@ -716,7 +716,7 @@ export default class UI {
   rebuildOrderListIndex(node) {
     const validIndentLevels = [0, 1, 2, 3, 4, 5];
 
-    console.log("# get -> ", this.parseIndentElements(node, 1));
+    console.log("# get -> ", this.parseIndentElements(node, 2));
 
     for (let index = 0; index < validIndentLevels.length; index++) {
       const levelNum = validIndentLevels[index];
@@ -738,14 +738,15 @@ export default class UI {
     // const listItemElements = node.querySelectorAll(`.${this.CSS.listItem}`);
 
     // 如果是 1, 就找出 0,1
-    // 如果是 2, 就找出 0,1,2
-    // 如果是 3, 就找出 0,1,2,3
+    // 如果是 2, 就找出 1,2
+    // 如果是 3, 就找出 2,3
     const listItemElements = node.querySelectorAll(
-      "[data-indent='0'], [data-indent='1']"
+      "[data-indent='1'], [data-indent='2']"
     );
     console.log("# listItemElements: ", listItemElements);
 
     const indentElements = node.querySelectorAll(`[data-indent='${level}']`);
+    console.log("# indentElements: ", indentElements);
 
     const ret = [];
 
@@ -757,8 +758,13 @@ export default class UI {
     for (let index = 0; index < indentElements.length; index++) {
       const indentEl = indentElements[index];
 
-      const curIndentElIndex = parseInt(indentEl.dataset.index);
+      // const curIndentElIndex = parseInt(indentEl.dataset.index);
+      // const nextListItemIndex = curIndentElIndex + 1;
+      const curIndentElIndex = findIndex(listItemElements, (item) => {
+        return item.dataset.index === indentEl.dataset.index;
+      });
       const nextListItemIndex = curIndentElIndex + 1;
+
       const nextItem = listItemElements[nextListItemIndex];
 
       console.log("cur: ", indentEl);
@@ -770,6 +776,7 @@ export default class UI {
           sameLevelIndentEls.push(indentEl);
         }
 
+        console.log("clean 1");
         ret.push([...Array.from(new Set(sameLevelIndentEls))]);
         sameLevelIndentEls = [];
         return ret;
@@ -785,8 +792,12 @@ export default class UI {
         sameLevelIndentEls.push(nextItem);
       } else {
         // console.log("not the same, break array: ", sameLevelIndentEls);
-        ret.push([...Array.from(new Set(sameLevelIndentEls))]);
+        // console.log("clean 2");
+        if (indentEl) {
+          sameLevelIndentEls.push(indentEl);
+        }
 
+        ret.push([...Array.from(new Set(sameLevelIndentEls))]);
         sameLevelIndentEls = [];
       }
     }
