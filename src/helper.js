@@ -116,7 +116,7 @@ export const unIndentElement = (el) => {
 /**
  * set order list's prefix number
  *
- * 第一级和第二级缩进比较特殊，也比较好判断，2-5 级缩进需要自己抓取上一个缩进的前缀标
+ * 第 0 级缩进比较特殊，也比较好判断，1-5 级缩进需要自己抓取上一个缩进的前缀标
  *
  * @param {number} level - indent level number
  * @param {[HTMLElement] || [[HTMLElement]]} blocks - indent blocks array
@@ -125,37 +125,29 @@ export const unIndentElement = (el) => {
 export const setOrderListPrefixItem = (level, blocks) => {
   const prefixClass = ".cdx-list__item-order-prefix";
 
-  switch (level) {
-    case 0: {
-      return Array.from(blocks).forEach((item, index) => {
-        const prefixNumberEl = item.querySelector(prefixClass);
-        prefixNumberEl.innerHTML = `${index + 1}.`;
-      });
-    }
-    case 1: {
-      return Array.from(blocks).forEach((block, blockIndex) => {
-        Array.from(block).forEach((item, index) => {
-          const prefixNumberEl = item.querySelector(prefixClass);
-          prefixNumberEl.innerHTML = `${blockIndex + 1}.${index + 1}`;
-        });
-      });
-    }
-
-    default: {
-      return Array.from(blocks).forEach((block, blockIndex) => {
-        Array.from(block).forEach((item, index) => {
-          // 最近一级 '父' 条目
-          const ParentIndentEl = block[0].previousElementSibling;
-
-          const prefixNumberEl = ParentIndentEl.querySelector(prefixClass);
-          const previousIndentPrefix = prefixNumberEl.innerText;
-
-          const curPrefixNumberEl = item.querySelector(prefixClass);
-          curPrefixNumberEl.innerHTML = `${previousIndentPrefix}.${index + 1}`;
-        });
-      });
-    }
+  if (level === 0) {
+    return Array.from(blocks).forEach((item, index) => {
+      const prefixNumberEl = item.querySelector(prefixClass);
+      prefixNumberEl.innerHTML = `${index + 1}.`;
+    });
   }
+
+  return Array.from(blocks).forEach((block, blockIndex) => {
+    Array.from(block).forEach((item, index) => {
+      // 最近一级 '父' 条目
+      const ParentIndentEl = block[0].previousElementSibling;
+
+      const prefixNumberEl = ParentIndentEl.querySelector(prefixClass);
+
+      // 第 0 级会带 . 后缀，比如 1. xxx， 但是按照惯例后面的子层级没有 . 后缀
+      const previousIndentPrefix = prefixNumberEl.innerText.endsWith(".")
+        ? prefixNumberEl.innerText.slice(0, -1)
+        : prefixNumberEl.innerText;
+
+      const curPrefixNumberEl = item.querySelector(prefixClass);
+      curPrefixNumberEl.innerHTML = `${previousIndentPrefix}.${index + 1}`;
+    });
+  });
 };
 
 /**

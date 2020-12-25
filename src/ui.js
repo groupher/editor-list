@@ -290,6 +290,9 @@ export default class UI {
     if (e.code === "ArrowLeft") {
       if (canItemUnIndent(ListItemEl)) {
         unIndentElement(ListItemEl);
+        if (listType === ORDERED_LIST) {
+          setTimeout(() => this.rebuildOrderListIndex(this.element), 100);
+        }
       }
     }
   }
