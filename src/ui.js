@@ -716,7 +716,7 @@ export default class UI {
   rebuildOrderListIndex(node) {
     const validIndentLevels = [0, 1, 2, 3, 4, 5];
 
-    console.log("# get -> ", this.parseIndentElements(node, 2));
+    console.log("# get -> ", this.parseIndentElements(node, 3));
 
     for (let index = 0; index < validIndentLevels.length; index++) {
       const levelNum = validIndentLevels[index];
@@ -737,23 +737,26 @@ export default class UI {
   parseIndentElements(node, level = 0) {
     // const listItemElements = node.querySelectorAll(`.${this.CSS.listItem}`);
 
-    // 如果是 1, 就找出 0,1
-    // 如果是 2, 就找出 1,2
-    // 如果是 3, 就找出 2,3
+    // 如果 level 是 1, 就找出 0,1
+    // const listItemElements = node.querySelectorAll(
+    //   "[data-indent='0'], [data-indent='1']"
+    // );
+    // 如果 level 是 2, 就找出 1,2
+    // const listItemElements = node.querySelectorAll(
+    //   "[data-indent='1'], [data-indent='2']"
+    // );
+    // 如果 level 是 3, 就找出 2,3
     const listItemElements = node.querySelectorAll(
-      "[data-indent='1'], [data-indent='2']"
+      "[data-indent='2'], [data-indent='3']"
     );
-    console.log("# listItemElements: ", listItemElements);
 
     const indentElements = node.querySelectorAll(`[data-indent='${level}']`);
-    console.log("# indentElements: ", indentElements);
 
-    const ret = [];
-
-    // console.log("# all items: ", listItemElements);
-    // console.log("# indent items: ", indentElements);
+    // console.log("# listItemElements: ", listItemElements);
+    // console.log("# indentElements: ", indentElements);
 
     let sameLevelIndentEls = [];
+    const ret = [];
 
     for (let index = 0; index < indentElements.length; index++) {
       const indentEl = indentElements[index];
