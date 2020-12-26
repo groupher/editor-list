@@ -264,6 +264,7 @@ export default class UI {
   }
 
   onIndent(e, listType) {
+    e.preventDefault();
     // console.log("onKeyUp e.code: ", e.code);
     const ListItemEl = e.target.parentNode;
     // console.log("on Indent");
@@ -280,14 +281,13 @@ export default class UI {
         if (listType === ORDERED_LIST) {
           setTimeout(() => this.rebuildOrderListIndex(this.element), 100);
         }
-        // const indentClass = "cdx-list-indent-1";
-        // clazz.add(ListItemEl, indentClass);
-        // ListItemEl.setAttribute("data-indent", 1);
       }
       // DEBUG end
     }
 
-    if (e.code === "ArrowLeft") {
+    // shift && tab
+    if (e.shiftKey && e.keyCode == 9) {
+      // if (e.code === "ArrowLeft") {
       if (canItemUnIndent(ListItemEl)) {
         unIndentElement(ListItemEl);
         if (listType === ORDERED_LIST) {
