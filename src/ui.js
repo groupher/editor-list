@@ -33,6 +33,7 @@ import {
   getIndentClass,
   parseIndentBlocks,
   setOrderListPrefixItem,
+  indentIfNeed,
 } from "./helper";
 
 /**
@@ -447,6 +448,11 @@ export default class UI {
      * Move caret to contentEditable textField of new checklist item
      */
     moveCaretToEnd(newItem.querySelector(`.${textFieldClass}`));
+
+    /**
+     * indent if need
+     */
+    indentIfNeed(newItem);
 
     if (type === ORDERED_LIST) {
       this.rebuildOrderListIndex(node);

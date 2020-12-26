@@ -228,3 +228,23 @@ export const parseIndentBlocks = (node, level = 0) => {
 
   return blocks;
 };
+
+/**
+ * add indent class based on previous list item
+ * @param {HTMLElement} el
+ */
+export const indentIfNeed = (el) => {
+  const PreviousEl = el.previousElementSibling;
+
+  if (PreviousEl) {
+    const index = parseInt(PreviousEl.dataset.index);
+    // skip first item
+    if (index === 0) return;
+
+    const previousIndentLevel = parseInt(PreviousEl.dataset.indent) || 0;
+    const indentClass = getIndentClass(previousIndentLevel);
+
+    clazz.add(el, indentClass);
+    el.setAttribute("data-indent", previousIndentLevel);
+  }
+};
