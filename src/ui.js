@@ -264,40 +264,6 @@ export default class UI {
     return Wrapper;
   }
 
-  onIndent(e, listType) {
-    e.preventDefault();
-    // console.log("onKeyUp e.code: ", e.code);
-    const ListItemEl = e.target.parentNode;
-    // console.log("on Indent");
-    this.curFocusListItem = ListItemEl;
-
-    if (e.code === "Tab") {
-      this.api.toolbar.close();
-      e.target.focus();
-
-      // DEBUG
-      if (canItemIndent(this._data.items, ListItemEl)) {
-        indentElement(ListItemEl);
-
-        if (listType === ORDERED_LIST) {
-          setTimeout(() => this.rebuildOrderListIndex(this.element), 100);
-        }
-      }
-      // DEBUG end
-    }
-
-    // shift && tab
-    if (e.shiftKey && e.keyCode == 9) {
-      // if (e.code === "ArrowLeft") {
-      if (canItemUnIndent(ListItemEl)) {
-        unIndentElement(ListItemEl);
-        if (listType === ORDERED_LIST) {
-          setTimeout(() => this.rebuildOrderListIndex(this.element), 100);
-        }
-      }
-    }
-  }
-
   // 待办项
   drawCheckList(data) {
     this._data = data;
@@ -456,6 +422,44 @@ export default class UI {
 
     if (type === ORDERED_LIST) {
       this.rebuildOrderListIndex(node);
+    }
+  }
+
+  /**
+   * indent current list type
+   *
+   * @param {HTMLElementEvent} e
+   * @param {string} listType
+   * @memberof UI
+   */
+  onIndent(e, listType) {
+    e.preventDefault();
+    // console.log("onKeyUp e.code: ", e.code);
+    const ListItemEl = e.target.parentNode;
+    // console.log("on Indent");
+    this.curFocusListItem = ListItemEl;
+
+    if (e.code === "Tab") {
+      this.api.toolbar.close();
+      e.target.focus();
+
+      // DEBUG
+      if (canItemIndent(this._data.items, ListItemEl)) {
+        indentElement(ListItemEl);
+
+        if (listType === ORDERED_LIST) {
+          setTimeout(() => this.rebuildOrderListIndex(this.element), 100);
+        }
+      }
+      // DEBUG end
+    }
+
+    // shift && tab
+    if (canItemUnIndent(ListItemEl) && e.shiftKey && e.keyCode == 9) {
+      unIndentElement(ListItemEl);
+      if (listType === ORDERED_LIST) {
+        setTimeout(() => this.rebuildOrderListIndex(this.element), 100);
+      }
     }
   }
 
