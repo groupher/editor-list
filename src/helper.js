@@ -252,12 +252,7 @@ export const indentIfNeed = (el) => {
 const findParentItemIndex = (item, list) => {
   if (item.indent === 0) return -1;
 
-  // console.log("cur item: ", item.index);
   for (let index = item.index; index > 0; index -= 1) {
-    // console.log(".. index: ", index);
-    // console.log("list[index].indent: ", list[index].indent);
-    // console.log("item.indent: ", item.indent);
-
     if (list[index - 1].indent === item.indent - 1) {
       return index - 1;
     }
@@ -273,20 +268,25 @@ export const convertToTree = (items) => {
     return { ...item, index };
   });
 
-  const indent_1_List = list.filter((item) => item.indent === 1);
-  const indent_2_List = list.filter((item) => item.indent === 2);
-
-  // console.log("indent_1_List: ", indent_1_List);
-  console.log("indent_2_List: ", indent_2_List);
-
   const ret = [];
 
-  for (let index = 0; index < indent_1_List.length; index++) {
-    const listItem = indent_1_List[index];
+  // const indent0List = list.filter((item) => item.indent === 0);
+  // // handle indent-level-0
+  // for (let i = 0; i < indent0List.length; i++) {
+  //   const listItem = indent0List[i];
 
+  //   if (!ret[i]) {
+  //     ret[i] = { ...list[i], children: [] };
+  //   }
+
+  //   ret[i].children.push(listItem);
+  // }
+
+  const indent1List = list.filter((item) => item.indent === 1);
+  // handle indent-level-1
+  for (let i = 0; i < indent1List.length; i++) {
+    const listItem = indent1List[i];
     const parentIndex = findParentItemIndex(listItem, list);
-
-    // console.log("# findParentItemIndex: ", parentIndex);
 
     if (!ret[parentIndex]) {
       ret[parentIndex] = { ...list[parentIndex], children: [] };
@@ -295,24 +295,52 @@ export const convertToTree = (items) => {
     ret[parentIndex].children.push(listItem);
   }
 
-  console.log("after 1 list: ", ret);
+  console.log("the fuck ret: ", ret);
+  _setChildren(ret[0], 2, list);
+  // _setChildren(ret[0], 1, list);
 
-  for (let index = 0; index < indent_2_List.length; index++) {
-    const listItem = indent_2_List[index];
+  console.log("@ret ==> ", ret);
 
-    const parentIndex = findParentItemIndex(listItem, list);
-    const parent2Index = findParentItemIndex(list[parentIndex], list);
+  // _setChildren(ret[0].children[0], 2, list);
+};
 
-    console.log("# findParentItemIndex2: ", parent2Index);
-    console.log("# findParentItemIndex: ", parentIndex);
+// TODO:  refactor later
+const _setChildren = (block, indentLevel, list) => {
+  const curAndNextIndentLevelList = list.filter(
+    (item) => item.indent === indentLevel - 1 || item.indent === indentLevel
+  );
 
-    // if (!ret[0].children[parentIndex].children) {
-    // ret[parentIndex] = { ...list[parentIndex], children: [] };
-    // ret[0].children[parentIndex].children = [];
-    // }
+  const curAndNextIndentLevelListMaxNum =
+    curAndNextIndentLevelList[curAndNextIndentLevelList.length - 1].index;
 
-    // ret[0].children[parentIndex].children.push(listItem);
+  for (let i = 0; i < block.children.length; i++) {
+    const firstIndentItem = block.children[i];
+    const firstIndentItemNext = block.children[i + 1];
+
+    const begin = firstIndentItem.index + 1;
+    const end = firstIndentItemNext
+      ? firstIndentItemNext.index
+      : curAndNextIndentLevelListMaxNum + 1;
+
+    // NOTE: 只把indent = 2 的放到 children 里面, 因为里面可能还有子级
+    // console.log("slice: ", `${begin} - ${end}`);
+    const grandsons = list
+      .slice(begin, end)
+      .filter((item) => item.indent === indentLevel);
+
+    // console.log("slice list: ", grandsons);
+    // 设置二级缩进
+    block.children[i].children = grandsons;
+
+    // 设置第三级缩进
+    _setChildren(firstIndentItem, 3, list);
+
+    // console.log("#-> firstIndentItem: ", firstIndentItem.children);
+    // 最多到第四级
+    if (firstIndentItem.children.length > 0) {
+      firstIndentItem.children.forEach((item) => {
+        _setChildren(item, 4, list);
+      });
+    }
   }
-
-  console.log("ret => ", ret);
 };

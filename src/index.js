@@ -119,7 +119,6 @@ export default class List {
       const nextSortType = SORT_ENUM[nextSortTypeIndex];
 
       this.ui.setSortType(nextSortType);
-      // console.log("sort this._data.items --> ", this._data.items);
       convertToTree(this._data.items);
       // this._data.items = this._data.items.sort(
       //   (t1, t2) =>
