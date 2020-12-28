@@ -14,6 +14,8 @@ import {
   SORT_ORDER,
 } from "./constant";
 
+import { convertToTree } from "./helper";
+
 /**
  * @typedef {object} ListData
  * @property {string} type - can be ordered or unordered
@@ -117,15 +119,17 @@ export default class List {
       const nextSortType = SORT_ENUM[nextSortTypeIndex];
 
       this.ui.setSortType(nextSortType);
+      // console.log("sort this._data.items --> ", this._data.items);
+      convertToTree(this._data.items);
+      // this._data.items = this._data.items.sort(
+      //   (t1, t2) =>
+      //     SORT_ORDER[nextSortType][t1.labelType] -
+      //     SORT_ORDER[nextSortType][t2.labelType]
+      // );
 
-      this._data.items = this._data.items.sort(
-        (t1, t2) =>
-          SORT_ORDER[nextSortType][t1.labelType] -
-          SORT_ORDER[nextSortType][t2.labelType]
-      );
-
-      const listElement = this.drawList(this._data.type);
-      this.replaceElement(listElement);
+      // console.log("sort this._data.items: ", this._data.items);
+      // const listElement = this.drawList(this._data.type);
+      // this.replaceElement(listElement);
 
       return false;
     }

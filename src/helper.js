@@ -248,3 +248,71 @@ export const indentIfNeed = (el) => {
     el.setAttribute("data-indent", previousIndentLevel);
   }
 };
+
+const findParentItemIndex = (item, list) => {
+  if (item.indent === 0) return -1;
+
+  // console.log("cur item: ", item.index);
+  for (let index = item.index; index > 0; index -= 1) {
+    // console.log(".. index: ", index);
+    // console.log("list[index].indent: ", list[index].indent);
+    // console.log("item.indent: ", item.indent);
+
+    if (list[index - 1].indent === item.indent - 1) {
+      return index - 1;
+    }
+  }
+
+  return -1;
+};
+
+// labels
+// block 0 level
+export const convertToTree = (items) => {
+  const list = items.map((item, index) => {
+    return { ...item, index };
+  });
+
+  const indent_1_List = list.filter((item) => item.indent === 1);
+  const indent_2_List = list.filter((item) => item.indent === 2);
+
+  // console.log("indent_1_List: ", indent_1_List);
+  console.log("indent_2_List: ", indent_2_List);
+
+  const ret = [];
+
+  for (let index = 0; index < indent_1_List.length; index++) {
+    const listItem = indent_1_List[index];
+
+    const parentIndex = findParentItemIndex(listItem, list);
+
+    // console.log("# findParentItemIndex: ", parentIndex);
+
+    if (!ret[parentIndex]) {
+      ret[parentIndex] = { ...list[parentIndex], children: [] };
+    }
+
+    ret[parentIndex].children.push(listItem);
+  }
+
+  console.log("after 1 list: ", ret);
+
+  for (let index = 0; index < indent_2_List.length; index++) {
+    const listItem = indent_2_List[index];
+
+    const parentIndex = findParentItemIndex(listItem, list);
+    const parent2Index = findParentItemIndex(list[parentIndex], list);
+
+    console.log("# findParentItemIndex2: ", parent2Index);
+    console.log("# findParentItemIndex: ", parentIndex);
+
+    // if (!ret[0].children[parentIndex].children) {
+    // ret[parentIndex] = { ...list[parentIndex], children: [] };
+    // ret[0].children[parentIndex].children = [];
+    // }
+
+    // ret[0].children[parentIndex].children.push(listItem);
+  }
+
+  console.log("ret => ", ret);
+};
