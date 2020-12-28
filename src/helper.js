@@ -264,42 +264,36 @@ const findParentItemIndex = (item, list) => {
 // labels
 // block 0 level
 export const convertToTree = (items) => {
-  const list = items.map((item, index) => {
-    return { ...item, index };
-  });
+  const list = items.map((item, index) => ({ ...item, index }));
+  const jsonTreeArray = [];
 
-  const ret = [];
+  const indent0List = list.filter((item) => item.indent === 0);
+  // console.log("indent0List: ", indent0List);
+  // handle indent-level-0, init
+  for (let i = 0; i < indent0List.length; i++) {
+    const listItem = indent0List[i];
 
-  // const indent0List = list.filter((item) => item.indent === 0);
-  // // handle indent-level-0
-  // for (let i = 0; i < indent0List.length; i++) {
-  //   const listItem = indent0List[i];
+    if (!jsonTreeArray[i]) {
+      jsonTreeArray[i] = { ...listItem, children: [] };
+    }
+  }
 
-  //   if (!ret[i]) {
-  //     ret[i] = { ...list[i], children: [] };
-  //   }
-
-  //   ret[i].children.push(listItem);
-  // }
-
-  const indent1List = list.filter((item) => item.indent === 1);
   // handle indent-level-1
+  const indent1List = list.filter((item) => item.indent === 1);
   for (let i = 0; i < indent1List.length; i++) {
     const listItem = indent1List[i];
     const parentIndex = findParentItemIndex(listItem, list);
 
-    if (!ret[parentIndex]) {
-      ret[parentIndex] = { ...list[parentIndex], children: [] };
+    if (!jsonTreeArray[parentIndex]) {
+      jsonTreeArray[parentIndex] = { ...list[parentIndex], children: [] };
     }
 
-    ret[parentIndex].children.push(listItem);
+    jsonTreeArray[parentIndex].children.push(listItem);
   }
 
-  console.log("the fuck ret: ", ret);
-  _setChildren(ret[0], 2, list);
-  // _setChildren(ret[0], 1, list);
+  jsonTreeArray.forEach((item) => _setChildren(item, 2, list));
 
-  console.log("@ret ==> ", ret);
+  console.log("@jsonTreeArray ==> ", jsonTreeArray);
 
   // _setChildren(ret[0].children[0], 2, list);
 };
