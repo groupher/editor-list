@@ -14,7 +14,11 @@ import {
   SORT_ORDER,
 } from "./constant";
 
-import { convertToNestedChildrenTree, sortNestedChildrenTree } from "./helper";
+import {
+  convertToNestedChildrenTree,
+  sortNestedChildrenTree,
+  flattenNestedChildrenTree,
+} from "./helper";
 
 /**
  * @typedef {object} ListData
@@ -120,7 +124,12 @@ export default class List {
 
       this.ui.setSortType(nextSortType);
       const treeArray = convertToNestedChildrenTree(this._data.items);
-      sortNestedChildrenTree(treeArray, nextSortType);
+      // console.log("# treeArray: ", treeArray);
+      const sortedTreeArray = sortNestedChildrenTree(treeArray, nextSortType);
+      flattenNestedChildrenTree(sortedTreeArray);
+
+      // console.log("# sortedTreeArray: ", sortedTreeArray);
+
       // this._data.items = this._data.items.sort(
       //   (t1, t2) =>
       //     SORT_ORDER[nextSortType][t1.labelType] -

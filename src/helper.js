@@ -290,29 +290,32 @@ export const convertToNestedChildrenTree = (items) => {
 
   // handle indent-level-1 outline list
   const indent1List = list.filter((item) => item.indent === 1);
+
   for (let i = 0; i < indent1List.length; i++) {
     const listItem = indent1List[i];
     const parentIndex = _findParentItemIndex(listItem, list);
 
-    if (!jsonTreeArray[parentIndex]) {
-      jsonTreeArray[parentIndex] = { ...list[parentIndex], children: [] };
+    const indexInJsonTree = findIndex(
+      jsonTreeArray,
+      (item) => item.index === parentIndex
+    );
+
+    if (!jsonTreeArray[indexInJsonTree]) {
+      jsonTreeArray[indexInJsonTree] = { ...list[parentIndex], children: [] };
     }
 
-    jsonTreeArray[parentIndex].children.push(listItem);
+    jsonTreeArray[indexInJsonTree].children.push(listItem);
   }
 
   // 收集缩进级别在 2 以上的子级信息, 最多支持 4 级缩进
   jsonTreeArray.forEach((item) => _setChildren(item, 2, list));
 
   // console.log("@jsonTreeArray ==> ", jsonTreeArray);
-  // sortNestedChildrenTree(jsonTreeArray);
-
   return jsonTreeArray;
 };
 
 export const sortNestedChildrenTree = (treeArray, sortType) => {
-  console.log("@sort treeArray ==> ", treeArray);
-
+  // console.log("@sort treeArray ==> ", treeArray);
   // indent-level-0 outline
   treeArray.sort(
     (t1, t2) =>
@@ -355,8 +358,31 @@ export const sortNestedChildrenTree = (treeArray, sortType) => {
     }
   });
 
-  console.log("# sort after: ", treeArray);
+  // console.log("# sort after: ", treeArray);
   return treeArray;
+};
+
+export const flattenNestedChildrenTree = (treeArray) => {
+  console.log("# flattenNestedChildrenTree in: ", treeArray);
+  const ret = [];
+
+  for (let i = 0; i < treeArray.length; i++) {
+    const item0 = treeArray[i];
+
+    console.log("item0 => ", item0);
+    for (let i = 0; i < item0.children.length; i++) {
+      const item1 = item0.children[i];
+      console.log("item1 => ", item1);
+    }
+  }
+  // treeArray.forEach((item0) => {
+  //   console.log("item0: ", item0);
+  //   item0.children.forEach((item1) => {
+  //     console.log("item1 => ", item1);
+  //   });
+  // });
+
+  console.log("# flattenNestedChildrenTree: ", treeArray);
 };
 
 /**
