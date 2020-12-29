@@ -14,7 +14,7 @@ import {
   SORT_ORDER,
 } from "./constant";
 
-import { convertToTree } from "./helper";
+import { convertToNestedChildrenTree, sortNestedChildrenTree } from "./helper";
 
 /**
  * @typedef {object} ListData
@@ -119,7 +119,8 @@ export default class List {
       const nextSortType = SORT_ENUM[nextSortTypeIndex];
 
       this.ui.setSortType(nextSortType);
-      convertToTree(this._data.items);
+      const treeArray = convertToNestedChildrenTree(this._data.items);
+      sortNestedChildrenTree(treeArray, nextSortType);
       // this._data.items = this._data.items.sort(
       //   (t1, t2) =>
       //     SORT_ORDER[nextSortType][t1.labelType] -
