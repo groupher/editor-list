@@ -34,6 +34,7 @@
   },
   "dependencies": {
     "@groupher/editor-utils": "0.1.81",
+    "lodash": "^4.17.20",
     "tippy.js": "^5.2.0"
   }
 }

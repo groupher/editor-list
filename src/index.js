@@ -123,22 +123,16 @@ export default class List {
       const nextSortType = SORT_ENUM[nextSortTypeIndex];
 
       this.ui.setSortType(nextSortType);
+
       const treeArray = convertToNestedChildrenTree(this._data.items);
-      // console.log("# treeArray: ", treeArray);
       const sortedTreeArray = sortNestedChildrenTree(treeArray, nextSortType);
-      flattenNestedChildrenTree(sortedTreeArray);
+      const flattenList = flattenNestedChildrenTree(sortedTreeArray);
+      // const flattenList = flattenNestedChildrenTree(treeArray);
+      console.log("# flattenList: ", flattenList);
+      this._data.items = flattenList;
 
-      // console.log("# sortedTreeArray: ", sortedTreeArray);
-
-      // this._data.items = this._data.items.sort(
-      //   (t1, t2) =>
-      //     SORT_ORDER[nextSortType][t1.labelType] -
-      //     SORT_ORDER[nextSortType][t2.labelType]
-      // );
-
-      // console.log("sort this._data.items: ", this._data.items);
-      // const listElement = this.drawList(this._data.type);
-      // this.replaceElement(listElement);
+      const listElement = this.drawList(this._data.type);
+      this.replaceElement(listElement);
 
       return false;
     }
@@ -187,7 +181,7 @@ export default class List {
    * @param {string} type list type
    * @return {HTMLElement} listElement
    */
-  drawList(type) {
+  drawList(type, items) {
     switch (type) {
       case UNORDERED_LIST: {
         return this.ui.drawList(this._data);

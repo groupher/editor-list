@@ -1,5 +1,6 @@
 import { findIndex, clazz } from "@groupher/editor-utils";
 import { SORT_ORDER } from "./constant";
+import _ from "lodash";
 
 /**
  * is current list item can be indent or not
@@ -274,11 +275,17 @@ export const indentIfNeed = (el) => {
  * @returns {[NestedListItemData]}
  */
 export const convertToNestedChildrenTree = (items) => {
-  const list = items.map((item, index) => ({ ...item, index }));
+  // const items = JSON.parse(JSON.stringify(itemsData));
+  const list = items.map((item, index) => {
+    return { ...item, index };
+  });
+  // console.log("# list: ", list);
+
   const jsonTreeArray = [];
 
   // handle indent-level-0 outline list
   const indent0List = list.filter((item) => item.indent === 0);
+  // console.log("indent0List: ", indent0List);
   // handle indent-level-0, init
   for (let i = 0; i < indent0List.length; i++) {
     const listItem = indent0List[i];
@@ -290,6 +297,7 @@ export const convertToNestedChildrenTree = (items) => {
 
   // handle indent-level-1 outline list
   const indent1List = list.filter((item) => item.indent === 1);
+  // console.log("indent1List: ", indent1List);
 
   for (let i = 0; i < indent1List.length; i++) {
     const listItem = indent1List[i];
@@ -315,12 +323,12 @@ export const convertToNestedChildrenTree = (items) => {
 };
 
 export const sortNestedChildrenTree = (treeArray, sortType) => {
-  // console.log("@sort treeArray ==> ", treeArray);
   // indent-level-0 outline
   treeArray.sort(
     (t1, t2) =>
       SORT_ORDER[sortType][t1.labelType] - SORT_ORDER[sortType][t2.labelType]
   );
+
   // indent-level-1 outline
   treeArray.forEach((item1) => {
     if (item1.children.length > 0) {
@@ -363,26 +371,39 @@ export const sortNestedChildrenTree = (treeArray, sortType) => {
 };
 
 export const flattenNestedChildrenTree = (treeArray) => {
-  console.log("# flattenNestedChildrenTree in: ", treeArray);
-  const ret = [];
+  // console.log("# flatten treeArray: ", treeArray);
+  // const treeArray = JSON.parse(JSON.stringify(treeArrayData));
+  // const treeArray = [...treeArrayData];
+  const flatList = [];
 
   for (let i = 0; i < treeArray.length; i++) {
     const item0 = treeArray[i];
+    // console.log("item 0: ", item0.text);
+    flatList.push(item0);
 
-    console.log("item0 => ", item0);
+    if (!item0.children) break;
     for (let i = 0; i < item0.children.length; i++) {
       const item1 = item0.children[i];
-      console.log("item1 => ", item1);
+      // console.log("item 1: ", item1.text);
+      flatList.push(item1);
+
+      if (!item1.children) break;
+      for (let i = 0; i < item1.children.length; i++) {
+        const item2 = item1.children[i];
+        flatList.push(item2);
+
+        if (!item2.children) break;
+        for (let i = 0; i < item2.children.length; i++) {
+          const item3 = item2.children[i];
+          // console.log("item 3: ", item3.text);
+
+          flatList.push(item3);
+        }
+      }
     }
   }
-  // treeArray.forEach((item0) => {
-  //   console.log("item0: ", item0);
-  //   item0.children.forEach((item1) => {
-  //     console.log("item1 => ", item1);
-  //   });
-  // });
 
-  console.log("# flattenNestedChildrenTree: ", treeArray);
+  return flatList;
 };
 
 /**
@@ -415,11 +436,24 @@ const _findParentItemIndex = (item, list) => {
  */
 // TODO:  refactor later
 const _setChildren = (block, fromIndentLevel, list) => {
-  const curAndNextIndentLevelList = list.filter(
+  const nextSameIndentLevelIndex = findIndex(
+    list,
+    (item) => item.index > block.index && item.indent === block.indent
+  );
+
+  let curAndNextIndentLevelList = list.filter(
     (item) =>
       item.indent === fromIndentLevel - 1 || item.indent === fromIndentLevel
   );
 
+  if (nextSameIndentLevelIndex !== -1) {
+    curAndNextIndentLevelList = curAndNextIndentLevelList.slice(
+      0,
+      nextSameIndentLevelIndex - 1
+    );
+  }
+
+  // console.log("curAndNextIndentLevelList: ", curAndNextIndentLevelList);
   const curAndNextIndentLevelListMaxNum =
     curAndNextIndentLevelList[curAndNextIndentLevelList.length - 1].index;
 
