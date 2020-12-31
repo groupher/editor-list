@@ -1,6 +1,5 @@
 import { findIndex, clazz } from "@groupher/editor-utils";
 import { SORT_ORDER } from "./constant";
-import _ from "lodash";
 
 /**
  * is current list item can be indent or not
@@ -23,9 +22,6 @@ export const canItemIndent = (items, curItemEl) => {
 
   const previousIndentNum = parseInt(previousIndent);
   const currentIndentNum = parseInt(currentIndent);
-
-  console.log("previousIndentNum -> ", previousIndentNum);
-  console.log("currentIndentNum -> ", currentIndentNum);
 
   // 最多支持 3 级缩进
   if (currentIndentNum >= 3) return false;
