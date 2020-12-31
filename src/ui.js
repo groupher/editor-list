@@ -99,7 +99,6 @@ export default class UI {
       listPrefixIndex: "cdx-list__item-prefix-index",
 
       // list
-      listItem: "cdx-list__item",
       listUnOrderPrefix: "cdx-list__item-order-prefix",
 
       // label
@@ -538,6 +537,56 @@ export default class UI {
       "data-indent": item ? item.indent : 0,
       // "data-hideLabel": item ? !!item.hideLabel : "false",
       "data-hideLabel": this._shouldHideLabel(item),
+      draggable: "true",
+    });
+
+    ListItem.addEventListener("dragstart", (e) => {
+      console.log("drag start: ", e.target);
+      // e.dataTransfer.setData("text/plain", e.target.dataset.index);
+      e.target.classList.add("drag-start");
+
+      // setTimeout(() => {
+      //   e.target.classList.add("hide");
+      // }, 0);
+    });
+
+    ListItem.addEventListener("dragenter", (e) => {
+      e.preventDefault();
+      // e.target.classList.add("drag-over");
+      e.target.classList.remove("drag-over");
+    });
+
+    ListItem.addEventListener("dragover", (e) => {
+      e.preventDefault();
+
+      const itemClass = this.CSS.listItem;
+      // 确保 item 作为一个整体，否则 drag-over 可能添加到 label 或者 prefix 上
+      if (clazz.has(e.target, itemClass)) {
+        e.target.classList.add("drag-over");
+      } else if (clazz.has(e.target.parentNode, itemClass)) {
+        e.target.parentNode.classList.add("drag-over");
+      }
+
+      // cdx-list__item
+    });
+
+    ListItem.addEventListener("dragleave", (e) => {
+      // e.dataTransfer.setData("text/plain", e.target.dataset.index);
+      console.log("drag leave: ", e.target);
+      e.target.classList.remove("drag-over");
+    });
+
+    ListItem.addEventListener("drop", (e) => {
+      // e.dataTransfer.setData("text/plain", e.target.dataset.index);
+      console.log("drag drop: ", e.target);
+      e.target.classList.remove("drag-over");
+    });
+
+    ListItem.addEventListener("dragend", (e) => {
+      console.log("drag end: ", e.target);
+      // e.dataTransfer.setData("text/plain", e.target.dataset.index);
+      e.target.classList.remove("drag-start");
+      e.target.classList.remove("drag-over");
     });
 
     ListItem.addEventListener("keyup", (e) => this.onIndent(e, listType));

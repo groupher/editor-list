@@ -284,3 +284,13 @@
   margin-left: 150px;
   width: calc(100% - 150px);
 }
+
+.drag-over {
+  border-bottom: 1px solid tomato;
+}
+
+.drag-start {
+  border: 1px solid lightgray;
+  padding-left: 10px;
+  border-radius: 4px;
+}
