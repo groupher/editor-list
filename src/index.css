@@ -286,11 +286,12 @@
 }
 
 .drag-over {
-  border-bottom: 1px solid tomato;
+  border-bottom: 1px dashed lightgray;
 }
 
 .drag-start {
-  border: 1px solid lightgray;
+  /* border: 1px solid lightgray; */
+  background: #eff2f5;
   padding-left: 10px;
   border-radius: 4px;
 }

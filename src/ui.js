@@ -573,13 +573,24 @@ export default class UI {
     ListItem.addEventListener("dragleave", (e) => {
       // e.dataTransfer.setData("text/plain", e.target.dataset.index);
       console.log("drag leave: ", e.target);
-      e.target.classList.remove("drag-over");
+      const itemClass = this.CSS.listItem;
+      if (clazz.has(e.target, itemClass)) {
+        e.target.classList.remove("drag-over");
+      } else if (clazz.has(e.target.parentNode, itemClass)) {
+        e.target.parentNode.classList.remove("drag-over");
+      }
     });
 
     ListItem.addEventListener("drop", (e) => {
       // e.dataTransfer.setData("text/plain", e.target.dataset.index);
+      const itemClass = this.CSS.listItem;
       console.log("drag drop: ", e.target);
-      e.target.classList.remove("drag-over");
+      if (clazz.has(e.target, itemClass)) {
+        e.target.classList.remove("drag-over");
+      } else if (clazz.has(e.target.parentNode, itemClass)) {
+        e.target.parentNode.classList.remove("drag-over");
+      }
+      // e.target.classList.remove("drag-over");
     });
 
     ListItem.addEventListener("dragend", (e) => {
