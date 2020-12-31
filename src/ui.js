@@ -53,7 +53,7 @@ export default class UI {
     this.api = api;
     this.config = config;
 
-    this.VALID_INDENT_LEVELS = [0, 1, 2, 3, 4, 5];
+    this.VALID_INDENT_LEVELS = [0, 1, 2, 3];
 
     this._data = null;
     this.element = null;

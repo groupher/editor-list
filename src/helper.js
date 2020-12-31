@@ -24,6 +24,12 @@ export const canItemIndent = (items, curItemEl) => {
   const previousIndentNum = parseInt(previousIndent);
   const currentIndentNum = parseInt(currentIndent);
 
+  console.log("previousIndentNum -> ", previousIndentNum);
+  console.log("currentIndentNum -> ", currentIndentNum);
+
+  // 最多支持 3 级缩进
+  if (currentIndentNum >= 3) return false;
+
   // 不允许比上级缩进超过两级以上
   // TODO: 考虑删除的情况, 需要重新计算
   if (currentIndentNum - previousIndentNum >= 1) {
