@@ -128,7 +128,7 @@ export default class List {
       const sortedTreeArray = sortNestedChildrenTree(treeArray, nextSortType);
       const flattenList = flattenNestedChildrenTree(sortedTreeArray);
       // const flattenList = flattenNestedChildrenTree(treeArray);
-      console.log("# flattenList: ", flattenList);
+      // console.log("# flattenList: ", flattenList);
       this._data.items = flattenList;
 
       const listElement = this.drawList(this._data.type);

@@ -436,6 +436,8 @@ const _findParentItemIndex = (item, list) => {
  */
 // TODO:  refactor later
 const _setChildren = (block, fromIndentLevel, list) => {
+  if (!block.children) return;
+
   const nextSameIndentLevelIndex = findIndex(
     list,
     (item) => item.index > block.index && item.indent === block.indent
@@ -453,7 +455,7 @@ const _setChildren = (block, fromIndentLevel, list) => {
     );
   }
 
-  // console.log("curAndNextIndentLevelList: ", curAndNextIndentLevelList);
+  if (curAndNextIndentLevelList.length === 0) return;
   const curAndNextIndentLevelListMaxNum =
     curAndNextIndentLevelList[curAndNextIndentLevelList.length - 1].index;
 
