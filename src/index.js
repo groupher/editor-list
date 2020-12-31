@@ -137,6 +137,7 @@ export default class List {
       return false;
     }
 
+    this._data.items = data.items;
     this.ui.setType(type);
     const listElement = this.drawList(type);
     this.replaceElement(listElement);
@@ -181,7 +182,7 @@ export default class List {
    * @param {string} type list type
    * @return {HTMLElement} listElement
    */
-  drawList(type, items) {
+  drawList(type) {
     switch (type) {
       case UNORDERED_LIST: {
         return this.ui.drawList(this._data);

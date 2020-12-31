@@ -71,7 +71,7 @@ export default class UI {
       api: this.api,
     });
 
-    this.curFocusListItem = null;
+    this.draggingElement = null;
   }
 
   setType(type) {
@@ -436,7 +436,6 @@ export default class UI {
     // console.log("onKeyUp e.code: ", e.code);
     const ListItemEl = e.target.parentNode;
     // console.log("on Indent");
-    this.curFocusListItem = ListItemEl;
 
     if (e.code === "Tab") {
       this.api.toolbar.close();
@@ -545,9 +544,8 @@ export default class UI {
       // e.dataTransfer.setData("text/plain", e.target.dataset.index);
       e.target.classList.add("drag-start");
 
-      // setTimeout(() => {
-      //   e.target.classList.add("hide");
-      // }, 0);
+      this.draggingElement = e.target.cloneNode(true);
+      // console.log("# draggingElement -> ", draggingElement);
     });
 
     ListItem.addEventListener("dragenter", (e) => {
@@ -561,40 +559,56 @@ export default class UI {
 
       const itemClass = this.CSS.listItem;
       // 确保 item 作为一个整体，否则 drag-over 可能添加到 label 或者 prefix 上
-      if (clazz.has(e.target, itemClass)) {
-        e.target.classList.add("drag-over");
-      } else if (clazz.has(e.target.parentNode, itemClass)) {
-        e.target.parentNode.classList.add("drag-over");
-      }
+      const ItemEl = clazz.has(e.target, itemClass)
+        ? e.target
+        : e.target.parentNode;
+      // console.log("drag over: ", ItemEl);
 
-      // cdx-list__item
+      ItemEl.classList.add("drag-over");
     });
 
     ListItem.addEventListener("dragleave", (e) => {
       // e.dataTransfer.setData("text/plain", e.target.dataset.index);
-      console.log("drag leave: ", e.target);
+      // console.log("drag leave: ", e.target);
       const itemClass = this.CSS.listItem;
-      if (clazz.has(e.target, itemClass)) {
-        e.target.classList.remove("drag-over");
-      } else if (clazz.has(e.target.parentNode, itemClass)) {
-        e.target.parentNode.classList.remove("drag-over");
-      }
+      const ItemEl = clazz.has(e.target, itemClass)
+        ? e.target
+        : e.target.parentNode;
+      // console.log("drag leave: ", ItemEl);
+
+      ItemEl.classList.remove("drag-over");
     });
 
     ListItem.addEventListener("drop", (e) => {
       // e.dataTransfer.setData("text/plain", e.target.dataset.index);
       const itemClass = this.CSS.listItem;
-      console.log("drag drop: ", e.target);
-      if (clazz.has(e.target, itemClass)) {
-        e.target.classList.remove("drag-over");
-      } else if (clazz.has(e.target.parentNode, itemClass)) {
-        e.target.parentNode.classList.remove("drag-over");
-      }
-      // e.target.classList.remove("drag-over");
+      const ItemEl = clazz.has(e.target, itemClass)
+        ? e.target
+        : e.target.parentNode;
+
+      ItemEl.classList.remove("drag-over");
+
+      console.log("# drag drop: ", ItemEl);
+      console.log("# insert: ", this.draggingElement);
+      console.log("# this._data.items: ", this._data.items);
+      // https://stackoverflow.com/a/32135318
+      // ItemEl.parentNode.insertBefore(this.draggingElement, ItemEl.nextSibling);
+
+      const insertIndex = findIndex(
+        this._data.items,
+        (item) => item.dataset.index === ItemEl.dataset.index
+      );
+
+      console.log("insertIndex --> ", insertIndex);
+      this._data.items.splice(insertIndex + 1, 0, this.draggingElement);
+      this.draggingElement.classList.remove("drag-start");
+
+      // TODO: use active type
+      this.setTune(ORDERED_LIST, this.exportData(), this.sortType);
     });
 
     ListItem.addEventListener("dragend", (e) => {
-      console.log("drag end: ", e.target);
+      // console.log("drag end: ", e.target);
       // e.dataTransfer.setData("text/plain", e.target.dataset.index);
       e.target.classList.remove("drag-start");
       e.target.classList.remove("drag-over");

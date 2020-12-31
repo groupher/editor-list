@@ -286,7 +286,7 @@
 }
 
 .drag-over {
-  border-bottom: 1px dashed lightgray;
+  border-bottom: 3px solid #eff2f5;
 }
 
 .drag-start {
