@@ -53,7 +53,7 @@ export default class UI {
     this.api = api;
     this.config = config;
 
-    this.VALID_INDENT_LEVELS = [0, 1, 2, 3, 4, 5];
+    this.VALID_INDENT_LEVELS = [0, 1, 2, 3];
 
     this._data = null;
     this.element = null;
@@ -225,7 +225,7 @@ export default class UI {
    * @memberof UI
    */
   drawList(data, listType = UNORDERED_LIST) {
-    this._data = data;
+    this._data = _.cloneDeep(data);
     this._data.items = this.dropEmptyItem(data.items);
 
     const Wrapper = make("div", [this.CSS.baseBlock, this.CSS.listWrapper]);

@@ -1,4 +1,6 @@
 import { findIndex, clazz } from "@groupher/editor-utils";
+import { SORT_ORDER } from "./constant";
+import _ from "lodash";
 
 /**
  * is current list item can be indent or not
@@ -21,6 +23,12 @@ export const canItemIndent = (items, curItemEl) => {
 
   const previousIndentNum = parseInt(previousIndent);
   const currentIndentNum = parseInt(currentIndent);
+
+  console.log("previousIndentNum -> ", previousIndentNum);
+  console.log("currentIndentNum -> ", currentIndentNum);
+
+  // 最多支持 3 级缩进
+  if (currentIndentNum >= 3) return false;
 
   // 不允许比上级缩进超过两级以上
   // TODO: 考虑删除的情况, 需要重新计算
@@ -246,5 +254,237 @@ export const indentIfNeed = (el) => {
 
     clazz.add(el, indentClass);
     el.setAttribute("data-indent", previousIndentLevel);
+  }
+};
+
+/**
+ * @typedef {Object} ListItemData
+ * @description list item data
+ * @property {string} text — list text
+ * @property {string} label — list label
+ * @property {number} indent - indent level
+ */
+
+/**
+ * @typedef {Object} NestedListItemData
+ * @description list item data
+ * @property {string} text — list text
+ * @property {string} label — list label
+ * @property {number} indent - indent level
+ * @property {array} children - indent level
+ */
+
+/**
+ * covert list item data list to list data json tree
+ *
+ * @param {[ListItemData]} items
+ * @returns {[NestedListItemData]}
+ */
+export const convertToNestedChildrenTree = (items) => {
+  // const items = JSON.parse(JSON.stringify(itemsData));
+  const list = items.map((item, index) => {
+    return { ...item, index };
+  });
+  // console.log("# list: ", list);
+
+  const jsonTreeArray = [];
+
+  // handle indent-level-0 outline list
+  const indent0List = list.filter((item) => item.indent === 0);
+  // console.log("indent0List: ", indent0List);
+  // handle indent-level-0, init
+  for (let i = 0; i < indent0List.length; i++) {
+    const listItem = indent0List[i];
+
+    if (!jsonTreeArray[i]) {
+      jsonTreeArray[i] = { ...listItem, children: [] };
+    }
+  }
+
+  // handle indent-level-1 outline list
+  const indent1List = list.filter((item) => item.indent === 1);
+  // console.log("indent1List: ", indent1List);
+
+  for (let i = 0; i < indent1List.length; i++) {
+    const listItem = indent1List[i];
+    const parentIndex = _findParentItemIndex(listItem, list);
+
+    const indexInJsonTree = findIndex(
+      jsonTreeArray,
+      (item) => item.index === parentIndex
+    );
+
+    if (!jsonTreeArray[indexInJsonTree]) {
+      jsonTreeArray[indexInJsonTree] = { ...list[parentIndex], children: [] };
+    }
+
+    jsonTreeArray[indexInJsonTree].children.push(listItem);
+  }
+
+  // 收集缩进级别在 2 以上的子级信息, 最多支持 4 级缩进
+  jsonTreeArray.forEach((item) => _setChildren(item, 2, list));
+
+  // console.log("@jsonTreeArray ==> ", jsonTreeArray);
+  return jsonTreeArray;
+};
+
+export const sortNestedChildrenTree = (treeArray, sortType) => {
+  // indent-level-0 outline
+  treeArray.sort(
+    (t1, t2) =>
+      SORT_ORDER[sortType][t1.labelType] - SORT_ORDER[sortType][t2.labelType]
+  );
+
+  // indent-level-1 outline
+  treeArray.forEach((item1) => {
+    if (item1.children.length > 0) {
+      // sort indent-level-1 outline
+      // console.log("#-1 sort: ", item1.children);
+      item1.children.sort(
+        (t1, t2) =>
+          SORT_ORDER[sortType][t1.labelType] -
+          SORT_ORDER[sortType][t2.labelType]
+      );
+
+      // indent-level-2 outline
+      item1.children.forEach((item2) => {
+        if (item2.children.length > 0) {
+          // console.log("#-2 sort: ", item2.children);
+          item2.children.sort(
+            (t1, t2) =>
+              SORT_ORDER[sortType][t1.labelType] -
+              SORT_ORDER[sortType][t2.labelType]
+          );
+
+          // indent-level-3 outline
+          item2.children.forEach((item3) => {
+            if (item3.children.length > 0) {
+              // console.log("#-3 sort: ", item3.children);
+              item3.children.sort(
+                (t1, t2) =>
+                  SORT_ORDER[sortType][t1.labelType] -
+                  SORT_ORDER[sortType][t2.labelType]
+              );
+            }
+          });
+        }
+      });
+    }
+  });
+
+  // console.log("# sort after: ", treeArray);
+  return treeArray;
+};
+
+export const flattenNestedChildrenTree = (treeArray) => {
+  // console.log("# flatten treeArray: ", treeArray);
+  // const treeArray = JSON.parse(JSON.stringify(treeArrayData));
+  // const treeArray = [...treeArrayData];
+  const flatList = [];
+
+  for (let i = 0; i < treeArray.length; i++) {
+    const item0 = treeArray[i];
+    // console.log("item 0: ", item0.text);
+    flatList.push(item0);
+
+    if (!item0.children) break;
+    for (let i = 0; i < item0.children.length; i++) {
+      const item1 = item0.children[i];
+      // console.log("item 1: ", item1.text);
+      flatList.push(item1);
+
+      if (!item1.children) break;
+      for (let i = 0; i < item1.children.length; i++) {
+        const item2 = item1.children[i];
+        flatList.push(item2);
+
+        if (!item2.children) break;
+        for (let i = 0; i < item2.children.length; i++) {
+          const item3 = item2.children[i];
+          // console.log("item 3: ", item3.text);
+
+          flatList.push(item3);
+        }
+      }
+    }
+  }
+
+  return flatList;
+};
+
+/**
+ * find parent list item index from the current item
+ * 从当前节点向上寻找父节点的 index
+ *
+ * @param {ListItemData} item
+ * @param {[ListItemData]} list
+ * @returns {number}
+ * @private
+ */
+const _findParentItemIndex = (item, list) => {
+  if (item.indent === 0) return -1;
+
+  for (let index = item.index; index > 0; index -= 1) {
+    if (list[index - 1].indent === item.indent - 1) {
+      return index - 1;
+    }
+  }
+
+  return -1;
+};
+
+/**
+ * set children from indent level-2 to level-4
+ *
+ * @param {NestedListItemData} block
+ * @param {number} fromIndentLevel
+ * @param {[ListItemData]} list
+ */
+// TODO:  refactor later
+const _setChildren = (block, fromIndentLevel, list) => {
+  if (!block.children) return;
+
+  const nextSameIndentLevelIndex = findIndex(
+    list,
+    (item) => item.index > block.index && item.indent === block.indent
+  );
+
+  let curAndNextIndentLevelList = list.filter(
+    (item) =>
+      item.indent === fromIndentLevel - 1 || item.indent === fromIndentLevel
+  );
+
+  if (nextSameIndentLevelIndex !== -1) {
+    curAndNextIndentLevelList = curAndNextIndentLevelList.slice(
+      0,
+      nextSameIndentLevelIndex - 1
+    );
+  }
+
+  if (curAndNextIndentLevelList.length === 0) return;
+  const curAndNextIndentLevelListMaxNum =
+    curAndNextIndentLevelList[curAndNextIndentLevelList.length - 1].index;
+
+  for (let i = 0; i < block.children.length; i++) {
+    const firstIndentItem = block.children[i];
+    const firstIndentItemNext = block.children[i + 1];
+
+    const begin = firstIndentItem.index + 1;
+    const end = firstIndentItemNext
+      ? firstIndentItemNext.index
+      : curAndNextIndentLevelListMaxNum + 1;
+
+    // NOTE: 只把indent = 2 的放到 children 里面, 因为里面可能还有子级
+    // console.log("slice: ", `${begin} - ${end}`);
+    const grandsons = list
+      .slice(begin, end)
+      .filter((item) => item.indent === fromIndentLevel);
+
+    // console.log("slice list: ", grandsons);
+    // 设置二级缩进
+    block.children[i].children = grandsons;
+
+    // 设置第三级缩进
+    _setChildren(firstIndentItem, 3, list);
   }
 };

@@ -1,8 +1,10 @@
 .cdx-list-label {
-  padding: 2px 5px;
-  padding-top: 3px;
+  font-style: italic;
+  padding: 2px 8px;
+  padding-left: 5px;
   border-radius: 4px;
   margin-right: 10px;
+  margin-left: -3px;
   font-size: 12px;
   font-family: sans-serif;
   word-break: keep-all;
