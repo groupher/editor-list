@@ -600,7 +600,6 @@ export default class UI {
       ItemEl.classList.remove("drag-over");
 
       console.log("# drag drop: ", ItemEl);
-      console.log("# this._data.items: ", this._data.items);
       // https://stackoverflow.com/a/32135318
       // ItemEl.parentNode.insertBefore(this.draggingElement, ItemEl.nextSibling);
 
@@ -616,15 +615,16 @@ export default class UI {
         this._data.items.splice(insertIndex + 1, 0, item);
       });
 
-      this._data.items = this._data.items.filter((item) => {
-        return !Boolean(item.dataset.deleteSign);
-      });
-      // this.familyTreeItems.forEach((item) => item.remove());
+      this._data.items = this._data.items.filter(
+        (item) => !Boolean(item.dataset.deleteSign)
+      );
 
-      console.log("this._data.items: ", this._data.items);
+      // this.familyTreeItems.forEach((item) => item.remove());
+      console.log("# drop this._data.items: ", this._data.items);
 
       // TODO: use active type
       this.setTune(ORDERED_LIST, this.exportData(), this.sortType);
+      this.draggingElements = [];
     });
 
     ListItem.addEventListener("dragend", (e) => {
