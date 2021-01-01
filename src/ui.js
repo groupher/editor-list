@@ -34,6 +34,7 @@ import {
   parseIndentBlocks,
   setOrderListPrefixItem,
   indentIfNeed,
+  getFamilyTree,
 } from "./helper";
 
 /**
@@ -71,7 +72,8 @@ export default class UI {
       api: this.api,
     });
 
-    this.draggingElement = null;
+    this.draggingElements = [];
+    this.familyTreeItems = null;
   }
 
   setType(type) {
@@ -540,12 +542,21 @@ export default class UI {
     });
 
     ListItem.addEventListener("dragstart", (e) => {
-      console.log("drag start: ", e.target);
-      // e.dataTransfer.setData("text/plain", e.target.dataset.index);
-      e.target.classList.add("drag-start");
+      const familyTree = getFamilyTree(e.target);
+      console.log("familyTree: ", familyTree);
 
-      this.draggingElement = e.target.cloneNode(true);
-      // console.log("# draggingElement -> ", draggingElement);
+      familyTree.forEach((item) => {
+        this.draggingElements.push(item.cloneNode(true));
+        item.classList.add("drag-start");
+        item.setAttribute("data-delete-sign", true);
+      });
+
+      this.familyTreeItems = familyTree;
+
+      // e.target.classList.add("drag-start");
+
+      console.log("# drag start: ", e.target);
+      console.log("# draggingElements: ", this.draggingElements);
     });
 
     ListItem.addEventListener("dragenter", (e) => {
@@ -589,7 +600,6 @@ export default class UI {
       ItemEl.classList.remove("drag-over");
 
       console.log("# drag drop: ", ItemEl);
-      console.log("# insert: ", this.draggingElement);
       console.log("# this._data.items: ", this._data.items);
       // https://stackoverflow.com/a/32135318
       // ItemEl.parentNode.insertBefore(this.draggingElement, ItemEl.nextSibling);
@@ -599,19 +609,34 @@ export default class UI {
         (item) => item.dataset.index === ItemEl.dataset.index
       );
 
-      console.log("insertIndex --> ", insertIndex);
-      this._data.items.splice(insertIndex + 1, 0, this.draggingElement);
-      this.draggingElement.classList.remove("drag-start");
+      this.draggingElements.reverse();
+
+      this.draggingElements.forEach((item) => {
+        item.classList.remove("drag-start");
+        this._data.items.splice(insertIndex + 1, 0, item);
+      });
+
+      this._data.items = this._data.items.filter((item) => {
+        return !Boolean(item.dataset.deleteSign);
+      });
+      // this.familyTreeItems.forEach((item) => item.remove());
+
+      console.log("this._data.items: ", this._data.items);
 
       // TODO: use active type
       this.setTune(ORDERED_LIST, this.exportData(), this.sortType);
     });
 
     ListItem.addEventListener("dragend", (e) => {
-      // console.log("drag end: ", e.target);
+      console.log("drag end: ", e.target);
       // e.dataTransfer.setData("text/plain", e.target.dataset.index);
       e.target.classList.remove("drag-start");
       e.target.classList.remove("drag-over");
+
+      this.familyTreeItems.forEach((item) => {
+        item.classList.remove("drag-start");
+        item.setAttribute("data-delete-sign", false);
+      });
     });
 
     ListItem.addEventListener("keyup", (e) => this.onIndent(e, listType));

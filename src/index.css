@@ -290,8 +290,7 @@
 }
 
 .drag-start {
-  /* border: 1px solid lightgray; */
-  background: #eff2f5;
+  opacity: 0.6;
+  border-bottom: 1px solid #eff2f5;
   padding-left: 10px;
-  border-radius: 4px;
 }

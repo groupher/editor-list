@@ -484,3 +484,32 @@ const _setChildren = (block, fromIndentLevel, list) => {
     _setChildren(firstIndentItem, 3, list);
   }
 };
+
+export const getFamilyTree = (node) => {
+  const tree = [];
+  tree.push(node);
+
+  const listNodeItems = node.parentNode.getElementsByClassName(
+    "cdx-list__item"
+  );
+  const listLength = listNodeItems.length;
+  const curIndex = parseInt(node.dataset.index);
+
+  for (let i = curIndex + 1; i < listNodeItems.length; i++) {
+    const listItemEl = listNodeItems[i];
+
+    const curIndent = parseInt(node.dataset.indent);
+    const nextIndent = parseInt(listItemEl.dataset.indent);
+
+    // console.log("-> curIndent: ", curIndent);
+    // console.log("-> nextIndent: ", nextIndent);
+
+    if (curIndent < nextIndent) {
+      tree.push(listItemEl);
+    }
+
+    if (nextIndent <= curIndent) {
+      return tree;
+    }
+  }
+};
