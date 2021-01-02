@@ -285,11 +285,11 @@
   width: calc(100% - 150px);
 }
 
-.drag-over {
+.cdx-list-drag-over {
   border-bottom: 3px solid #eff2f5;
 }
 
-.drag-start {
+.cdx-list-drag-start {
   opacity: 0.6;
   border-bottom: 1px solid #eff2f5;
   padding-left: 10px;

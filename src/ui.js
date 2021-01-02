@@ -8,6 +8,7 @@ import {
   debounce,
   findIndex,
   clazz,
+  isDOM,
 } from "@groupher/editor-utils";
 
 import OrgLabel from "./orgLabel";
@@ -21,6 +22,7 @@ import {
   UNORDERED_LIST,
   ORDERED_LIST,
   CHECKLIST,
+  MAX_INDENT_LEVEL,
 } from "./constant";
 
 import iconList from "./icons";
@@ -46,8 +48,6 @@ import {
  * @property {String} label — label content
  * @property {Number} hideLabel - has label or not
  */
-
-const isDOM = (el) => el instanceof Element;
 
 export default class UI {
   constructor({ api, data, config, setTune, setData }) {
@@ -123,6 +123,10 @@ export default class UI {
 
       // label
       labelPopover: "label-popover",
+
+      // drag
+      listDragOver: "cdx-list-drag-over",
+      listDragStart: "cdx-list-drag-start",
     };
   }
 
@@ -148,7 +152,6 @@ export default class UI {
   _hasLabelInList(visible = false) {
     for (let index = 0; index < this._data.items.length; index++) {
       const element = this._data.items[index];
-      // console.log("is current element: ", element);
       if (isDOM(element)) {
         const LabelList = element.querySelector(`.${this.CSS.listLabel}`);
         if (visible && LabelList) {
@@ -243,8 +246,6 @@ export default class UI {
         this._data.items.push(NewItem);
         Wrapper.appendChild(NewItem);
       });
-      // console.log("this._data.items: ", this._data.items);
-      // this._data.items = this.dropRawItem(data.items);
       this._data.items = this.dropRawItem(this._data.items);
     } else {
       // this._data.items = this.dropEmptyItem(data.items);
@@ -268,7 +269,6 @@ export default class UI {
   // 待办项
   drawCheckList(data) {
     this._data = data;
-    // console.log("drawCheckList data: ", data);
     this._data.items = this.dropEmptyItem(data.items);
     const Wrapper = make("div", [this.CSS.baseBlock, this.CSS.listWrapper]);
 
@@ -541,103 +541,7 @@ export default class UI {
       draggable: "true",
     });
 
-    ListItem.addEventListener("dragstart", (e) => {
-      const familyTree = getFamilyTree(e.target);
-      console.log("familyTree: ", familyTree);
-
-      familyTree.forEach((item) => {
-        this.draggingElements.push(item.cloneNode(true));
-        item.classList.add("drag-start");
-        item.setAttribute("data-delete-sign", true);
-      });
-
-      this.familyTreeItems = familyTree;
-
-      // e.target.classList.add("drag-start");
-
-      console.log("# drag start: ", e.target);
-      console.log("# draggingElements: ", this.draggingElements);
-    });
-
-    ListItem.addEventListener("dragenter", (e) => {
-      e.preventDefault();
-      // e.target.classList.add("drag-over");
-      e.target.classList.remove("drag-over");
-    });
-
-    ListItem.addEventListener("dragover", (e) => {
-      e.preventDefault();
-
-      const itemClass = this.CSS.listItem;
-      // 确保 item 作为一个整体，否则 drag-over 可能添加到 label 或者 prefix 上
-      const ItemEl = clazz.has(e.target, itemClass)
-        ? e.target
-        : e.target.parentNode;
-      // console.log("drag over: ", ItemEl);
-
-      ItemEl.classList.add("drag-over");
-    });
-
-    ListItem.addEventListener("dragleave", (e) => {
-      // e.dataTransfer.setData("text/plain", e.target.dataset.index);
-      // console.log("drag leave: ", e.target);
-      const itemClass = this.CSS.listItem;
-      const ItemEl = clazz.has(e.target, itemClass)
-        ? e.target
-        : e.target.parentNode;
-      // console.log("drag leave: ", ItemEl);
-
-      ItemEl.classList.remove("drag-over");
-    });
-
-    ListItem.addEventListener("drop", (e) => {
-      // e.dataTransfer.setData("text/plain", e.target.dataset.index);
-      const itemClass = this.CSS.listItem;
-      const ItemEl = clazz.has(e.target, itemClass)
-        ? e.target
-        : e.target.parentNode;
-
-      ItemEl.classList.remove("drag-over");
-
-      console.log("# drag drop: ", ItemEl);
-      // https://stackoverflow.com/a/32135318
-      // ItemEl.parentNode.insertBefore(this.draggingElement, ItemEl.nextSibling);
-
-      const insertIndex = findIndex(
-        this._data.items,
-        (item) => item.dataset.index === ItemEl.dataset.index
-      );
-
-      this.draggingElements.reverse();
-
-      this.draggingElements.forEach((item) => {
-        item.classList.remove("drag-start");
-        this._data.items.splice(insertIndex + 1, 0, item);
-      });
-
-      this._data.items = this._data.items.filter(
-        (item) => !Boolean(item.dataset.deleteSign)
-      );
-
-      // this.familyTreeItems.forEach((item) => item.remove());
-      console.log("# drop this._data.items: ", this._data.items);
-
-      // TODO: use active type
-      this.setTune(ORDERED_LIST, this.exportData(), this.sortType);
-      this.draggingElements = [];
-    });
-
-    ListItem.addEventListener("dragend", (e) => {
-      console.log("drag end: ", e.target);
-      // e.dataTransfer.setData("text/plain", e.target.dataset.index);
-      e.target.classList.remove("drag-start");
-      e.target.classList.remove("drag-over");
-
-      this.familyTreeItems.forEach((item) => {
-        item.classList.remove("drag-start");
-        item.setAttribute("data-delete-sign", false);
-      });
-    });
+    this._addDraggable(ListItem);
 
     ListItem.addEventListener("keyup", (e) => this.onIndent(e, listType));
 
@@ -680,6 +584,113 @@ export default class UI {
 
     ListItem.appendChild(TextField);
     return ListItem;
+  }
+
+  /**
+   * add drag ability to list item (include checklist item)
+   * @param {HTMLElement} listItem
+   * @memberof UI
+   */
+  _addDraggable(ListItem) {
+    ListItem.addEventListener("dragstart", (e) => {
+      const familyTree = getFamilyTree(e.target);
+
+      // add drag-start css to all children
+      familyTree.forEach((item) => {
+        this.draggingElements.push(item.cloneNode(true));
+        item.classList.add(this.CSS.listDragStart);
+        item.setAttribute("data-delete-sign", true);
+      });
+
+      this.familyTreeItems = familyTree;
+    });
+
+    ListItem.addEventListener("dragenter", (e) => {
+      e.preventDefault();
+      e.target.classList.remove(this.CSS.listDragOver);
+    });
+
+    ListItem.addEventListener("dragover", (e) => {
+      e.preventDefault();
+
+      const itemClass = this.CSS.listItem;
+      // 确保 item 作为一个整体，否则 drag-over 可能添加到 label 或者 prefix 上
+      const ItemEl = clazz.has(e.target, itemClass)
+        ? e.target
+        : e.target.parentNode;
+
+      ItemEl.classList.add(this.CSS.listDragOver);
+    });
+
+    ListItem.addEventListener("dragleave", (e) => {
+      // e.dataTransfer.setData("text/plain", e.target.dataset.index);
+      const itemClass = this.CSS.listItem;
+      const ItemEl = clazz.has(e.target, itemClass)
+        ? e.target
+        : e.target.parentNode;
+      // console.log("drag leave: ", ItemEl);
+
+      ItemEl.classList.remove(this.CSS.listDragOver);
+    });
+
+    ListItem.addEventListener("drop", (e) => {
+      // e.dataTransfer.setData("text/plain", e.target.dataset.index);
+      const itemClass = this.CSS.listItem;
+      const ItemEl = clazz.has(e.target, itemClass)
+        ? e.target
+        : e.target.parentNode;
+
+      ItemEl.classList.remove(this.CSS.listDragOver);
+
+      const insertIndex = findIndex(
+        this._data.items,
+        (item) => item.dataset.index === ItemEl.dataset.index
+      );
+
+      const dropElIndent = parseInt(ItemEl.dataset.indent);
+      const dragParentElIndent = parseInt(
+        this.draggingElements[0].dataset.indent
+      );
+      const indentOffset = dragParentElIndent - dropElIndent;
+
+      this.draggingElements.reverse();
+      this.draggingElements.forEach((item) => {
+        const curElIndent = parseInt(item.dataset.indent);
+        const draggedIndent = Math.min(
+          MAX_INDENT_LEVEL,
+          curElIndent - indentOffset
+        );
+
+        // 如果超出最大缩进，就按照最大缩进设置
+        item.setAttribute("data-indent", draggedIndent);
+
+        this._data.items.splice(insertIndex + 1, 0, item);
+        item.classList.remove(this.CSS.listDragStart);
+      });
+
+      this._data.items = this._data.items.filter(
+        (item) => !Boolean(item.dataset.deleteSign)
+      );
+
+      // console.log("# drop this._data.items: ", this._data.items);
+      // console.log("this.draggingElements: ", this.draggingElements);
+
+      // TODO: use active type
+      this.setTune(ORDERED_LIST, this.exportData(), this.sortType);
+      this.draggingElements = [];
+    });
+
+    ListItem.addEventListener("dragend", (e) => {
+      // console.log("drag end: ", e.target);
+      // e.dataTransfer.setData("text/plain", e.target.dataset.index);
+      e.target.classList.remove(this.CSS.listDragStart);
+      e.target.classList.remove(this.CSS.listDragOver);
+
+      this.familyTreeItems.forEach((item) => {
+        item.classList.remove(this.CSS.listDragStart);
+        item.setAttribute("data-delete-sign", false);
+      });
+    });
   }
 
   /**
@@ -1015,6 +1026,7 @@ export default class UI {
       }
     }
 
+    // console.log("# exportData: ", items);
     data.items = items;
     return data;
   }

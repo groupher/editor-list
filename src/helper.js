@@ -181,8 +181,10 @@ export const parseIndentBlocks = (node, level = 0) => {
   );
   const indentElements = node.querySelectorAll(`[data-indent='${level}']`);
 
-  // console.log("# relatedItemElements: ", relatedItemElements);
-  // console.log("# indentElements: ", indentElements);
+  // if (level === 3) {
+  //   console.log("# relatedItemElements: ", relatedItemElements);
+  //   console.log("# indentElements: ", indentElements);
+  // }
 
   let sameLevelIndentEls = [];
   const blocks = [];
@@ -485,6 +487,13 @@ const _setChildren = (block, fromIndentLevel, list) => {
   }
 };
 
+/**
+ * get children list items (include parent itself)
+ *
+ * @param {HTMLElement} node
+ * @returns {[HTMLElement]}
+ * @public
+ */
 export const getFamilyTree = (node) => {
   const tree = [];
   tree.push(node);
@@ -512,4 +521,5 @@ export const getFamilyTree = (node) => {
       return tree;
     }
   }
+  return tree;
 };

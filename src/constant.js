@@ -1,3 +1,5 @@
+export const MAX_INDENT_LEVEL = 3;
+
 export const ORDERED_LIST = "ordered_list";
 export const UNORDERED_LIST = "unordered_list";
 export const CHECKLIST = "checklist";
