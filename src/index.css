@@ -88,6 +88,7 @@
     display: flex;
     align-items: baseline;
     box-sizing: content-box;
+    position: relative;
 
     &-text {
       outline: none;
@@ -283,4 +284,44 @@
 .cdx-list-indent-5 {
   margin-left: 150px;
   width: calc(100% - 150px);
+}
+
+.cdx-list__item {
+  &:hover .cdx-list-drag-icon {
+    opacity: 0.8;
+  }
+}
+
+.cdx-checklist__item {
+  &:hover .cdx-list-drag-icon {
+    opacity: 0.8;
+  }
+}
+
+.cdx-list-drag-icon {
+  position: absolute;
+  left: -22px;
+  top: 13px;
+  opacity: 0;
+
+  &:hover {
+    opacity: 1;
+    cursor: pointer;
+  }
+
+  svg {
+    fill: #89979c;
+  }
+
+  transition: opacity 0.3s;
+}
+
+.cdx-list-drag-over {
+  border-bottom: 3px solid #eff2f5;
+}
+
+.cdx-list-drag-start {
+  opacity: 0.6;
+  border-bottom: 1px solid #eff2f5;
+  padding-left: 10px;
 }

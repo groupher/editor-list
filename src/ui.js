@@ -8,6 +8,7 @@ import {
   debounce,
   findIndex,
   clazz,
+  isDOM,
 } from "@groupher/editor-utils";
 
 import OrgLabel from "./orgLabel";
@@ -21,6 +22,7 @@ import {
   UNORDERED_LIST,
   ORDERED_LIST,
   CHECKLIST,
+  MAX_INDENT_LEVEL,
 } from "./constant";
 
 import iconList from "./icons";
@@ -34,6 +36,8 @@ import {
   parseIndentBlocks,
   setOrderListPrefixItem,
   indentIfNeed,
+  getFamilyTree,
+  findNextSameIndentLevelIndex,
 } from "./helper";
 
 /**
@@ -45,8 +49,6 @@ import {
  * @property {String} label — label content
  * @property {Number} hideLabel - has label or not
  */
-
-const isDOM = (el) => el instanceof Element;
 
 export default class UI {
   constructor({ api, data, config, setTune, setData }) {
@@ -71,7 +73,8 @@ export default class UI {
       api: this.api,
     });
 
-    this.curFocusListItem = null;
+    this.draggingElements = [];
+    this.draggingFamilyTreeItems = null;
   }
 
   setType(type) {
@@ -99,7 +102,6 @@ export default class UI {
       listPrefixIndex: "cdx-list__item-prefix-index",
 
       // list
-      listItem: "cdx-list__item",
       listUnOrderPrefix: "cdx-list__item-order-prefix",
 
       // label
@@ -122,6 +124,11 @@ export default class UI {
 
       // label
       labelPopover: "label-popover",
+
+      // drag
+      listDragIcon: "cdx-list-drag-icon",
+      listDragOver: "cdx-list-drag-over",
+      listDragStart: "cdx-list-drag-start",
     };
   }
 
@@ -147,7 +154,6 @@ export default class UI {
   _hasLabelInList(visible = false) {
     for (let index = 0; index < this._data.items.length; index++) {
       const element = this._data.items[index];
-      // console.log("is current element: ", element);
       if (isDOM(element)) {
         const LabelList = element.querySelector(`.${this.CSS.listLabel}`);
         if (visible && LabelList) {
@@ -242,8 +248,6 @@ export default class UI {
         this._data.items.push(NewItem);
         Wrapper.appendChild(NewItem);
       });
-      // console.log("this._data.items: ", this._data.items);
-      // this._data.items = this.dropRawItem(data.items);
       this._data.items = this.dropRawItem(this._data.items);
     } else {
       // this._data.items = this.dropEmptyItem(data.items);
@@ -267,12 +271,12 @@ export default class UI {
   // 待办项
   drawCheckList(data) {
     this._data = data;
-    // console.log("drawCheckList data: ", data);
     this._data.items = this.dropEmptyItem(data.items);
+
     const Wrapper = make("div", [this.CSS.baseBlock, this.CSS.listWrapper]);
 
     if (data.items.length) {
-      this._data = { items: [{}], type: CHECKLIST };
+      this._data = { items: [], type: CHECKLIST };
 
       data.items.forEach((item, index) => {
         const NewItem = this.createChecklistItem(item, index);
@@ -396,8 +400,6 @@ export default class UI {
      * Insert new list item as sibling to currently selected item
      */
     node.insertBefore(newItem, currentItem.nextSibling);
-    // console.log("items: ", items);
-    // console.log("this._data.items: ", this._data.items);
 
     /**
      * Index of newly inserted checklist item
@@ -434,10 +436,7 @@ export default class UI {
    */
   onIndent(e, listType) {
     e.preventDefault();
-    // console.log("onKeyUp e.code: ", e.code);
     const ListItemEl = e.target.parentNode;
-    // console.log("on Indent");
-    this.curFocusListItem = ListItemEl;
 
     if (e.code === "Tab") {
       this.api.toolbar.close();
@@ -538,11 +537,11 @@ export default class UI {
       "data-indent": item ? item.indent : 0,
       // "data-hideLabel": item ? !!item.hideLabel : "false",
       "data-hideLabel": this._shouldHideLabel(item),
+      draggable: "true",
     });
 
+    this._addDraggable(ListItem);
     ListItem.addEventListener("keyup", (e) => this.onIndent(e, listType));
-
-    const Prefix = make("div", prefixClass);
 
     const TextField = make("div", this.CSS.listTextField, {
       innerHTML: item ? item.text : "",
@@ -571,7 +570,14 @@ export default class UI {
       ListItem.dataset.checked = true;
     }
 
-    ListItem.appendChild(Prefix);
+    const DragHandEl = make("div", this.CSS.listDragIcon, {
+      innerHTML:
+        '<svg t="1609572080769" width="12px" height="12px" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4278" width="200" height="200"><path d="M553.13 98.512l87.565 73.476c13.538 11.36 15.304 31.545 3.944 45.083l-7.713 9.192c-11.36 13.539-31.544 15.305-45.083 3.945L548 193.419v282.58h282.58l-36.79-43.844c-11.36-13.538-9.593-33.722 3.945-45.082l9.193-7.714c13.538-11.36 33.722-9.594 45.082 3.944l73.47 87.558c19.964 23.792 19.964 58.484 0 82.276l-73.47 87.558c-11.246 13.403-31.141 15.268-44.674 4.281l-0.408-0.337-9.193-7.713c-13.538-11.36-15.304-31.544-3.944-45.083L830.58 548H548v282.58l43.843-36.788c13.539-11.36 33.723-9.594 45.083 3.944l7.713 9.193c11.247 13.403 9.628 33.32-3.541 44.739l-0.403 0.343-87.558 73.47c-23.792 19.964-58.484 19.964-82.276 0l-87.558-73.47c-13.538-11.36-15.304-31.544-3.944-45.082l7.714-9.193c11.246-13.403 31.141-15.268 44.674-4.281l0.408 0.337L476 830.58V547.999H193.418l36.79 43.844c11.246 13.403 9.628 33.32-3.542 44.74l-0.403 0.343-9.192 7.713c-13.403 11.247-33.32 9.628-44.74-3.541l-0.343-0.403-73.469-87.558c-19.964-23.792-19.964-58.484 0-82.276l73.47-87.558c11.36-13.538 31.544-15.304 45.082-3.944l9.192 7.714c13.404 11.246 15.269 31.14 4.282 44.674l-0.338 0.408-36.79 43.844H476V193.366l-43.905 36.841c-13.403 11.247-33.32 9.63-44.739-3.54l-0.343-0.404-7.714-9.192c-11.251-13.4-9.633-33.316 3.537-44.735l0.403-0.344c0.001-0.001 0.003-0.002 0.008 0.001l87.616-73.489c23.792-19.956 58.478-19.953 82.267 0.008z" p-id="4279"></path></svg>',
+    });
+
+    const PrefixEl = make("div", prefixClass);
+    ListItem.appendChild(DragHandEl);
+    ListItem.appendChild(PrefixEl);
 
     const { need, LabelEl } = this._appendLabelIfNeed(item, itemIndex);
     if (need) {
@@ -596,8 +602,10 @@ export default class UI {
       "data-index": itemIndex,
       "data-indent": item ? item.indent : 0,
       "data-hideLabel": this._shouldHideLabel(item),
+      draggable: "true",
     });
 
+    this._addDraggable(ListItem);
     ListItem.addEventListener("keyup", (e) => this.onIndent(e));
 
     const Checkbox = this._drawCheckBox();
@@ -620,6 +628,12 @@ export default class UI {
       ListItem.dataset.checked = true;
     }
 
+    const DragHandEl = make("div", this.CSS.listDragIcon, {
+      innerHTML:
+        '<svg t="1609572080769" width="12px" height="12px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4278" width="200" height="200"><path d="M553.13 98.512l87.565 73.476c13.538 11.36 15.304 31.545 3.944 45.083l-7.713 9.192c-11.36 13.539-31.544 15.305-45.083 3.945L548 193.419v282.58h282.58l-36.79-43.844c-11.36-13.538-9.593-33.722 3.945-45.082l9.193-7.714c13.538-11.36 33.722-9.594 45.082 3.944l73.47 87.558c19.964 23.792 19.964 58.484 0 82.276l-73.47 87.558c-11.246 13.403-31.141 15.268-44.674 4.281l-0.408-0.337-9.193-7.713c-13.538-11.36-15.304-31.544-3.944-45.083L830.58 548H548v282.58l43.843-36.788c13.539-11.36 33.723-9.594 45.083 3.944l7.713 9.193c11.247 13.403 9.628 33.32-3.541 44.739l-0.403 0.343-87.558 73.47c-23.792 19.964-58.484 19.964-82.276 0l-87.558-73.47c-13.538-11.36-15.304-31.544-3.944-45.082l7.714-9.193c11.246-13.403 31.141-15.268 44.674-4.281l0.408 0.337L476 830.58V547.999H193.418l36.79 43.844c11.246 13.403 9.628 33.32-3.542 44.74l-0.403 0.343-9.192 7.713c-13.403 11.247-33.32 9.628-44.74-3.541l-0.343-0.403-73.469-87.558c-19.964-23.792-19.964-58.484 0-82.276l73.47-87.558c11.36-13.538 31.544-15.304 45.082-3.944l9.192 7.714c13.404 11.246 15.269 31.14 4.282 44.674l-0.338 0.408-36.79 43.844H476V193.366l-43.905 36.841c-13.403 11.247-33.32 9.63-44.739-3.54l-0.343-0.404-7.714-9.192c-11.251-13.4-9.633-33.316 3.537-44.735l0.403-0.344c0.001-0.001 0.003-0.002 0.008 0.001l87.616-73.489c23.792-19.956 58.478-19.953 82.267 0.008z" p-id="4279"></path></svg>',
+    });
+
+    ListItem.appendChild(DragHandEl);
     ListItem.appendChild(Checkbox);
 
     const { need, LabelEl } = this._appendLabelIfNeed(item, itemIndex);
@@ -636,11 +650,11 @@ export default class UI {
   _drawCheckBox() {
     const LeftBracket = make("div", this.CSS.checklistBracket, {
       innerHTML:
-        '<svg t="1592048015933" width="15px" height="15px" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2908" width="200" height="200"><path d="M430.08 204.8h163.84v81.92H512v450.56h81.92v81.92H430.08z" p-id="2909"></path></svg>',
+        '<svg t="1592048015933" width="15px" height="15px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2908" width="200" height="200"><path d="M430.08 204.8h163.84v81.92H512v450.56h81.92v81.92H430.08z" p-id="2909"></path></svg>',
     });
     const CheckSign = make("div", this.CSS.checklistBracketCheckSign, {
       innerHTML:
-        '<svg t="1592049095081" width="20px" height="20px" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="9783" width="200" height="200"><path d="M853.333333 256L384 725.333333l-213.333333-213.333333" p-id="9784"></path></svg>',
+        '<svg t="1592049095081" width="20px" height="20px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="9783" width="200" height="200"><path d="M853.333333 256L384 725.333333l-213.333333-213.333333" p-id="9784"></path></svg>',
       // must set this contentEditable, this is a workaround for editorjs's plus icon apear and jumpy
       // 这里必须设置 contentEditable, 否则 editorjs 的增加按钮会闪现
       contentEditable: true,
@@ -648,7 +662,7 @@ export default class UI {
 
     const RightBracket = make("div", this.CSS.checklistBracketRight, {
       innerHTML:
-        '<svg t="1592048041260" width="15px" height="15px" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3043" width="200" height="200"><path d="M593.92 204.8H430.08v81.92h81.92v450.56H430.08v81.92h163.84z" p-id="3044"></path></svg>',
+        '<svg t="1592048041260" width="15px" height="15px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3043" width="200" height="200"><path d="M593.92 204.8H430.08v81.92h81.92v450.56H430.08v81.92h163.84z" p-id="3044"></path></svg>',
     });
 
     const Checkbox = make("div", this.CSS.checklistBox);
@@ -657,6 +671,116 @@ export default class UI {
     Checkbox.appendChild(RightBracket);
 
     return Checkbox;
+  }
+
+  /**
+   * add drag ability to list item (include checklist item)
+   * see example: https://www.javascripttutorial.net/web-apis/javascript-drag-and-drop/
+   * @param {HTMLElement} listItem
+   * @memberof UI
+   */
+  _addDraggable(ListItem) {
+    ListItem.addEventListener("dragstart", (e) => {
+      const familyTree = getFamilyTree(e.target);
+      // add drag-start css to all children
+      familyTree.forEach((item) => {
+        this.draggingElements.push(item.cloneNode(true));
+        item.classList.add(this.CSS.listDragStart);
+        item.setAttribute("data-delete-sign", true);
+      });
+
+      this.draggingFamilyTreeItems = familyTree;
+    });
+
+    ListItem.addEventListener("dragenter", (e) => {
+      e.preventDefault();
+      e.target.classList.remove(this.CSS.listDragOver);
+    });
+
+    ListItem.addEventListener("dragover", (e) => {
+      e.preventDefault();
+
+      const itemClass = this.CSS.listItem;
+      // 确保 item 作为一个整体，否则 drag-over 可能添加到 label 或者 prefix 上
+      const ItemEl = clazz.has(e.target, itemClass)
+        ? e.target
+        : e.target.parentNode;
+
+      ItemEl.classList.add(this.CSS.listDragOver);
+    });
+
+    ListItem.addEventListener("dragleave", (e) => {
+      const itemClass = this.CSS.listItem;
+      const ItemEl = clazz.has(e.target, itemClass)
+        ? e.target
+        : e.target.parentNode;
+
+      ItemEl.classList.remove(this.CSS.listDragOver);
+    });
+
+    ListItem.addEventListener("drop", (e) => {
+      const itemClass = this.CSS.listItem;
+      const ItemEl = clazz.has(e.target, itemClass)
+        ? e.target
+        : e.target.parentNode;
+
+      ItemEl.classList.remove(this.CSS.listDragOver);
+
+      // skip the same item drag
+      if (this.draggingElements[0].dataset.index === ItemEl.dataset.index) {
+        return false;
+      }
+
+      //跳过目标 item 的所有 children
+      const targetIndex = findNextSameIndentLevelIndex(
+        ItemEl,
+        this._data.items
+      );
+
+      const insertIndex = findIndex(
+        this._data.items,
+        (item) => item.dataset.index === targetIndex
+      );
+
+      const dropElIndent = parseInt(ItemEl.dataset.indent);
+      const dragParentElIndent = parseInt(
+        this.draggingElements[0].dataset.indent
+      );
+
+      const indentOffset = dragParentElIndent - dropElIndent;
+
+      this.draggingElements.reverse();
+      this.draggingElements.forEach((item) => {
+        const curElIndent = parseInt(item.dataset.indent);
+        const draggedIndent = Math.min(
+          MAX_INDENT_LEVEL,
+          curElIndent - indentOffset
+        );
+
+        // 如果超出最大缩进，就按照最大缩进设置
+        item.setAttribute("data-indent", draggedIndent);
+
+        this._data.items.splice(insertIndex, 0, item);
+        item.classList.remove(this.CSS.listDragStart);
+      });
+
+      this._data.items = this._data.items.filter(
+        (item) => !Boolean(item.dataset.deleteSign)
+      );
+
+      this.setTune(this._data.type, this.exportData(), this.sortType);
+      this.draggingElements = [];
+    });
+
+    ListItem.addEventListener("dragend", (e) => {
+      e.target.classList.remove(this.CSS.listDragStart);
+      e.target.classList.remove(this.CSS.listDragOver);
+
+      this.draggingFamilyTreeItems.forEach((item) => {
+        item.classList.remove(this.CSS.listDragStart);
+        item.setAttribute("data-delete-sign", false);
+      });
+    });
   }
 
   /**
@@ -916,6 +1040,7 @@ export default class UI {
       }
     }
 
+    // console.log("# exportData: ", items);
     data.items = items;
     return data;
   }
