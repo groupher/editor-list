@@ -73,7 +73,7 @@ export default class UI {
     });
 
     this.draggingElements = [];
-    this.familyTreeItems = null;
+    this.draggingFamilyTreeItems = null;
   }
 
   setType(type) {
@@ -588,6 +588,7 @@ export default class UI {
 
   /**
    * add drag ability to list item (include checklist item)
+   * see example: https://www.javascripttutorial.net/web-apis/javascript-drag-and-drop/
    * @param {HTMLElement} listItem
    * @memberof UI
    */
@@ -602,7 +603,7 @@ export default class UI {
         item.setAttribute("data-delete-sign", true);
       });
 
-      this.familyTreeItems = familyTree;
+      this.draggingFamilyTreeItems = familyTree;
     });
 
     ListItem.addEventListener("dragenter", (e) => {
@@ -623,18 +624,15 @@ export default class UI {
     });
 
     ListItem.addEventListener("dragleave", (e) => {
-      // e.dataTransfer.setData("text/plain", e.target.dataset.index);
       const itemClass = this.CSS.listItem;
       const ItemEl = clazz.has(e.target, itemClass)
         ? e.target
         : e.target.parentNode;
-      // console.log("drag leave: ", ItemEl);
 
       ItemEl.classList.remove(this.CSS.listDragOver);
     });
 
     ListItem.addEventListener("drop", (e) => {
-      // e.dataTransfer.setData("text/plain", e.target.dataset.index);
       const itemClass = this.CSS.listItem;
       const ItemEl = clazz.has(e.target, itemClass)
         ? e.target
@@ -672,11 +670,7 @@ export default class UI {
         (item) => !Boolean(item.dataset.deleteSign)
       );
 
-      // console.log("# drop this._data.items: ", this._data.items);
-      // console.log("this.draggingElements: ", this.draggingElements);
-
-      // TODO: use active type
-      this.setTune(ORDERED_LIST, this.exportData(), this.sortType);
+      this.setTune(this._data.type, this.exportData(), this.sortType);
       this.draggingElements = [];
     });
 
@@ -686,7 +680,7 @@ export default class UI {
       e.target.classList.remove(this.CSS.listDragStart);
       e.target.classList.remove(this.CSS.listDragOver);
 
-      this.familyTreeItems.forEach((item) => {
+      this.draggingFamilyTreeItems.forEach((item) => {
         item.classList.remove(this.CSS.listDragStart);
         item.setAttribute("data-delete-sign", false);
       });
