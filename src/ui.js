@@ -37,6 +37,7 @@ import {
   setOrderListPrefixItem,
   indentIfNeed,
   getFamilyTree,
+  findNextSameIndentLevelIndex,
 } from "./helper";
 
 /**
@@ -725,15 +726,22 @@ export default class UI {
 
       ItemEl.classList.remove(this.CSS.listDragOver);
 
+      //跳过目标 item 的所有 children
+      const targetIndex = findNextSameIndentLevelIndex(
+        ItemEl,
+        this._data.items
+      );
+
       const insertIndex = findIndex(
         this._data.items,
-        (item) => item.dataset.index === ItemEl.dataset.index
+        (item) => item.dataset.index === targetIndex
       );
 
       const dropElIndent = parseInt(ItemEl.dataset.indent);
       const dragParentElIndent = parseInt(
         this.draggingElements[0].dataset.indent
       );
+
       const indentOffset = dragParentElIndent - dropElIndent;
 
       this.draggingElements.reverse();
@@ -747,7 +755,7 @@ export default class UI {
         // 如果超出最大缩进，就按照最大缩进设置
         item.setAttribute("data-indent", draggedIndent);
 
-        this._data.items.splice(insertIndex + 1, 0, item);
+        this._data.items.splice(insertIndex, 0, item);
         item.classList.remove(this.CSS.listDragStart);
       });
 

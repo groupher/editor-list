@@ -523,3 +523,41 @@ export const getFamilyTree = (node) => {
   }
   return tree;
 };
+
+/**
+ * 找到下一个和当前 target 同等缩进级别的 index
+ *
+ * @param {HTMLElement} target
+ * @param {[HTMLElement]} list
+ * @returns
+ */
+export const findNextSameIndentLevelIndex = (target, list) => {
+  const targetIndent = parseInt(target.dataset.indent);
+  const targetIndex = target.dataset.index;
+
+  for (let i = parseInt(target.dataset.index); i < list.length; i++) {
+    const listItem = list[i];
+    const listItemIndent = parseInt(listItem.dataset.indent);
+
+    const listItemNext = list[i + 1];
+
+    if (!listItemNext) {
+      console.log("1");
+      return i;
+    }
+
+    const listItemNextIndent = parseInt(listItemNext.dataset.indent);
+    console.log("listItemNextIndent: ", listItemNextIndent);
+
+    if (
+      listItemNextIndent === targetIndent ||
+      listItemNextIndent < targetIndent
+    ) {
+      console.log("2");
+      return listItemNext.dataset.index;
+    }
+  }
+
+  console.log("3");
+  return targetIndex;
+};
