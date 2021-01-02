@@ -275,17 +275,14 @@ export default class UI {
     const Wrapper = make("div", [this.CSS.baseBlock, this.CSS.listWrapper]);
 
     if (data.items.length) {
-      this._data = { items: [{}], type: CHECKLIST };
+      this._data = { items: [], type: CHECKLIST };
 
       data.items.forEach((item, index) => {
         const NewItem = this.createChecklistItem(item, index);
 
-        console.log("NewItem => : ", NewItem);
         this._data.items.push(NewItem);
         Wrapper.appendChild(NewItem);
       });
-
-      console.log("after draw: ", this._data.items);
     } else {
       const NewItem = this.createChecklistItem(null);
 
@@ -402,8 +399,6 @@ export default class UI {
      * Insert new list item as sibling to currently selected item
      */
     node.insertBefore(newItem, currentItem.nextSibling);
-    // console.log("items: ", items);
-    // console.log("this._data.items: ", this._data.items);
 
     /**
      * Index of newly inserted checklist item
@@ -440,9 +435,7 @@ export default class UI {
    */
   onIndent(e, listType) {
     e.preventDefault();
-    // console.log("onKeyUp e.code: ", e.code);
     const ListItemEl = e.target.parentNode;
-    // console.log("on Indent");
 
     if (e.code === "Tab") {
       this.api.toolbar.close();
@@ -730,27 +723,18 @@ export default class UI {
         ? e.target
         : e.target.parentNode;
 
-      console.log("# drop ItemEl raw: ", e.target);
-      console.log("# this._data.items: ", this._data.items);
-      console.log("# ItemEl.dataset.index: ", ItemEl.dataset.index);
-
       ItemEl.classList.remove(this.CSS.listDragOver);
 
-      const insertIndex = findIndex(this._data.items, (item) => {
-        console.log("fucking item: ", item);
-        return item.dataset.index === ItemEl.dataset.index;
-      });
+      const insertIndex = findIndex(
+        this._data.items,
+        (item) => item.dataset.index === ItemEl.dataset.index
+      );
 
-      console.log("# insertIndex: ", insertIndex);
-
-      console.log("1");
       const dropElIndent = parseInt(ItemEl.dataset.indent);
       const dragParentElIndent = parseInt(
         this.draggingElements[0].dataset.indent
       );
       const indentOffset = dragParentElIndent - dropElIndent;
-
-      console.log("2");
 
       this.draggingElements.reverse();
       this.draggingElements.forEach((item) => {
@@ -766,20 +750,16 @@ export default class UI {
         this._data.items.splice(insertIndex + 1, 0, item);
         item.classList.remove(this.CSS.listDragStart);
       });
-      console.log("3");
 
       this._data.items = this._data.items.filter(
         (item) => !Boolean(item.dataset.deleteSign)
       );
 
-      console.log("4");
       this.setTune(this._data.type, this.exportData(), this.sortType);
       this.draggingElements = [];
     });
 
     ListItem.addEventListener("dragend", (e) => {
-      // console.log("drag end: ", e.target);
-      // e.dataTransfer.setData("text/plain", e.target.dataset.index);
       e.target.classList.remove(this.CSS.listDragStart);
       e.target.classList.remove(this.CSS.listDragOver);
 
