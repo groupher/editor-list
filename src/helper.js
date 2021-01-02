@@ -181,11 +181,6 @@ export const parseIndentBlocks = (node, level = 0) => {
   );
   const indentElements = node.querySelectorAll(`[data-indent='${level}']`);
 
-  // if (level === 3) {
-  //   console.log("# relatedItemElements: ", relatedItemElements);
-  //   console.log("# indentElements: ", indentElements);
-  // }
-
   let sameLevelIndentEls = [];
   const blocks = [];
 
@@ -198,9 +193,6 @@ export const parseIndentBlocks = (node, level = 0) => {
     const nextListItemIndex = curIndentElIndex + 1;
 
     const nextItem = relatedItemElements[nextListItemIndex];
-
-    // console.log("cur: ", indentEl);
-    // console.log("next: ", nextItem);
 
     if (!nextItem) {
       // 如果该条目下只有一个缩进的子条目
@@ -218,11 +210,9 @@ export const parseIndentBlocks = (node, level = 0) => {
 
     // 如果和下一个的 indent level 相同，说明属于同一个'区块'
     if (curIndentElLevel === nextItemIndentLevel) {
-      // console.log("the same");
       sameLevelIndentEls.push(indentEl);
       sameLevelIndentEls.push(nextItem);
     } else {
-      // console.log("not the same, break array: ", sameLevelIndentEls);
       if (indentEl) {
         sameLevelIndentEls.push(indentEl);
       }
@@ -283,13 +273,10 @@ export const convertToNestedChildrenTree = (items) => {
   const list = items.map((item, index) => {
     return { ...item, index };
   });
-  // console.log("# list: ", list);
-
   const jsonTreeArray = [];
 
   // handle indent-level-0 outline list
   const indent0List = list.filter((item) => item.indent === 0);
-  // console.log("indent0List: ", indent0List);
   // handle indent-level-0, init
   for (let i = 0; i < indent0List.length; i++) {
     const listItem = indent0List[i];
@@ -301,7 +288,6 @@ export const convertToNestedChildrenTree = (items) => {
 
   // handle indent-level-1 outline list
   const indent1List = list.filter((item) => item.indent === 1);
-  // console.log("indent1List: ", indent1List);
 
   for (let i = 0; i < indent1List.length; i++) {
     const listItem = indent1List[i];
@@ -322,7 +308,6 @@ export const convertToNestedChildrenTree = (items) => {
   // 收集缩进级别在 2 以上的子级信息, 最多支持 4 级缩进
   jsonTreeArray.forEach((item) => _setChildren(item, 2, list));
 
-  // console.log("@jsonTreeArray ==> ", jsonTreeArray);
   return jsonTreeArray;
 };
 
@@ -337,7 +322,6 @@ export const sortNestedChildrenTree = (treeArray, sortType) => {
   treeArray.forEach((item1) => {
     if (item1.children.length > 0) {
       // sort indent-level-1 outline
-      // console.log("#-1 sort: ", item1.children);
       item1.children.sort(
         (t1, t2) =>
           SORT_ORDER[sortType][t1.labelType] -
@@ -347,7 +331,6 @@ export const sortNestedChildrenTree = (treeArray, sortType) => {
       // indent-level-2 outline
       item1.children.forEach((item2) => {
         if (item2.children.length > 0) {
-          // console.log("#-2 sort: ", item2.children);
           item2.children.sort(
             (t1, t2) =>
               SORT_ORDER[sortType][t1.labelType] -
@@ -357,7 +340,6 @@ export const sortNestedChildrenTree = (treeArray, sortType) => {
           // indent-level-3 outline
           item2.children.forEach((item3) => {
             if (item3.children.length > 0) {
-              // console.log("#-3 sort: ", item3.children);
               item3.children.sort(
                 (t1, t2) =>
                   SORT_ORDER[sortType][t1.labelType] -
@@ -370,25 +352,19 @@ export const sortNestedChildrenTree = (treeArray, sortType) => {
     }
   });
 
-  // console.log("# sort after: ", treeArray);
   return treeArray;
 };
 
 export const flattenNestedChildrenTree = (treeArray) => {
-  // console.log("# flatten treeArray: ", treeArray);
-  // const treeArray = JSON.parse(JSON.stringify(treeArrayData));
-  // const treeArray = [...treeArrayData];
   const flatList = [];
 
   for (let i = 0; i < treeArray.length; i++) {
     const item0 = treeArray[i];
-    // console.log("item 0: ", item0.text);
     flatList.push(item0);
 
     if (!item0.children) break;
     for (let i = 0; i < item0.children.length; i++) {
       const item1 = item0.children[i];
-      // console.log("item 1: ", item1.text);
       flatList.push(item1);
 
       if (!item1.children) break;
@@ -399,7 +375,6 @@ export const flattenNestedChildrenTree = (treeArray) => {
         if (!item2.children) break;
         for (let i = 0; i < item2.children.length; i++) {
           const item3 = item2.children[i];
-          // console.log("item 3: ", item3.text);
 
           flatList.push(item3);
         }
@@ -473,12 +448,10 @@ const _setChildren = (block, fromIndentLevel, list) => {
       : curAndNextIndentLevelListMaxNum + 1;
 
     // NOTE: 只把indent = 2 的放到 children 里面, 因为里面可能还有子级
-    // console.log("slice: ", `${begin} - ${end}`);
     const grandsons = list
       .slice(begin, end)
       .filter((item) => item.indent === fromIndentLevel);
 
-    // console.log("slice list: ", grandsons);
     // 设置二级缩进
     block.children[i].children = grandsons;
 
@@ -510,9 +483,6 @@ export const getFamilyTree = (node) => {
     const curIndent = parseInt(node.dataset.indent);
     const nextIndent = parseInt(listItemEl.dataset.indent);
 
-    // console.log("-> curIndent: ", curIndent);
-    // console.log("-> nextIndent: ", nextIndent);
-
     if (curIndent < nextIndent) {
       tree.push(listItemEl);
     }
@@ -542,22 +512,18 @@ export const findNextSameIndentLevelIndex = (target, list) => {
     const listItemNext = list[i + 1];
 
     if (!listItemNext) {
-      console.log("1");
       return i;
     }
 
     const listItemNextIndent = parseInt(listItemNext.dataset.indent);
-    console.log("listItemNextIndent: ", listItemNextIndent);
 
     if (
       listItemNextIndent === targetIndent ||
       listItemNextIndent < targetIndent
     ) {
-      console.log("2");
       return listItemNext.dataset.index;
     }
   }
 
-  console.log("3");
   return targetIndex;
 };

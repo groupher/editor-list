@@ -726,6 +726,11 @@ export default class UI {
 
       ItemEl.classList.remove(this.CSS.listDragOver);
 
+      // skip the same item drag
+      if (this.draggingElements[0].dataset.index === ItemEl.dataset.index) {
+        return false;
+      }
+
       //跳过目标 item 的所有 children
       const targetIndex = findNextSameIndentLevelIndex(
         ItemEl,
