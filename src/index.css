@@ -112,15 +112,13 @@
     }
 
     &-check-sign {
-      position: absolute;
-      left: 8px;
-      transform: rotate(-10deg);
       outline: none;
       svg {
         fill: #6a8f94;
-        width: 26px;
-        height: 26px;
-        opacity: 0.1;
+        width: 15px;
+        height: 15px;
+        margin-left: 1px;
+        opacity: 0;
 
         &:hover {
           opacity: 0.3;
@@ -129,8 +127,13 @@
     }
 
     &-check-sign-active {
+      height: 16px !important;
+      width: 16px !important;
+      background: #6e8f94 !important;
+      border: 1px solid #6e8f94;
       svg {
         opacity: 1;
+        fill: white;
         &:hover {
           opacity: 1;
         }
@@ -141,21 +144,16 @@
       display: flex;
       align-items: center;
       position: relative;
-      height: 16px !important;
-      margin: 10px 10px 10px 0;
-      margin-right: 16px;
+      margin-right: 15px;
       cursor: pointer;
       user-select: none;
+      border: 1px solid #bccfd2;
+      border-radius: 100%;
+      height: 14px;
+      width: 14px;
 
       &:hover {
         border-color: #b5b5b5;
-      }
-    }
-
-    &--checked {
-      ^&-checkbox {
-        /* background: #6e8f94 !important; */
-        /* border-color: #6e8f94 !important; */
       }
     }
   }

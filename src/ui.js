@@ -624,7 +624,9 @@ export default class UI {
     if (item && item.checked) {
       Checkbox.classList.add(this.CSS.checklistBracketCheckSignChecked);
       ListItem.classList.add(this.CSS.checklistItemChecked);
-      this._data.items[itemIndex].checked = true;
+      if (this._data.items.length > 0) {
+        this._data.items[itemIndex].checked = true;
+      }
       ListItem.dataset.checked = true;
     }
 
@@ -648,10 +650,10 @@ export default class UI {
   }
 
   _drawCheckBox() {
-    const LeftBracket = make("div", this.CSS.checklistBracket, {
-      innerHTML:
-        '<svg t="1592048015933" width="15px" height="15px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2908" width="200" height="200"><path d="M430.08 204.8h163.84v81.92H512v450.56h81.92v81.92H430.08z" p-id="2909"></path></svg>',
-    });
+    // const LeftBracket = make("div", this.CSS.checklistBracket, {
+    //   innerHTML:
+    //     '<svg t="1592048015933" width="15px" height="15px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2908" width="200" height="200"><path d="M430.08 204.8h163.84v81.92H512v450.56h81.92v81.92H430.08z" p-id="2909"></path></svg>',
+    // });
     const CheckSign = make("div", this.CSS.checklistBracketCheckSign, {
       innerHTML:
         '<svg t="1592049095081" width="20px" height="20px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="9783" width="200" height="200"><path d="M853.333333 256L384 725.333333l-213.333333-213.333333" p-id="9784"></path></svg>',
@@ -660,15 +662,15 @@ export default class UI {
       contentEditable: true,
     });
 
-    const RightBracket = make("div", this.CSS.checklistBracketRight, {
-      innerHTML:
-        '<svg t="1592048041260" width="15px" height="15px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3043" width="200" height="200"><path d="M593.92 204.8H430.08v81.92h81.92v450.56H430.08v81.92h163.84z" p-id="3044"></path></svg>',
-    });
+    // const RightBracket = make("div", this.CSS.checklistBracketRight, {
+    //   innerHTML:
+    //     '<svg t="1592048041260" width="15px" height="15px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3043" width="200" height="200"><path d="M593.92 204.8H430.08v81.92h81.92v450.56H430.08v81.92h163.84z" p-id="3044"></path></svg>',
+    // });
 
     const Checkbox = make("div", this.CSS.checklistBox);
-    Checkbox.appendChild(LeftBracket);
+    // Checkbox.appendChild(LeftBracket);
     Checkbox.appendChild(CheckSign);
-    Checkbox.appendChild(RightBracket);
+    // Checkbox.appendChild(RightBracket);
 
     return Checkbox;
   }
