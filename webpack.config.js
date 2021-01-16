@@ -1,5 +1,5 @@
 module.exports = {
-  entry: './src/index.js',
+  entry: "./src/index.js",
   module: {
     rules: [
       {
@@ -7,37 +7,41 @@ module.exports = {
         exclude: /node_modules/,
         use: [
           {
-            loader: 'babel-loader',
+            loader: "babel-loader",
             query: {
-              presets: ['@babel/preset-env'],
+              presets: ["@babel/preset-env"],
             },
           },
-        ]
+        ],
       },
       {
         test: /\.css$/,
         use: [
-          'style-loader',
-          'css-loader',
+          "style-loader",
+          "css-loader",
           {
-            loader: 'postcss-loader',
+            loader: "postcss-loader",
             options: {
               plugins: [
-                require('postcss-nested-ancestors'),
-                require('postcss-nested')
-              ]
-            }
-          }
-        ]
-      }
-    ]
+                require("postcss-nested-ancestors"),
+                require("postcss-nested"),
+              ],
+            },
+          },
+        ],
+      },
+      {
+        test: /\.svg$/,
+        loader: "svg-inline-loader?removeSVGTagAttrs=false",
+      },
+    ],
   },
   output: {
-    path: __dirname + '/dist',
-    publicPath: '/',
-    filename: 'bundle.js',
-    library: 'List',
-    libraryTarget: 'umd',
-    libraryExport: 'default'
-  }
+    path: __dirname + "/dist",
+    publicPath: "/",
+    filename: "bundle.js",
+    library: "List",
+    libraryTarget: "umd",
+    libraryExport: "default",
+  },
 };

@@ -25,7 +25,10 @@ import {
   MAX_INDENT_LEVEL,
 } from "./constant";
 
-import iconList from "./icons";
+import settings from "./settings";
+
+import CheckIcon from "./icons/check.svg";
+import DragIcon from "./icons/drag.svg";
 
 import {
   canItemIndent,
@@ -60,7 +63,7 @@ export default class UI {
     this._data = null;
     this.element = null;
 
-    this.settings = iconList;
+    this.settings = settings;
     this.setTune = setTune;
     this.setData = setData;
 
@@ -571,8 +574,7 @@ export default class UI {
     }
 
     const DragHandEl = make("div", this.CSS.listDragIcon, {
-      innerHTML:
-        '<svg t="1609572080769" width="12px" height="12px" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4278" width="200" height="200"><path d="M553.13 98.512l87.565 73.476c13.538 11.36 15.304 31.545 3.944 45.083l-7.713 9.192c-11.36 13.539-31.544 15.305-45.083 3.945L548 193.419v282.58h282.58l-36.79-43.844c-11.36-13.538-9.593-33.722 3.945-45.082l9.193-7.714c13.538-11.36 33.722-9.594 45.082 3.944l73.47 87.558c19.964 23.792 19.964 58.484 0 82.276l-73.47 87.558c-11.246 13.403-31.141 15.268-44.674 4.281l-0.408-0.337-9.193-7.713c-13.538-11.36-15.304-31.544-3.944-45.083L830.58 548H548v282.58l43.843-36.788c13.539-11.36 33.723-9.594 45.083 3.944l7.713 9.193c11.247 13.403 9.628 33.32-3.541 44.739l-0.403 0.343-87.558 73.47c-23.792 19.964-58.484 19.964-82.276 0l-87.558-73.47c-13.538-11.36-15.304-31.544-3.944-45.082l7.714-9.193c11.246-13.403 31.141-15.268 44.674-4.281l0.408 0.337L476 830.58V547.999H193.418l36.79 43.844c11.246 13.403 9.628 33.32-3.542 44.74l-0.403 0.343-9.192 7.713c-13.403 11.247-33.32 9.628-44.74-3.541l-0.343-0.403-73.469-87.558c-19.964-23.792-19.964-58.484 0-82.276l73.47-87.558c11.36-13.538 31.544-15.304 45.082-3.944l9.192 7.714c13.404 11.246 15.269 31.14 4.282 44.674l-0.338 0.408-36.79 43.844H476V193.366l-43.905 36.841c-13.403 11.247-33.32 9.63-44.739-3.54l-0.343-0.404-7.714-9.192c-11.251-13.4-9.633-33.316 3.537-44.735l0.403-0.344c0.001-0.001 0.003-0.002 0.008 0.001l87.616-73.489c23.792-19.956 58.478-19.953 82.267 0.008z" p-id="4279"></path></svg>',
+      innerHTML: DragIcon,
     });
 
     const PrefixEl = make("div", prefixClass);
@@ -631,8 +633,7 @@ export default class UI {
     }
 
     const DragHandEl = make("div", this.CSS.listDragIcon, {
-      innerHTML:
-        '<svg t="1609572080769" width="12px" height="12px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4278" width="200" height="200"><path d="M553.13 98.512l87.565 73.476c13.538 11.36 15.304 31.545 3.944 45.083l-7.713 9.192c-11.36 13.539-31.544 15.305-45.083 3.945L548 193.419v282.58h282.58l-36.79-43.844c-11.36-13.538-9.593-33.722 3.945-45.082l9.193-7.714c13.538-11.36 33.722-9.594 45.082 3.944l73.47 87.558c19.964 23.792 19.964 58.484 0 82.276l-73.47 87.558c-11.246 13.403-31.141 15.268-44.674 4.281l-0.408-0.337-9.193-7.713c-13.538-11.36-15.304-31.544-3.944-45.083L830.58 548H548v282.58l43.843-36.788c13.539-11.36 33.723-9.594 45.083 3.944l7.713 9.193c11.247 13.403 9.628 33.32-3.541 44.739l-0.403 0.343-87.558 73.47c-23.792 19.964-58.484 19.964-82.276 0l-87.558-73.47c-13.538-11.36-15.304-31.544-3.944-45.082l7.714-9.193c11.246-13.403 31.141-15.268 44.674-4.281l0.408 0.337L476 830.58V547.999H193.418l36.79 43.844c11.246 13.403 9.628 33.32-3.542 44.74l-0.403 0.343-9.192 7.713c-13.403 11.247-33.32 9.628-44.74-3.541l-0.343-0.403-73.469-87.558c-19.964-23.792-19.964-58.484 0-82.276l73.47-87.558c11.36-13.538 31.544-15.304 45.082-3.944l9.192 7.714c13.404 11.246 15.269 31.14 4.282 44.674l-0.338 0.408-36.79 43.844H476V193.366l-43.905 36.841c-13.403 11.247-33.32 9.63-44.739-3.54l-0.343-0.404-7.714-9.192c-11.251-13.4-9.633-33.316 3.537-44.735l0.403-0.344c0.001-0.001 0.003-0.002 0.008 0.001l87.616-73.489c23.792-19.956 58.478-19.953 82.267 0.008z" p-id="4279"></path></svg>',
+      innerHTML: DragIcon,
     });
 
     ListItem.appendChild(DragHandEl);
@@ -650,27 +651,15 @@ export default class UI {
   }
 
   _drawCheckBox() {
-    // const LeftBracket = make("div", this.CSS.checklistBracket, {
-    //   innerHTML:
-    //     '<svg t="1592048015933" width="15px" height="15px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2908" width="200" height="200"><path d="M430.08 204.8h163.84v81.92H512v450.56h81.92v81.92H430.08z" p-id="2909"></path></svg>',
-    // });
     const CheckSign = make("div", this.CSS.checklistBracketCheckSign, {
-      innerHTML:
-        '<svg t="1592049095081" width="20px" height="20px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="9783" width="200" height="200"><path d="M853.333333 256L384 725.333333l-213.333333-213.333333" p-id="9784"></path></svg>',
+      innerHTML: CheckIcon,
       // must set this contentEditable, this is a workaround for editorjs's plus icon apear and jumpy
       // 这里必须设置 contentEditable, 否则 editorjs 的增加按钮会闪现
       contentEditable: true,
     });
 
-    // const RightBracket = make("div", this.CSS.checklistBracketRight, {
-    //   innerHTML:
-    //     '<svg t="1592048041260" width="15px" height="15px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3043" width="200" height="200"><path d="M593.92 204.8H430.08v81.92h81.92v450.56H430.08v81.92h163.84z" p-id="3044"></path></svg>',
-    // });
-
     const Checkbox = make("div", this.CSS.checklistBox);
-    // Checkbox.appendChild(LeftBracket);
     Checkbox.appendChild(CheckSign);
-    // Checkbox.appendChild(RightBracket);
 
     return Checkbox;
   }
