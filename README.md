@@ -19,7 +19,7 @@ npm i --save-dev @editorjs/list
 Include module at your application
 
 ```javascript
-const List = require('@editorjs/list');
+const List = require("@editorjs/list");
 ```
 
 ### Download to your project's source dir
@@ -46,7 +46,7 @@ Add a new Tool to the `tools` property of the Editor.js initial config.
 ```javascript
 var editor = EditorJS({
   ...
-  
+
   tools: {
     ...
     list: {
@@ -54,7 +54,7 @@ var editor = EditorJS({
       inlineToolbar: true,
     },
   }
-  
+
   ...
 });
 ```
@@ -67,21 +67,20 @@ This Tool has no config params
 
 ![](https://capella.pics/bf5a42e4-1350-499d-a728-493b0fcaeda4.jpg)
 
-You can choose list`s type.
+You can choose list`s mode.
 
 ## Output data
 
-| Field | Type       | Description                            |
-| ----- | ---------- | -------------------------------------- |
-| style | `string`   | type of list: `ordered` or `unordered` |
-| items | `string[]` | array of list's items                  |
-
+| Field | Type       | Description                                           |
+| ----- | ---------- | ----------------------------------------------------- |
+| style | `string`   | mode of list: `ordered` or `unordered` or `checklist` |
+| items | `string[]` | array of list's items                                 |
 
 ```json
 {
     "type" : "list",
     "data" : {
-        "style" : "unordered",
+        "mode" : "unordered",
         "items" : [
             "This is a block-styled editor",
             "Clean output data",
@@ -90,4 +89,3 @@ You can choose list`s type.
     }
 },
 ```
-

@@ -22,7 +22,7 @@ import {
 
 /**
  * @typedef {object} ListData
- * @property {string} type - can be ordered or unordered
+ * @property {string} mode - can be ordered or unordered or checklist
  * @property {array} items - li elements
  */
 
@@ -75,7 +75,7 @@ export default class List {
      * */
     // the default
     const defaultData = {
-      type: UNORDERED_LIST,
+      mode: UNORDERED_LIST,
       items: [],
     };
 
@@ -97,9 +97,8 @@ export default class List {
   }
 
   // handle setting option change
-  setTune(type, data, sortType) {
-    // functional type
-    if (type === ORG_MODE) {
+  setTune(mode, data, sortType) {
+    if (mode === ORG_MODE) {
       this._data.items = data.items.map(
         ({ label, labelType, hideLabel, ...restProps }) => {
           return {
@@ -110,13 +109,13 @@ export default class List {
           };
         }
       );
-      const listElement = this.drawList(this._data.type);
+      const listElement = this.drawList(this._data.mode);
       this.replaceElement(listElement);
 
       return false;
     }
 
-    if (type === SORT) {
+    if (mode === SORT) {
       const curSortTypeIndex = SORT_ENUM.indexOf(sortType);
       const nextSortTypeIndex =
         curSortTypeIndex >= SORT_ENUM.length - 1 ? 0 : curSortTypeIndex + 1;
@@ -131,15 +130,15 @@ export default class List {
       // console.log("# flattenList: ", flattenList);
       this._data.items = flattenList;
 
-      const listElement = this.drawList(this._data.type);
+      const listElement = this.drawList(this._data.mode);
       this.replaceElement(listElement);
 
       return false;
     }
 
     this._data.items = data.items;
-    this.ui.setType(type);
-    const listElement = this.drawList(type);
+    this.ui.setMode(mode);
+    const listElement = this.drawList(mode);
     this.replaceElement(listElement);
   }
 
@@ -149,7 +148,7 @@ export default class List {
 
   // check is the data is valid
   isValidListData(data) {
-    if (!(data && data.type && data.items && Array.isArray(data.items))) {
+    if (!(data && data.mode && data.items && Array.isArray(data.items))) {
       return false;
     }
 
@@ -159,9 +158,9 @@ export default class List {
     }
 
     return (
-      data.type === UNORDERED_LIST ||
-      data.type === ORDERED_LIST ||
-      data.type === CHECKLIST
+      data.mode === UNORDERED_LIST ||
+      data.mode === ORDERED_LIST ||
+      data.mode === CHECKLIST
     );
   }
 
@@ -179,22 +178,22 @@ export default class List {
 
   /**
    * build list element for render
-   * @param {string} type list type
+   * @param {string} mode list mode
    * @return {HTMLElement} listElement
    */
-  drawList(type) {
-    switch (type) {
+  drawList(mode) {
+    switch (mode) {
       case UNORDERED_LIST: {
         return this.ui.drawList(this._data);
       }
       case ORDERED_LIST: {
-        return this.ui.drawList(this._data, type);
+        return this.ui.drawList(this._data, mode);
       }
       case CHECKLIST: {
-        return this.ui.drawCheckList(this._data, type);
+        return this.ui.drawCheckList(this._data, mode);
       }
       default:
-        return make("div", null, { innerHTML: "wrong list type" });
+        return make("div", null, { innerHTML: "wrong list mode" });
     }
   }
 
@@ -204,8 +203,8 @@ export default class List {
    * @public
    */
   render() {
-    const { type } = this._data;
-    this.element = this.drawList(type);
+    const { mode } = this._data;
+    this.element = this.drawList(mode);
 
     return this.element;
   }
@@ -240,8 +239,8 @@ export default class List {
        */
       import: (string) => {
         return {
+          mode: "unordered",
           items: [string],
-          type: "unordered",
         };
       },
     };
@@ -252,7 +251,7 @@ export default class List {
    */
   static get sanitize() {
     return {
-      type: {},
+      mode: {},
       items: {
         br: true,
       },
@@ -288,8 +287,8 @@ export default class List {
     //   listData = {};
     // }
 
-    // this._data.type =
-    //   listData.type ||
+    // this._data.mode =
+    //   listData.mode ||
     //   this.ui.settings.find(tune => tune.default === true).name;
     // this._data.items = listData.items || [];
 

@@ -80,8 +80,8 @@ export default class UI {
     this.draggingFamilyTreeItems = null;
   }
 
-  setType(type) {
-    this._data.type = type;
+  setMode(mode) {
+    this._data.mode = mode;
   }
 
   /**
@@ -135,7 +135,7 @@ export default class UI {
     };
   }
 
-  getCSS(type, key) {
+  getCSS(mode, key) {
     const N = {
       [UNORDERED_LIST]: {
         textField: "listTextField",
@@ -151,7 +151,7 @@ export default class UI {
       },
     };
 
-    return this.CSS[N[type][key]];
+    return this.CSS[N[mode][key]];
   }
 
   _hasLabelInList(visible = false) {
@@ -229,11 +229,11 @@ export default class UI {
   /**
    * draw order or unorder list
    *
-   * @param {data: ListData, listType: UNORDERED_LIST}
+   * @param {data: ListData, listMode: UNORDERED_LIST}
    * @returns {HTMLElement}
    * @memberof UI
    */
-  drawList(data, listType = UNORDERED_LIST) {
+  drawList(data, listMode = UNORDERED_LIST) {
     this._data = data;
     this._data.items = this.dropEmptyItem(data.items);
 
@@ -243,10 +243,10 @@ export default class UI {
     if (data.items.length) {
       // this._data.items = this.dropEmptyItem(data.items);
       // data.items = this.dropEmptyItem(data.items);
-      this._data = { items: [], type: listType };
+      this._data = { items: [], mode: listMode };
 
       data.items.forEach((item, index) => {
-        const NewItem = this.createListItem(item, listType, index);
+        const NewItem = this.createListItem(item, listMode, index);
 
         this._data.items.push(NewItem);
         Wrapper.appendChild(NewItem);
@@ -254,17 +254,17 @@ export default class UI {
       this._data.items = this.dropRawItem(this._data.items);
     } else {
       // this._data.items = this.dropEmptyItem(data.items);
-      const NewItem = this.createListItem(null, listType);
+      const NewItem = this.createListItem(null, listMode);
 
       this._data.items.push(NewItem);
       Wrapper.appendChild(NewItem);
     }
 
-    if (listType === ORDERED_LIST) {
+    if (listMode === ORDERED_LIST) {
       setTimeout(() => this.rebuildOrderListIndex(Wrapper), 100);
     }
 
-    this.bindKeyDownEvent(Wrapper, listType);
+    this.bindKeyDownEvent(Wrapper, listMode);
 
     this.element = Wrapper;
     this.orgLabel.setElement(this.element);
@@ -279,7 +279,7 @@ export default class UI {
     const Wrapper = make("div", [this.CSS.baseBlock, this.CSS.listWrapper]);
 
     if (data.items.length) {
-      this._data = { items: [], type: CHECKLIST };
+      this._data = { items: [], mode: CHECKLIST };
 
       data.items.forEach((item, index) => {
         const NewItem = this.createChecklistItem(item, index);
@@ -309,10 +309,10 @@ export default class UI {
    * bind keydown event for add and backspace
    *
    * @param {HTMLElement} node
-   * @param {string} type, orderList / unOrderList / checklist
+   * @param {string} mode, orderList / unOrderList / checklist
    * @memberof Ui
    */
-  bindKeyDownEvent(node, type) {
+  bindKeyDownEvent(node, mode) {
     node.addEventListener(
       "keydown",
       (event) => {
@@ -320,10 +320,10 @@ export default class UI {
 
         switch (event.keyCode) {
           case ENTER:
-            this.addNewItem(event, node, type);
+            this.addNewItem(event, node, mode);
             break;
           case BACKSPACE:
-            this.backspace(event, type);
+            this.backspace(event, mode);
             break;
         }
       },
@@ -335,11 +335,11 @@ export default class UI {
    * Append new elements to the list by pressing Enter
    * @param {KeyboardEvent} event
    */
-  addNewItem(event, node, type) {
+  addNewItem(event, node, mode) {
     event.preventDefault();
 
-    const textFieldClass = this.getCSS(type, "textField");
-    const itemClass = this.getCSS(type, "item");
+    const textFieldClass = this.getCSS(mode, "textField");
+    const itemClass = this.getCSS(mode, "item");
 
     const items = this._data.items;
 
@@ -374,21 +374,21 @@ export default class UI {
      * Create new list item
      */
     let newItem;
-    switch (type) {
+    switch (mode) {
       case CHECKLIST: {
         newItem = this.createChecklistItem(null, newItemIndex);
         break;
       }
       case ORDERED_LIST: {
-        newItem = this.createListItem(null, type, newItemIndex);
+        newItem = this.createListItem(null, mode, newItemIndex);
         break;
       }
       case UNORDERED_LIST: {
-        newItem = this.createListItem(null, type, newItemIndex);
+        newItem = this.createListItem(null, mode, newItemIndex);
         break;
       }
       default: {
-        console.log("wrong error type: ", type);
+        console.log("wrong error mode: ", mode);
         return false;
       }
     }
@@ -425,19 +425,19 @@ export default class UI {
      */
     indentIfNeed(newItem);
 
-    if (type === ORDERED_LIST) {
+    if (mode === ORDERED_LIST) {
       this.rebuildOrderListIndex(node);
     }
   }
 
   /**
-   * indent current list type
+   * indent current list mode
    *
    * @param {HTMLElementEvent} e
-   * @param {string} listType
+   * @param {string} listMode
    * @memberof UI
    */
-  onIndent(e, listType) {
+  onIndent(e, listMode) {
     e.preventDefault();
     const ListItemEl = e.target.parentNode;
 
@@ -449,7 +449,7 @@ export default class UI {
       if (canItemIndent(this._data.items, ListItemEl)) {
         indentElement(ListItemEl);
 
-        if (listType === ORDERED_LIST) {
+        if (listMode === ORDERED_LIST) {
           setTimeout(() => this.rebuildOrderListIndex(this.element), 100);
         }
       }
@@ -459,7 +459,7 @@ export default class UI {
     // shift && tab
     if (canItemUnIndent(ListItemEl) && e.shiftKey && e.keyCode == 9) {
       unIndentElement(ListItemEl);
-      if (listType === ORDERED_LIST) {
+      if (listMode === ORDERED_LIST) {
         setTimeout(() => this.rebuildOrderListIndex(this.element), 100);
       }
     }
@@ -526,9 +526,9 @@ export default class UI {
    * @param {ChecklistData} item - data.item
    * @return {HTMLElement} checkListItem - new element of checklist
    */
-  createListItem(item = null, listType = ORDERED_LIST, itemIndex = 0) {
+  createListItem(item = null, listMode = ORDERED_LIST, itemIndex = 0) {
     const prefixClass =
-      listType === ORDERED_LIST
+      listMode === ORDERED_LIST
         ? this.CSS.orderListPrefix
         : this.CSS.unorderListPrefix;
 
@@ -544,7 +544,7 @@ export default class UI {
     });
 
     this._addDraggable(ListItem);
-    ListItem.addEventListener("keyup", (e) => this.onIndent(e, listType));
+    ListItem.addEventListener("keyup", (e) => this.onIndent(e, listMode));
 
     const TextField = make("div", this.CSS.listTextField, {
       innerHTML: item ? item.text : "",
@@ -759,7 +759,7 @@ export default class UI {
         (item) => !Boolean(item.dataset.deleteSign)
       );
 
-      this.setTune(this._data.type, this.exportData(), this.sortType);
+      this.setTune(this._data.mode, this.exportData(), this.sortType);
       this.draggingElements = [];
     });
 
@@ -776,7 +776,7 @@ export default class UI {
 
   /**
    * is the Label Element should add to current LitItem
-   * 根据当前列表项是否需要添加 Label 前缀，如果是在不同 ListType 之间切换，则需要控制 Label 的显示以便保留 Label 相关状态
+   * 根据当前列表项是否需要添加 Label 前缀，如果是在不同 ListMode 之间切换，则需要控制 Label 的显示以便保留 Label 相关状态
    *
    * @param { HTMLElement } item - GeneralListElement (ListItem or CheckListItem)
    * @param { Number } itemIndex - index of current list item
@@ -848,9 +848,9 @@ export default class UI {
    * Handle backspace
    * @param {KeyboardEvent} event
    */
-  backspace(event, type = UNORDERED_LIST) {
-    const textFieldClass = this.getCSS(type, "textField");
-    const itemClass = this.getCSS(type, "item");
+  backspace(event, mode = UNORDERED_LIST) {
+    const textFieldClass = this.getCSS(mode, "textField");
+    const itemClass = this.getCSS(mode, "item");
 
     const currentItem = event.target.closest(`.${itemClass}`);
     const currentIndex = this._data.items.indexOf(currentItem);
@@ -879,7 +879,7 @@ export default class UI {
       event.preventDefault();
       currentItem.remove();
 
-      if (type === ORDERED_LIST) {
+      if (mode === ORDERED_LIST) {
         setTimeout(() => this.rebuildOrderListIndex(this.element), 100);
       }
 
@@ -915,7 +915,7 @@ export default class UI {
         this.api.tooltip.onHover(itemEl, item.title, { placement: "top" });
       }
 
-      if (this._data.type === item.name) {
+      if (this._data.mode === item.name) {
         itemEl.classList.add(this.CSS.settingsButtonActive);
       }
 
@@ -979,7 +979,7 @@ export default class UI {
 
   // parse item's innerHTML as content
   _parseContent(item) {
-    const textFieldClass = this.getCSS(this._data.type, "textField");
+    const textFieldClass = this.getCSS(this._data.mode, "textField");
     return item.querySelector(`.${textFieldClass}`).innerHTML;
   }
 
@@ -1013,7 +1013,7 @@ export default class UI {
 
   exportData() {
     const data = {};
-    data.type = this._data.type;
+    data.mode = this._data.mode;
     const items = [];
 
     for (let index = 0; index < this._data.items.length; index += 1) {
