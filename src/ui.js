@@ -1026,6 +1026,7 @@ export default class UI {
           labelType: this._parseLabelType(item),
           checked: this._parseCheck(item),
           hideLabel: item.dataset.hidelabel === "true" ? true : false, // NOTE:  dataset is not case sensitive
+          prefixIndex: item.dataset.prefixIndex || "",
           indent: parseInt(item.dataset.indent) || 0,
         });
       }

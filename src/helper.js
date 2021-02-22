@@ -136,8 +136,11 @@ export const setOrderListPrefixItem = (level, blocks) => {
 
   if (level === 0) {
     return Array.from(blocks).forEach((item, index) => {
+      const prefix_str = `${index + 1}.`;
       const prefixNumberEl = item.querySelector(prefixClass);
-      prefixNumberEl.innerHTML = `${index + 1}.`;
+
+      prefixNumberEl.innerHTML = prefix_str;
+      item.setAttribute("data-prefix-index", prefix_str);
     });
   }
 
@@ -152,9 +155,12 @@ export const setOrderListPrefixItem = (level, blocks) => {
       const previousIndentPrefix = prefixNumberEl.innerText.endsWith(".")
         ? prefixNumberEl.innerText.slice(0, -1)
         : prefixNumberEl.innerText;
+      const prefix_str = `${previousIndentPrefix}.${index + 1}`;
 
       const curPrefixNumberEl = item.querySelector(prefixClass);
-      curPrefixNumberEl.innerHTML = `${previousIndentPrefix}.${index + 1}`;
+
+      curPrefixNumberEl.innerHTML = prefix_str;
+      item.setAttribute("data-prefix-index", prefix_str);
     });
   });
 };

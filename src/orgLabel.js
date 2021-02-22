@@ -272,14 +272,4 @@ export default class OrgLabel {
 
     return Wrapper;
   }
-
-  rebuildListIndex(node) {
-    const indexElements = node.parentNode.querySelectorAll(
-      "." + this.CSS.orderListPrefix
-    );
-
-    Array.from(indexElements).forEach((item, index) => {
-      item.innerHTML = `${index + 1}.`;
-    });
-  }
 }
